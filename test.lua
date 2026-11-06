@@ -1,8 +1,9 @@
--- // SpawnRealmXUI Library (Ultimate WindUI Replica with Profile Card, Transparency, Custom Asset Themes & Toasts) \\ --
+-- // SpawnRealmXUI Library (With Dedicated Folder & Config Saving) \\ --
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
@@ -90,7 +91,34 @@ function SpawnRealmXUI:CreateWindow(config)
     local windowIcon = config.Icon or "rbxassetid://6031097225"
     local transparencyVal = math.clamp(config.Transparency or 0, 0, 1)
     
-    -- Theme & Custom Asset Background Resolver
+    -- Dedicated Folder & Save Config Setup
+    local folderName = config.Folder or "SpawnRealmXUI"
+    local enableSaving = config.SaveConfig or false
+    local configFileName = folderName .. "/config.json"
+
+    if enableSaving and writefile and makefolder then
+        if not pcall(function() readfile(configFileName) end) then
+            if not pcall(function() makefolder(folderName) end) then end
+            pcall(function() writefile(configFileName, HttpService:JSONEncode({})) end)
+        end
+    end
+
+    local savedData = {}
+    if enableSaving and readfile then
+        pcall(function()
+            local raw = readfile(configFileName)
+            savedData = HttpService:JSONDecode(raw) or {}
+        end)
+    end
+
+    local function saveConfigData()
+        if enableSaving and writefile then
+            pcall(function()
+                writefile(configFileName, HttpService:JSONEncode(savedData))
+            end)
+        end
+    end
+
     local themeInput = config.Theme or "DarkTheme"
     local Theme = SpawnRealmXUI.Themes.DarkTheme
     local customBgAsset = nil
@@ -109,13 +137,6 @@ function SpawnRealmXUI:CreateWindow(config)
         ActiveTab = nil,
         IsMinimized = false
     }
-    
-    setmetatable(Window, {
-        __index = function(t, key)
-            warn("[SpawnRealmXUI Warning]: CreateWindow missing method or property '" .. tostring(key) .. "'. Ignored.")
-            return function() end
-        end
-    })
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "SpawnRealmXUI_Instance"
@@ -144,7 +165,6 @@ function SpawnRealmXUI:CreateWindow(config)
     addCorner(MainFrame, 14)
     addStroke(MainFrame, Theme.Outline, 1)
 
-    -- Custom Background Image Layer if asset ID provided
     if customBgAsset then
         local BgImage = Instance.new("ImageLabel")
         BgImage.Size = UDim2.new(1, 0, 1, 0)
@@ -169,7 +189,6 @@ function SpawnRealmXUI:CreateWindow(config)
     Camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateScreenTracking)
     updateScreenTracking()
 
-    -- Draggable Topbar Header
     local Topbar = Instance.new("Frame")
     Topbar.Name = "Topbar"
     Topbar.Size = UDim2.new(1, 0, 0, 42)
@@ -276,7 +295,6 @@ function SpawnRealmXUI:CreateWindow(config)
     Sidebar.Parent = MainFrame
     addCorner(Sidebar, 10)
 
-    -- Sidebar User Profile Card (from Screenshot)
     local ProfileCard = Instance.new("Frame")
     ProfileCard.Size = UDim2.new(1, -12, 0, 48)
     ProfileCard.Position = UDim2.new(0, 6, 1, -54)
@@ -336,7 +354,6 @@ function SpawnRealmXUI:CreateWindow(config)
     ContentHolder.BackgroundTransparency = 1
     ContentHolder.Parent = MainFrame
 
-    -- Top-Middle Toast Notification System
     function Window:Notify(notifyConfig)
         notifyConfig = notifyConfig or {}
         local title = notifyConfig.Title or "Notification"
@@ -352,7 +369,7 @@ function SpawnRealmXUI:CreateWindow(config)
         Toast.BackgroundTransparency = transparencyVal
         Toast.ZIndex = 100
         Toast.Parent = ScreenGui
-        addCorner(Toast, 24) -- Pill shape
+        addCorner(Toast, 24)
         addStroke(Toast, Theme.Accent, 1.5)
 
         local thumbType = useRobloxHeadshot and Enum.ThumbnailType.HeadShot or Enum.ThumbnailType.AvatarBust
@@ -392,7 +409,6 @@ function SpawnRealmXUI:CreateWindow(config)
         TDesc.TextXAlignment = Enum.TextXAlignment.Left
         TDesc.Parent = Toast
 
-        -- Slide Down to Top Middle
         TweenService:Create(Toast, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
             Position = UDim2.new(0.5, -120, 0, 16)
         }):Play()
@@ -599,7 +615,10 @@ function SpawnRealmXUI:CreateWindow(config)
         end
 
         function TabMethods:Toggle(toggleConfig)
-            local state = toggleConfig.Default or false
+            local toggleId = toggleConfig.Title or "Toggle"
+            local state = savedData[toggleId] ~= nil and savedData[toggleId] or (toggleConfig.Default or false)
+            savedData[toggleId] = state
+            saveConfigData()
 
             local ToggleFrame = Instance.new("TextButton")
             ToggleFrame.Size = UDim2.new(1, 0, 0, 36)
@@ -615,7 +634,7 @@ function SpawnRealmXUI:CreateWindow(config)
             Label.Size = UDim2.new(1, -60, 1, 0)
             Label.Position = UDim2.new(0, 12, 0, 0)
             Label.BackgroundTransparency = 1
-            Label.Text = toggleConfig.Title or "Toggle"
+            Label.Text = toggleId
             applyFont(Label)
             Label.TextColor3 = Theme.Text
             Label.TextTransparency = transparencyVal
@@ -646,15 +665,24 @@ function SpawnRealmXUI:CreateWindow(config)
 
             ToggleFrame.MouseButton1Click:Connect(function()
                 state = not state
+                savedData[toggleId] = state
+                saveConfigData()
                 updateToggle()
                 if toggleConfig.Callback then task.spawn(toggleConfig.Callback, state) end
             end)
+            
+            if state and toggleConfig.Callback then
+                task.spawn(toggleConfig.Callback, state)
+            end
         end
 
         function TabMethods:Slider(sliderConfig)
+            local sliderId = sliderConfig.Title or "Slider"
             local min = sliderConfig.Min or 0
             local max = sliderConfig.Max or 100
-            local default = sliderConfig.Default or min
+            local default = savedData[sliderId] ~= nil and savedData[sliderId] or (sliderConfig.Default or min)
+            savedData[sliderId] = default
+            saveConfigData()
 
             local SliderFrame = Instance.new("Frame")
             SliderFrame.Size = UDim2.new(1, 0, 0, 44)
@@ -668,7 +696,7 @@ function SpawnRealmXUI:CreateWindow(config)
             Label.Size = UDim2.new(1, -60, 0, 20)
             Label.Position = UDim2.new(0, 12, 0, 4)
             Label.BackgroundTransparency = 1
-            Label.Text = sliderConfig.Title or "Slider"
+            Label.Text = sliderId
             applyFont(Label)
             Label.TextColor3 = Theme.Text
             Label.TextTransparency = transparencyVal
@@ -709,6 +737,8 @@ function SpawnRealmXUI:CreateWindow(config)
                 local val = math.floor(min + (max - min) * percentage)
                 ValueLabel.Text = tostring(val)
                 BarFill.Size = UDim2.new(percentage, 0, 1, 0)
+                savedData[sliderId] = val
+                saveConfigData()
                 if sliderConfig.Callback then task.spawn(sliderConfig.Callback, val) end
             end
 
@@ -724,6 +754,10 @@ function SpawnRealmXUI:CreateWindow(config)
             UserInputService.InputChanged:Connect(function(input)
                 if sliding and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then updateSlider(input) end
             end)
+            
+            if sliderConfig.Callback then
+                task.spawn(sliderConfig.Callback, default)
+            end
         end
 
         local Tab = setmetatable({
@@ -746,7 +780,12 @@ function SpawnRealmXUI:CreateWindow(config)
         return Tab
     end
 
-    return setmetatable(Window, Window)
+    return setmetatable(Window, {
+        __index = function(t, key)
+            warn("[SpawnRealmXUI Warning]: Missing window method '" .. tostring(key) .. "'. Ignored.")
+            return function() end
+        end
+    })
 end
 
 return SpawnRealmXUI
