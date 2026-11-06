@@ -1,4 +1,4 @@
--- // SpawnRealmXUI Library (Compact WindUI Size + Screen Tracking Resizer) \\ --
+-- // SpawnRealmXUI Library (WindUI Ultimate Replica Framework) \\ --
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
@@ -9,21 +9,41 @@ local Camera = workspace.CurrentCamera
 
 local SpawnRealmXUI = {
     Themes = {
-        Background = Color3.fromRGB(13, 13, 16),
-        Sidebar = Color3.fromRGB(18, 19, 24),
-        Container = Color3.fromRGB(22, 24, 31),
-        Accent = Color3.fromRGB(0, 140, 255),
-        Text = Color3.fromRGB(245, 245, 247),
-        SubText = Color3.fromRGB(150, 153, 168),
-        Outline = Color3.fromRGB(38, 41, 52),
-        Hover = Color3.fromRGB(28, 30, 39)
-    }
+        Background = Color3.fromRGB(15, 15, 18),
+        Sidebar = Color3.fromRGB(20, 20, 24),
+        Container = Color3.fromRGB(27, 27, 32),
+        Accent = Color3.fromRGB(46, 204, 113),
+        Text = Color3.fromRGB(240, 240, 245),
+        SubText = Color3.fromRGB(140, 142, 155),
+        Outline = Color3.fromRGB(35, 35, 42),
+        Hover = Color3.fromRGB(32, 32, 38)
+    },
+    CurrentFont = Enum.Font.Gotham
 }
 SpawnRealmXUI.__index = SpawnRealmXUI
 
+-- Global Font Setter
+function SpawnRealmXUI:SetFont(fontAsset)
+    if typeof(fontAsset) == "EnumItem" then
+        SpawnRealmXUI.CurrentFont = fontAsset
+    elseif typeof(fontAsset) == "string" then
+        -- Supports custom rbxassetid fonts if executor permits, or falls back safely
+        SpawnRealmXUI.CurrentFont = fontAsset
+    end
+end
+
+local function applyFont(textLabel, weight)
+    if typeof(SpawnRealmXUI.CurrentFont) == "EnumItem" then
+        textLabel.Font = SpawnRealmXUI.CurrentFont
+    else
+        -- If custom font asset string is passed
+        textLabel.FontFace = Font.new(SpawnRealmXUI.CurrentFont, weight or Enum.FontWeight.Regular)
+    end
+end
+
 local function addCorner(parent, radius)
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, radius or 6)
+    corner.CornerRadius = UDim.new(0, radius or 10)
     corner.Parent = parent
     return corner
 end
@@ -39,16 +59,20 @@ end
 
 function SpawnRealmXUI:CreateWindow(config)
     config = config or {}
-    local windowTitle = config.Title or "SpawnRealmXUI"
-    local authorName = config.Author or "Developer"
+    local windowTitle = config.Title or "Theme 'Dark'"
+    local authorName = config.Author or ".ftgs"
+    local winWidth = config.Width or 580
+    local winHeight = config.Height | 390 or config.Height or 390
+    local windowIcon = config.Icon or "rbxassetid://6031097225"
 
     local Window = {
         Tabs = {},
-        ActiveTab = nil
+        ActiveTab = nil,
+        IsMinimized = false
     }
     Window.__index = Window
 
-    -- Secure GUI Setup
+    -- Secure GUI Container
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "SpawnRealmXUI_Instance"
     ScreenGui.ResetOnSpawn = false
@@ -63,47 +87,119 @@ function SpawnRealmXUI:CreateWindow(config)
         ScreenGui.Parent = CoreGui
     end
 
-    -- Compact WindUI Dimensions (500x320) with Dynamic Scale Tracker
+    -- Main Window Frame
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
-    MainFrame.Size = UDim2.new(0, 500, 0, 320)
-    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -160)
+    MainFrame.Size = UDim2.new(0, winWidth, 0, winHeight)
+    MainFrame.Position = UDim2.new(0.5, -winWidth/2, 0.5, -winHeight/2)
     MainFrame.BackgroundColor3 = SpawnRealmXUI.Themes.Background
     MainFrame.BorderSizePixel = 0
+    MainFrame.ClipsDescendants = true
     MainFrame.Parent = ScreenGui
 
-    addCorner(MainFrame, 8)
+    addCorner(MainFrame, 14)
     addStroke(MainFrame, SpawnRealmXUI.Themes.Outline, 1)
 
-    -- Screen Tracker & Auto-Resizer Guard
-    -- Detects viewport manipulation/tracking attempts and re-anchors proportions
+    -- Dynamic Screen Resolution Scaling
     local UIScale = Instance.new("UIScale")
     UIScale.Parent = MainFrame
 
     local function updateScreenTracking()
         local viewportSize = Camera.ViewportSize
-        -- If tracking software drops resolution or scales view abnormally, normalize UI scale factor
-        if viewportSize.X < 800 or viewportSize.Y < 600 then
+        if viewportSize.X < 900 or viewportSize.Y < 600 then
             UIScale.Scale = math.clamp(viewportSize.X / 1000, 0.75, 1)
         else
             UIScale.Scale = 1
         end
     end
-
     Camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateScreenTracking)
     updateScreenTracking()
 
-    -- Draggable Header Logic
+    -- Window Controls Topbar Header
+    local Topbar = Instance.new("Frame")
+    Topbar.Name = "Topbar"
+    Topbar.Size = UDim2.new(1, 0, 0, 42)
+    Topbar.BackgroundTransparency = 1
+    Topbar.Parent = MainFrame
+
+    -- Window Header Icon (Supports Lucide / Roblox Asset ID)
+    local LogoIcon = Instance.new("ImageLabel")
+    LogoIcon.Size = UDim2.new(0, 18, 0, 18)
+    LogoIcon.Position = UDim2.new(0, 14, 0, 12)
+    LogoIcon.BackgroundTransparency = 1
+    LogoIcon.Image = windowIcon
+    LogoIcon.ImageColor3 = SpawnRealmXUI.Themes.Text
+    LogoIcon.Parent = Topbar
+
+    -- Title & Subtitle Labels
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(0, 250, 0, 18)
+    TitleLabel.Position = UDim2.new(0, 40, 0, 5)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = windowTitle
+    applyFont(TitleLabel, Enum.FontWeight.Bold)
+    TitleLabel.TextColor3 = SpawnRealmXUI.Themes.Text
+    TitleLabel.TextSize = 13
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.Parent = Topbar
+
+    local AuthorLabel = Instance.new("TextLabel")
+    AuthorLabel.Size = UDim2.new(0, 250, 0, 14)
+    AuthorLabel.Position = UDim2.new(0, 40, 0, 22)
+    AuthorLabel.BackgroundTransparency = 1
+    AuthorLabel.Text = "by " .. authorName
+    applyFont(AuthorLabel, Enum.FontWeight.Regular)
+    AuthorLabel.TextColor3 = SpawnRealmXUI.Themes.SubText
+    AuthorLabel.TextSize = 10
+    AuthorLabel.TextXAlignment = Enum.TextXAlignment.Left
+    AuthorLabel.Parent = Topbar
+
+    -- Window Controls (Minimize, Maximize, Close)
+    local ControlHolder = Instance.new("Frame")
+    ControlHolder.Size = UDim2.new(0, 90, 1, 0)
+    ControlHolder.Position = UDim2.new(1, -95, 0, 0)
+    ControlHolder.BackgroundTransparency = 1
+    ControlHolder.Parent = Topbar
+
+    local function createControlButton(text, posOffset, callback)
+        local Btn = Instance.new("TextButton")
+        Btn.Size = UDim2.new(0, 26, 0, 26)
+        Btn.Position = UDim2.new(0, posOffset, 0.5, -13)
+        Btn.BackgroundTransparency = 1
+        Btn.Text = text
+        applyFont(Btn, Enum.FontWeight.Bold)
+        Btn.TextColor3 = SpawnRealmXUI.Themes.SubText
+        Btn.TextSize = 12
+        Btn.Parent = ControlHolder
+
+        Btn.MouseEnter:Connect(function() Btn.TextColor3 = SpawnRealmXUI.Themes.Text end)
+        Btn.MouseLeave:Connect(function() Btn.TextColor3 = SpawnRealmXUI.Themes.SubText end)
+        Btn.MouseButton1Click:Connect(callback)
+        return Btn
+    end
+
+    createControlButton("—", 0, function()
+        Window.IsMinimized = not Window.IsMinimized
+        TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
+            Size = Window.IsMinimized and UDim2.new(0, winWidth, 0, 42) or UDim2.new(0, winWidth, 0, winHeight)
+        }):Play()
+    end)
+
+    createControlButton("⸌⸍", 30, function() end)
+
+    createControlButton("✕", 60, function()
+        ScreenGui:Destroy()
+    end)
+
+    -- Draggable Topbar Logic
     local dragging, dragStart, startPos
-    MainFrame.InputBegan:Connect(function(input)
+    Topbar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
             startPos = MainFrame.Position
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
         end
     end)
@@ -116,43 +212,19 @@ function SpawnRealmXUI:CreateWindow(config)
         end
     end)
 
-    -- Sidebar Container (Compact Width)
+    -- Sidebar Container
     local Sidebar = Instance.new("Frame")
     Sidebar.Name = "Sidebar"
-    Sidebar.Size = UDim2.new(0, 150, 1, 0)
+    Sidebar.Size = UDim2.new(0, 160, 1, -50)
+    Sidebar.Position = UDim2.new(0, 10, 0, 42)
     Sidebar.BackgroundColor3 = SpawnRealmXUI.Themes.Sidebar
     Sidebar.BorderSizePixel = 0
     Sidebar.Parent = MainFrame
-    addCorner(Sidebar, 8)
+    addCorner(Sidebar, 10)
 
-    -- Sidebar Title
-    local HeaderLabel = Instance.new("TextLabel")
-    HeaderLabel.Size = UDim2.new(1, -16, 0, 20)
-    HeaderLabel.Position = UDim2.new(0, 10, 0, 12)
-    HeaderLabel.BackgroundTransparency = 1
-    HeaderLabel.Text = windowTitle
-    HeaderLabel.Font = Enum.Font.GothamBold
-    HeaderLabel.TextColor3 = SpawnRealmXUI.Themes.Text
-    HeaderLabel.TextSize = 13
-    HeaderLabel.TextXAlignment = Enum.TextXAlignment.Left
-    HeaderLabel.Parent = Sidebar
-
-    local SubLabel = Instance.new("TextLabel")
-    SubLabel.Size = UDim2.new(1, -16, 0, 16)
-    SubLabel.Position = UDim2.new(0, 10, 0, 30)
-    SubLabel.BackgroundTransparency = 1
-    SubLabel.Text = "by " .. authorName
-    SubLabel.Font = Enum.Font.Gotham
-    SubLabel.TextColor3 = SpawnRealmXUI.Themes.SubText
-    SubLabel.TextSize = 10
-    SubLabel.TextXAlignment = Enum.TextXAlignment.Left
-    SubLabel.Parent = Sidebar
-
-    -- Tab Button Holder
     local TabHolder = Instance.new("ScrollingFrame")
-    TabHolder.Name = "TabHolder"
-    TabHolder.Size = UDim2.new(1, -16, 1, -58)
-    TabHolder.Position = UDim2.new(0, 8, 0, 52)
+    TabHolder.Size = UDim2.new(1, -12, 1, -12)
+    TabHolder.Position = UDim2.new(0, 6, 0, 6)
     TabHolder.BackgroundTransparency = 1
     TabHolder.ScrollBarThickness = 0
     TabHolder.Parent = Sidebar
@@ -161,30 +233,50 @@ function SpawnRealmXUI:CreateWindow(config)
     TabListLayout.Padding = UDim.new(0, 4)
     TabListLayout.Parent = TabHolder
 
-    -- Content Holder Area
+    -- Main Content Display Panel
     local ContentHolder = Instance.new("Frame")
     ContentHolder.Name = "ContentHolder"
-    ContentHolder.Size = UDim2.new(1, -166, 1, -16)
-    ContentHolder.Position = UDim2.new(0, 158, 0, 8)
+    ContentHolder.Size = UDim2.new(1, -186, 1, -50)
+    ContentHolder.Position = UDim2.new(0, 176, 0, 42)
     ContentHolder.BackgroundTransparency = 1
     ContentHolder.Parent = MainFrame
 
-    -- Tab Creator
+    -- Tab Builder Method (Supports Icons)
     function Window:Tab(tabConfig)
         local tabName = typeof(tabConfig) == "table" and tabConfig.Title or tabConfig or "Tab"
+        local tabIcon = typeof(tabConfig) == "table" and tabConfig.Icon or nil
         local TabMethods = {}
 
         local TabBtn = Instance.new("TextButton")
-        TabBtn.Size = UDim2.new(1, 0, 0, 30)
+        TabBtn.Size = UDim2.new(1, 0, 0, 32)
         TabBtn.BackgroundColor3 = SpawnRealmXUI.Themes.Sidebar
-        TabBtn.Text = "   " .. tabName
-        TabBtn.Font = Enum.Font.GothamMedium
-        TabBtn.TextColor3 = SpawnRealmXUI.Themes.SubText
-        TabBtn.TextSize = 12
-        TabBtn.TextXAlignment = Enum.TextXAlignment.Left
+        TabBtn.Text = ""
         TabBtn.AutoButtonColor = false
         TabBtn.Parent = TabHolder
-        addCorner(TabBtn, 5)
+        addCorner(TabBtn, 8)
+
+        local tabTextOffset = 12
+        if tabIcon then
+            tabTextOffset = 36
+            local IconLabel = Instance.new("ImageLabel")
+            IconLabel.Size = UDim2.new(0, 16, 0, 16)
+            IconLabel.Position = UDim2.new(0, 10, 0.5, -8)
+            IconLabel.BackgroundTransparency = 1
+            IconLabel.Image = tabIcon
+            IconLabel.ImageColor3 = SpawnRealmXUI.Themes.SubText
+            IconLabel.Parent = TabBtn
+        end
+
+        local TabLabel = Instance.new("TextLabel")
+        TabLabel.Size = UDim2.new(1, -tabTextOffset, 1, 0)
+        TabLabel.Position = UDim2.new(0, tabTextOffset, 0, 0)
+        TabLabel.BackgroundTransparency = 1
+        TabLabel.Text = tabName
+        applyFont(TabLabel, Enum.FontWeight.Medium)
+        TabLabel.TextColor3 = SpawnRealmXUI.Themes.SubText
+        TabLabel.TextSize = 12
+        TabLabel.TextXAlignment = Enum.TextXAlignment.Left
+        TabLabel.Parent = TabBtn
 
         local Page = Instance.new("ScrollingFrame")
         Page.Name = tabName .. "_Page"
@@ -198,12 +290,12 @@ function SpawnRealmXUI:CreateWindow(config)
         Page.Parent = ContentHolder
 
         local PageLayout = Instance.new("UIListLayout")
-        PageLayout.Padding = UDim.new(0, 6)
+        PageLayout.Padding = UDim.new(0, 8)
         PageLayout.Parent = Page
 
         local PagePadding = Instance.new("UIPadding")
         PagePadding.PaddingTop = UDim.new(0, 2)
-        PagePadding.PaddingRight = UDim.new(0, 4)
+        PagePadding.PaddingRight = UDim.new(0, 6)
         PagePadding.PaddingLeft = UDim.new(0, 2)
         PagePadding.Parent = Page
 
@@ -211,20 +303,24 @@ function SpawnRealmXUI:CreateWindow(config)
             for _, t in pairs(Window.Tabs) do
                 t.Page.Visible = false
                 TweenService:Create(t.TabBtn, TweenInfo.new(0.2), {
-                    BackgroundColor3 = SpawnRealmXUI.Themes.Sidebar,
+                    BackgroundColor3 = SpawnRealmXUI.Themes.Sidebar
+                }):Play()
+                TweenService:Create(t.TabLabel, TweenInfo.new(0.2), {
                     TextColor3 = SpawnRealmXUI.Themes.SubText
                 }):Play()
             end
             Page.Visible = true
             TweenService:Create(TabBtn, TweenInfo.new(0.2), {
-                BackgroundColor3 = SpawnRealmXUI.Themes.Container,
+                BackgroundColor3 = SpawnRealmXUI.Themes.Container
+            }):Play()
+            TweenService:Create(TabLabel, TweenInfo.new(0.2), {
                 TextColor3 = SpawnRealmXUI.Themes.Text
             }):Play()
         end
 
         TabBtn.MouseButton1Click:Connect(selectTab)
 
-        -- Compact Component 1: Section Header
+        -- Section Component
         function TabMethods:Section(secConfig)
             local titleText = typeof(secConfig) == "table" and secConfig.Title or secConfig
             local SecFrame = Instance.new("Frame")
@@ -233,53 +329,74 @@ function SpawnRealmXUI:CreateWindow(config)
             SecFrame.Parent = Page
 
             local Label = Instance.new("TextLabel")
-            Label.Size = UDim2.new(1, -6, 1, 0)
-            Label.Position = UDim2.new(0, 2, 0, 0)
+            Label.Size = UDim2.new(1, 0, 1, 0)
             Label.BackgroundTransparency = 1
             Label.Text = string.upper(titleText)
-            Label.Font = Enum.Font.GothamBold
+            applyFont(Label, Enum.FontWeight.Bold)
             Label.TextColor3 = SpawnRealmXUI.Themes.SubText
-            Label.TextSize = 9
+            Label.TextSize = 10
             Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.Parent = SecFrame
         end
 
-        -- Compact Component 2: Paragraph
+        -- Paragraph Component (Auto-Height Fix)
         function TabMethods:Paragraph(paraConfig)
+            local titleText = paraConfig.Title or "Paragraph"
+            local contentText = paraConfig.Content or ""
+
             local ParaFrame = Instance.new("Frame")
-            ParaFrame.Size = UDim2.new(1, 0, 0, 42)
+            ParaFrame.Size = UDim2.new(1, 0, 0, 0)
+            ParaFrame.AutomaticSize = Enum.AutomaticSize.Y
             ParaFrame.BackgroundColor3 = SpawnRealmXUI.Themes.Container
             ParaFrame.Parent = Page
-            addCorner(ParaFrame, 5)
+            addCorner(ParaFrame, 8)
             addStroke(ParaFrame, SpawnRealmXUI.Themes.Outline, 1)
 
+            local Layout = Instance.new("UIListLayout")
+            Layout.SortOrder = Enum.SortOrder.LayoutOrder
+            Layout.Padding = UDim.new(0, 4)
+            Layout.Parent = ParaFrame
+
+            local Padding = Instance.new("UIPadding")
+            Padding.PaddingTop = UDim.new(0, 8)
+            Padding.PaddingBottom = UDim.new(0, 8)
+            Padding.PaddingLeft = UDim.new(0, 12)
+            Padding.PaddingRight = UDim.new(0, 12)
+            Padding.Parent = ParaFrame
+
             local TitleLab = Instance.new("TextLabel")
-            TitleLab.Size = UDim2.new(1, -16, 0, 18)
-            TitleLab.Position = UDim2.new(0, 10, 0, 4)
+            TitleLab.Size = UDim2.new(1, 0, 0, 0)
+            TitleLab.AutomaticSize = Enum.AutomaticSize.Y
             TitleLab.BackgroundTransparency = 1
-            TitleLab.Text = paraConfig.Title or "Paragraph"
-            TitleLab.Font = Enum.Font.GothamBold
+            TitleLab.Text = titleText
+            applyFont(TitleLab, Enum.FontWeight.Bold)
             TitleLab.TextColor3 = SpawnRealmXUI.Themes.Text
-            TitleLab.TextSize = 12
+            TitleLab.TextSize = 13
             TitleLab.TextXAlignment = Enum.TextXAlignment.Left
+            TitleLab.TextWrapped = true
+            TitleLab.LayoutOrder = 1
             TitleLab.Parent = ParaFrame
 
-            local DescLab = Instance.new("TextLabel")
-            DescLab.Size = UDim2.new(1, -16, 0, 16)
-            DescLab.Position = UDim2.new(0, 10, 0, 22)
-            DescLab.BackgroundTransparency = 1
-            DescLab.Text = paraConfig.Content or ""
-            DescLab.Font = Enum.Font.Gotham
-            DescLab.TextColor3 = SpawnRealmXUI.Themes.SubText
-            DescLab.TextSize = 10
-            DescLab.TextXAlignment = Enum.TextXAlignment.Left
-            DescLab.Parent = ParaFrame
+            if contentText ~= "" then
+                local DescLab = Instance.new("TextLabel")
+                DescLab.Size = UDim2.new(1, 0, 0, 0)
+                DescLab.AutomaticSize = Enum.AutomaticSize.Y
+                DescLab.BackgroundTransparency = 1
+                DescLab.Text = contentText
+                applyFont(DescLab, Enum.FontWeight.Regular)
+                DescLab.TextColor3 = SpawnRealmXUI.Themes.SubText
+                DescLab.TextSize = 11
+                DescLab.TextXAlignment = Enum.TextXAlignment.Left
+                DescLab.TextWrapped = true
+                DescLab.LayoutOrder = 2
+                DescLab.Parent = ParaFrame
+            end
         end
 
-        -- Compact Component 3: Divider
+        -- Divider Component
         function TabMethods:Divider()
             local Div = Instance.new("Frame")
-            Div.Size = UDim2.new(1, 0, 0, 8)
+            Div.Size = UDim2.new(1, 0, 0, 6)
             Div.BackgroundTransparency = 1
             Div.Parent = Page
 
@@ -291,77 +408,77 @@ function SpawnRealmXUI:CreateWindow(config)
             Line.Parent = Div
         end
 
-        -- Compact Component 4: Button
+        -- Button Component
         function TabMethods:Button(btnConfig)
             local BtnFrame = Instance.new("TextButton")
-            BtnFrame.Size = UDim2.new(1, 0, 0, 32)
+            BtnFrame.Size = UDim2.new(1, 0, 0, 36)
             BtnFrame.BackgroundColor3 = SpawnRealmXUI.Themes.Container
             BtnFrame.Text = ""
             BtnFrame.AutoButtonColor = false
             BtnFrame.Parent = Page
-            addCorner(BtnFrame, 5)
+            addCorner(BtnFrame, 8)
             addStroke(BtnFrame, SpawnRealmXUI.Themes.Outline, 1)
 
             local Label = Instance.new("TextLabel")
-            Label.Size = UDim2.new(1, -16, 1, 0)
-            Label.Position = UDim2.new(0, 10, 0, 0)
+            Label.Size = UDim2.new(1, -20, 1, 0)
+            Label.Position = UDim2.new(0, 12, 0, 0)
             Label.BackgroundTransparency = 1
             Label.Text = btnConfig.Title or "Button"
-            Label.Font = Enum.Font.GothamMedium
+            applyFont(Label, Enum.FontWeight.Medium)
             Label.TextColor3 = SpawnRealmXUI.Themes.Text
             Label.TextSize = 12
             Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.Parent = BtnFrame
 
             BtnFrame.MouseButton1Click:Connect(function()
-                TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = SpawnRealmXUI.Themes.Accent}):Play()
+                TweenService:Create(BtnFrame, TweenInfo.new(0.1), {BackgroundColor3 = SpawnRealmXUI.Themes.Hover}):Play()
                 task.wait(0.1)
                 TweenService:Create(BtnFrame, TweenInfo.new(0.2), {BackgroundColor3 = SpawnRealmXUI.Themes.Container}):Play()
                 if btnConfig.Callback then task.spawn(btnConfig.Callback) end
             end)
         end
 
-        -- Compact Component 5: Toggle
+        -- Toggle Component
         function TabMethods:Toggle(toggleConfig)
             local state = toggleConfig.Default or false
 
             local ToggleFrame = Instance.new("TextButton")
-            ToggleFrame.Size = UDim2.new(1, 0, 0, 32)
+            ToggleFrame.Size = UDim2.new(1, 0, 0, 36)
             ToggleFrame.BackgroundColor3 = SpawnRealmXUI.Themes.Container
             ToggleFrame.Text = ""
             ToggleFrame.AutoButtonColor = false
             ToggleFrame.Parent = Page
-            addCorner(ToggleFrame, 5)
+            addCorner(ToggleFrame, 8)
             addStroke(ToggleFrame, SpawnRealmXUI.Themes.Outline, 1)
 
             local Label = Instance.new("TextLabel")
-            Label.Size = UDim2.new(1, -50, 1, 0)
-            Label.Position = UDim2.new(0, 10, 0, 0)
+            Label.Size = UDim2.new(1, -60, 1, 0)
+            Label.Position = UDim2.new(0, 12, 0, 0)
             Label.BackgroundTransparency = 1
             Label.Text = toggleConfig.Title or "Toggle"
-            Label.Font = Enum.Font.GothamMedium
+            applyFont(Label, Enum.FontWeight.Medium)
             Label.TextColor3 = SpawnRealmXUI.Themes.Text
             Label.TextSize = 12
             Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.Parent = ToggleFrame
 
             local Switch = Instance.new("Frame")
-            Switch.Size = UDim2.new(0, 30, 0, 16)
-            Switch.Position = UDim2.new(1, -38, 0.5, -8)
+            Switch.Size = UDim2.new(0, 38, 0, 20)
+            Switch.Position = UDim2.new(1, -48, 0.5, -10)
             Switch.BackgroundColor3 = state and SpawnRealmXUI.Themes.Accent or SpawnRealmXUI.Themes.Outline
             Switch.Parent = ToggleFrame
-            addCorner(Switch, 8)
+            addCorner(Switch, 10)
 
             local Knob = Instance.new("Frame")
-            Knob.Size = UDim2.new(0, 12, 0, 12)
-            Knob.Position = state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+            Knob.Size = UDim2.new(0, 16, 0, 16)
+            Knob.Position = state and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
             Knob.BackgroundColor3 = SpawnRealmXUI.Themes.Text
             Knob.Parent = Switch
-            addCorner(Knob, 6)
+            addCorner(Knob, 8)
 
             local function updateToggle()
                 local switchColor = state and SpawnRealmXUI.Themes.Accent or SpawnRealmXUI.Themes.Outline
-                local knobPos = state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+                local knobPos = state and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
                 TweenService:Create(Switch, TweenInfo.new(0.2), {BackgroundColor3 = switchColor}):Play()
                 TweenService:Create(Knob, TweenInfo.new(0.2), {Position = knobPos}):Play()
             end
@@ -373,55 +490,55 @@ function SpawnRealmXUI:CreateWindow(config)
             end)
         end
 
-        -- Compact Component 6: Slider
+        -- Slider Component
         function TabMethods:Slider(sliderConfig)
             local min = sliderConfig.Min or 0
             local max = sliderConfig.Max or 100
             local default = sliderConfig.Default or min
 
             local SliderFrame = Instance.new("Frame")
-            SliderFrame.Size = UDim2.new(1, 0, 0, 42)
+            SliderFrame.Size = UDim2.new(1, 0, 0, 44)
             SliderFrame.BackgroundColor3 = SpawnRealmXUI.Themes.Container
             SliderFrame.Parent = Page
-            addCorner(SliderFrame, 5)
+            addCorner(SliderFrame, 8)
             addStroke(SliderFrame, SpawnRealmXUI.Themes.Outline, 1)
 
             local Label = Instance.new("TextLabel")
-            Label.Size = UDim2.new(1, -50, 0, 20)
-            Label.Position = UDim2.new(0, 10, 0, 3)
+            Label.Size = UDim2.new(1, -60, 0, 20)
+            Label.Position = UDim2.new(0, 12, 0, 4)
             Label.BackgroundTransparency = 1
             Label.Text = sliderConfig.Title or "Slider"
-            Label.Font = Enum.Font.GothamMedium
+            applyFont(Label, Enum.FontWeight.Medium)
             Label.TextColor3 = SpawnRealmXUI.Themes.Text
             Label.TextSize = 12
             Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.Parent = SliderFrame
 
             local ValueLabel = Instance.new("TextLabel")
-            ValueLabel.Size = UDim2.new(0, 40, 0, 20)
-            ValueLabel.Position = UDim2.new(1, -50, 0, 3)
+            ValueLabel.Size = UDim2.new(0, 50, 0, 20)
+            ValueLabel.Position = UDim2.new(1, -62, 0, 4)
             ValueLabel.BackgroundTransparency = 1
             ValueLabel.Text = tostring(default)
-            ValueLabel.Font = Enum.Font.Gotham
+            applyFont(ValueLabel, Enum.FontWeight.Regular)
             ValueLabel.TextColor3 = SpawnRealmXUI.Themes.SubText
             ValueLabel.TextSize = 11
             ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
             ValueLabel.Parent = SliderFrame
 
             local BarTrack = Instance.new("TextButton")
-            BarTrack.Size = UDim2.new(1, -20, 0, 5)
-            BarTrack.Position = UDim2.new(0, 10, 0, 28)
+            BarTrack.Size = UDim2.new(1, -24, 0, 4)
+            BarTrack.Position = UDim2.new(0, 12, 0, 30)
             BarTrack.BackgroundColor3 = SpawnRealmXUI.Themes.Outline
             BarTrack.Text = ""
             BarTrack.AutoButtonColor = false
             BarTrack.Parent = SliderFrame
-            addCorner(BarTrack, 3)
+            addCorner(BarTrack, 2)
 
             local BarFill = Instance.new("Frame")
             BarFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
             BarFill.BackgroundColor3 = SpawnRealmXUI.Themes.Accent
             BarFill.Parent = BarTrack
-            addCorner(BarFill, 3)
+            addCorner(BarFill, 2)
 
             local sliding = false
             local function updateSlider(input)
@@ -446,15 +563,14 @@ function SpawnRealmXUI:CreateWindow(config)
             end)
         end
 
-        -- Set up protective Metatable
+        -- Safe Fallback Metatable
         local Tab = setmetatable({
             Page = Page,
-            TabBtn = TabBtn
+            TabBtn = TabBtn,
+            TabLabel = TabLabel
         }, {
             __index = function(t, key)
-                if TabMethods[key] then
-                    return TabMethods[key]
-                end
+                if TabMethods[key] then return TabMethods[key] end
                 return function(...) end
             end
         })
@@ -468,9 +584,7 @@ function SpawnRealmXUI:CreateWindow(config)
         return Tab
     end
 
-    function Window:Notify(notifyConfig)
-        -- Silent
-    end
+    function Window:Notify(notifyConfig) end
 
     return setmetatable(Window, Window)
 end
