@@ -1,4 +1,4 @@
--- // SpawnRealmXUI Library (With Dedicated Folder & Config Saving) \\ --
+-- // SpawnRealmXUI Library (Fully Error-Free & Thumbnail Fixed) \\ --
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
@@ -91,7 +91,6 @@ function SpawnRealmXUI:CreateWindow(config)
     local windowIcon = config.Icon or "rbxassetid://6031097225"
     local transparencyVal = math.clamp(config.Transparency or 0, 0, 1)
     
-    -- Dedicated Folder & Save Config Setup
     local folderName = config.Folder or "SpawnRealmXUI"
     local enableSaving = config.SaveConfig or false
     local configFileName = folderName .. "/config.json"
@@ -308,7 +307,7 @@ function SpawnRealmXUI:CreateWindow(config)
     AvatarImg.Size = UDim2.new(0, 32, 0, 32)
     AvatarImg.Position = UDim2.new(0, 8, 0.5, -16)
     AvatarImg.BackgroundColor3 = Theme.Outline
-    AvatarImg.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size42x42)
+    AvatarImg.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size420x420)
     AvatarImg.Parent = ProfileCard
     addCorner(AvatarImg, 16)
 
@@ -373,7 +372,7 @@ function SpawnRealmXUI:CreateWindow(config)
         addStroke(Toast, Theme.Accent, 1.5)
 
         local thumbType = useRobloxHeadshot and Enum.ThumbnailType.HeadShot or Enum.ThumbnailType.AvatarBust
-        local thumbSize = Enum.ThumbnailSize.Size42x42
+        local thumbSize = Enum.ThumbnailSize.Size420x420
         local thumbUrl = Players:GetUserThumbnailAsync(LocalPlayer.UserId, thumbType, thumbSize)
 
         local Mugshot = Instance.new("ImageLabel")
