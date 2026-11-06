@@ -1,4 +1,4 @@
--- // SpawnRealmXUI Library (Error-Protected Source) \\ --
+-- // SpawnRealmXUI Library (Silent / No-Toast Source) \\ --
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
@@ -154,7 +154,6 @@ function SpawnRealmXUI:CreateWindow(config)
     function Window:Tab(tabConfig)
         local tabName = typeof(tabConfig) == "table" and tabConfig.Title or tabConfig or "Tab"
         
-        -- Create Tab methods table
         local TabMethods = {}
 
         local TabBtn = Instance.new("TextButton")
@@ -621,21 +620,18 @@ function SpawnRealmXUI:CreateWindow(config)
             addStroke(Preview, SpawnRealmXUI.Themes.Outline, 1)
         end
 
-        -- Set up protective Metatable to catch missing functions
+        -- Set up protective Metatable to catch missing functions silently
         local Tab = setmetatable({
             Page = Page,
             TabBtn = TabBtn
         }, {
             __index = function(t, key)
-                -- If method exists, return it
                 if TabMethods[key] then
                     return TabMethods[key]
                 end
                 
-                -- Fallback for missing methods: Return dummy function to prevent crash
-                return function(...)
-                    warn("[SpawnRealmXUI Alert]: Called missing element function '" .. tostring(key) .. "'. Ignored without breaking UI execution.")
-                end
+                -- Silent fallback: returns an empty dummy function so it won't crash or notify players
+                return function(...) end
             end
         })
 
@@ -648,47 +644,9 @@ function SpawnRealmXUI:CreateWindow(config)
         return Tab
     end
 
-    -- Toast Notification Handler
+    -- Silent Notification Method (Does nothing visually to avoid player suspicion)
     function Window:Notify(notifyConfig)
-        local Toast = Instance.new("Frame")
-        Toast.Size = UDim2.new(0, 220, 0, 50)
-        Toast.Position = UDim2.new(1, 20, 1, -70)
-        Toast.BackgroundColor3 = SpawnRealmXUI.Themes.Container
-        Toast.Parent = ScreenGui
-        addCorner(Toast, 6)
-        addStroke(Toast, SpawnRealmXUI.Themes.Accent, 1)
-
-        local NTitle = Instance.new("TextLabel")
-        NTitle.Size = UDim2.new(1, -16, 0, 20)
-        NTitle.Position = UDim2.new(0, 10, 0, 6)
-        NTitle.BackgroundTransparency = 1
-        NTitle.Text = notifyConfig.Title or "Notification"
-        NTitle.Font = Enum.Font.GothamBold
-        NTitle.TextColor3 = SpawnRealmXUI.Themes.Text
-        NTitle.TextSize = 12
-        NTitle.TextXAlignment = Enum.TextXAlignment.Left
-        NTitle.Parent = Toast
-
-        local NDesc = Instance.new("TextLabel")
-        NDesc.Size = UDim2.new(1, -16, 0, 18)
-        NDesc.Position = UDim2.new(0, 10, 0, 24)
-        NDesc.BackgroundTransparency = 1
-        NDesc.Text = notifyConfig.Content or ""
-        NDesc.Font = Enum.Font.Gotham
-        NDesc.TextColor3 = SpawnRealmXUI.Themes.SubText
-        NDesc.TextSize = 11
-        NDesc.TextXAlignment = Enum.TextXAlignment.Left
-        NDesc.Parent = Toast
-
-        TweenService:Create(Toast, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Position = UDim2.new(1, -235, 1, -70)
-        }):Play()
-
-        task.delay(notifyConfig.Duration or 3, function()
-            local fade = TweenService:Create(Toast, TweenInfo.new(0.3), {Position = UDim2.new(1, 20, 1, -70)})
-            fade:Play()
-            fade.Completed:Connect(function() Toast:Destroy() end)
-        end)
+        -- Notifications disabled entirely so no toast frames pop up on screen
     end
 
     return setmetatable(Window, Window)
