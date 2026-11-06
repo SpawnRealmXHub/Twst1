@@ -1,4 +1,4 @@
--- // SpawnRealmXUI Library (Complete Clean Source) \\ --
+-- // SpawnRealmXUI Library (Error-Protected Source) \\ --
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
@@ -153,8 +153,10 @@ function SpawnRealmXUI:CreateWindow(config)
     -- Tab Creator
     function Window:Tab(tabConfig)
         local tabName = typeof(tabConfig) == "table" and tabConfig.Title or tabConfig or "Tab"
-        local Tab = {}
         
+        -- Create Tab methods table
+        local TabMethods = {}
+
         local TabBtn = Instance.new("TextButton")
         TabBtn.Size = UDim2.new(1, 0, 0, 34)
         TabBtn.BackgroundColor3 = SpawnRealmXUI.Themes.Sidebar
@@ -205,13 +207,8 @@ function SpawnRealmXUI:CreateWindow(config)
 
         TabBtn.MouseButton1Click:Connect(selectTab)
 
-        if not Window.ActiveTab then
-            Window.ActiveTab = Tab
-            selectTab()
-        end
-
         -- Component 1: Section Header
-        function Tab:Section(secConfig)
+        function TabMethods:Section(secConfig)
             local titleText = typeof(secConfig) == "table" and secConfig.Title or secConfig
             local SecFrame = Instance.new("Frame")
             SecFrame.Size = UDim2.new(1, 0, 0, 24)
@@ -231,7 +228,7 @@ function SpawnRealmXUI:CreateWindow(config)
         end
 
         -- Component 2: Paragraph / Text Label
-        function Tab:Paragraph(paraConfig)
+        function TabMethods:Paragraph(paraConfig)
             local ParaFrame = Instance.new("Frame")
             ParaFrame.Size = UDim2.new(1, 0, 0, 52)
             ParaFrame.BackgroundColor3 = SpawnRealmXUI.Themes.Container
@@ -263,7 +260,7 @@ function SpawnRealmXUI:CreateWindow(config)
         end
 
         -- Component 3: Divider Line
-        function Tab:Divider()
+        function TabMethods:Divider()
             local Div = Instance.new("Frame")
             Div.Size = UDim2.new(1, 0, 0, 10)
             Div.BackgroundTransparency = 1
@@ -278,7 +275,7 @@ function SpawnRealmXUI:CreateWindow(config)
         end
 
         -- Component 4: Button
-        function Tab:Button(btnConfig)
+        function TabMethods:Button(btnConfig)
             local BtnFrame = Instance.new("TextButton")
             BtnFrame.Size = UDim2.new(1, 0, 0, 38)
             BtnFrame.BackgroundColor3 = SpawnRealmXUI.Themes.Container
@@ -308,7 +305,7 @@ function SpawnRealmXUI:CreateWindow(config)
         end
 
         -- Component 5: Toggle Switch
-        function Tab:Toggle(toggleConfig)
+        function TabMethods:Toggle(toggleConfig)
             local state = toggleConfig.Default or false
 
             local ToggleFrame = Instance.new("TextButton")
@@ -360,7 +357,7 @@ function SpawnRealmXUI:CreateWindow(config)
         end
 
         -- Component 6: Interactive Slider
-        function Tab:Slider(sliderConfig)
+        function TabMethods:Slider(sliderConfig)
             local min = sliderConfig.Min or 0
             local max = sliderConfig.Max or 100
             local default = sliderConfig.Default or min
@@ -433,7 +430,7 @@ function SpawnRealmXUI:CreateWindow(config)
         end
 
         -- Component 7: Dropdown Selector
-        function Tab:Dropdown(dropConfig)
+        function TabMethods:Dropdown(dropConfig)
             local options = dropConfig.Options or {}
             local currentOption = dropConfig.Default or options[1] or ""
             local isOpen = false
@@ -505,7 +502,7 @@ function SpawnRealmXUI:CreateWindow(config)
         end
 
         -- Component 8: Text Box / Input Field
-        function Tab:Input(inputConfig)
+        function TabMethods:Input(inputConfig)
             local InputFrame = Instance.new("Frame")
             InputFrame.Size = UDim2.new(1, 0, 0, 50)
             InputFrame.BackgroundColor3 = SpawnRealmXUI.Themes.Container
@@ -546,7 +543,7 @@ function SpawnRealmXUI:CreateWindow(config)
         end
 
         -- Component 9: Keybind Picker
-        function Tab:Keybind(keybindConfig)
+        function TabMethods:Keybind(keybindConfig)
             local currentKey = keybindConfig.Default or Enum.KeyCode.E
 
             local BindFrame = Instance.new("Frame")
@@ -594,7 +591,7 @@ function SpawnRealmXUI:CreateWindow(config)
         end
 
         -- Component 10: Color Picker
-        function Tab:Colorpicker(colorConfig)
+        function TabMethods:Colorpicker(colorConfig)
             local currentColor = colorConfig.Default or Color3.fromRGB(0, 140, 255)
 
             local ColorFrame = Instance.new("Frame")
@@ -624,8 +621,29 @@ function SpawnRealmXUI:CreateWindow(config)
             addStroke(Preview, SpawnRealmXUI.Themes.Outline, 1)
         end
 
-        Tab.Page = Page
-        Tab.TabBtn = TabBtn
+        -- Set up protective Metatable to catch missing functions
+        local Tab = setmetatable({
+            Page = Page,
+            TabBtn = TabBtn
+        }, {
+            __index = function(t, key)
+                -- If method exists, return it
+                if TabMethods[key] then
+                    return TabMethods[key]
+                end
+                
+                -- Fallback for missing methods: Return dummy function to prevent crash
+                return function(...)
+                    warn("[SpawnRealmXUI Alert]: Called missing element function '" .. tostring(key) .. "'. Ignored without breaking UI execution.")
+                end
+            end
+        })
+
+        if not Window.ActiveTab then
+            Window.ActiveTab = Tab
+            selectTab()
+        end
+
         table.insert(Window.Tabs, Tab)
         return Tab
     end
