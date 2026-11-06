@@ -1,4 +1,4 @@
--- // SpawnRealmXUI Library (Fully Protected, Draggable, Theme-Engine & Scalable) \\ --
+-- // SpawnRealmXUI Library (Ultimate WindUI Replica with Profile Card, Transparency, Custom Asset Themes & Toasts) \\ --
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
@@ -88,10 +88,21 @@ function SpawnRealmXUI:CreateWindow(config)
     local winWidth = config.Width or 580
     local winHeight = config.Height or 390
     local windowIcon = config.Icon or "rbxassetid://6031097225"
+    local transparencyVal = math.clamp(config.Transparency or 0, 0, 1)
     
-    -- Theme Resolver
-    local selectedThemeName = config.Theme or "DarkTheme"
-    local Theme = SpawnRealmXUI.Themes[selectedThemeName] or SpawnRealmXUI.Themes.DarkTheme
+    -- Theme & Custom Asset Background Resolver
+    local themeInput = config.Theme or "DarkTheme"
+    local Theme = SpawnRealmXUI.Themes.DarkTheme
+    local customBgAsset = nil
+
+    if typeof(themeInput) == "string" then
+        if themeInput:find("rbxassetid://") or themeInput:match("^%d+$") then
+            local assetId = themeInput:match("%d+")
+            customBgAsset = "rbxassetid://" .. tostring(assetId)
+        elseif SpawnRealmXUI.Themes[themeInput] then
+            Theme = SpawnRealmXUI.Themes[themeInput]
+        end
+    end
 
     local Window = {
         Tabs = {},
@@ -99,7 +110,6 @@ function SpawnRealmXUI:CreateWindow(config)
         IsMinimized = false
     }
     
-    -- Protected Metatable for Window in case CreateWindow config is messed up
     setmetatable(Window, {
         __index = function(t, key)
             warn("[SpawnRealmXUI Warning]: CreateWindow missing method or property '" .. tostring(key) .. "'. Ignored.")
@@ -126,12 +136,24 @@ function SpawnRealmXUI:CreateWindow(config)
     MainFrame.Size = UDim2.new(0, winWidth, 0, winHeight)
     MainFrame.Position = UDim2.new(0.5, -winWidth/2, 0.5, -winHeight/2)
     MainFrame.BackgroundColor3 = Theme.Background
+    MainFrame.BackgroundTransparency = transparencyVal
     MainFrame.BorderSizePixel = 0
     MainFrame.ClipsDescendants = true
     MainFrame.Parent = ScreenGui
 
     addCorner(MainFrame, 14)
     addStroke(MainFrame, Theme.Outline, 1)
+
+    -- Custom Background Image Layer if asset ID provided
+    if customBgAsset then
+        local BgImage = Instance.new("ImageLabel")
+        BgImage.Size = UDim2.new(1, 0, 1, 0)
+        BgImage.BackgroundTransparency = 1
+        BgImage.Image = customBgAsset
+        BgImage.ScaleType = Enum.ScaleType.Slice
+        BgImage.ImageTransparency = transparencyVal * 0.5
+        BgImage.Parent = MainFrame
+    end
 
     local UIScale = Instance.new("UIScale")
     UIScale.Parent = MainFrame
@@ -160,6 +182,7 @@ function SpawnRealmXUI:CreateWindow(config)
     LogoIcon.BackgroundTransparency = 1
     LogoIcon.Image = windowIcon
     LogoIcon.ImageColor3 = Theme.Text
+    LogoIcon.ImageTransparency = transparencyVal
     LogoIcon.Parent = Topbar
 
     local TitleLabel = Instance.new("TextLabel")
@@ -169,6 +192,7 @@ function SpawnRealmXUI:CreateWindow(config)
     TitleLabel.Text = windowTitle
     applyFont(TitleLabel)
     TitleLabel.TextColor3 = Theme.Text
+    TitleLabel.TextTransparency = transparencyVal
     TitleLabel.TextSize = 13
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     TitleLabel.Parent = Topbar
@@ -180,6 +204,7 @@ function SpawnRealmXUI:CreateWindow(config)
     AuthorLabel.Text = "by " .. authorName
     applyFont(AuthorLabel)
     AuthorLabel.TextColor3 = Theme.SubText
+    AuthorLabel.TextTransparency = transparencyVal
     AuthorLabel.TextSize = 10
     AuthorLabel.TextXAlignment = Enum.TextXAlignment.Left
     AuthorLabel.Parent = Topbar
@@ -198,6 +223,7 @@ function SpawnRealmXUI:CreateWindow(config)
         Btn.Text = text
         applyFont(Btn)
         Btn.TextColor3 = Theme.SubText
+        Btn.TextTransparency = transparencyVal
         Btn.TextSize = 12
         Btn.Parent = ControlHolder
 
@@ -220,7 +246,6 @@ function SpawnRealmXUI:CreateWindow(config)
         ScreenGui:Destroy()
     end)
 
-    -- Fully Movable Header Drag Logic
     local dragging, dragStart, startPos
     Topbar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -246,12 +271,55 @@ function SpawnRealmXUI:CreateWindow(config)
     Sidebar.Size = UDim2.new(0, 160, 1, -50)
     Sidebar.Position = UDim2.new(0, 10, 0, 42)
     Sidebar.BackgroundColor3 = Theme.Sidebar
+    Sidebar.BackgroundTransparency = transparencyVal
     Sidebar.BorderSizePixel = 0
     Sidebar.Parent = MainFrame
     addCorner(Sidebar, 10)
 
+    -- Sidebar User Profile Card (from Screenshot)
+    local ProfileCard = Instance.new("Frame")
+    ProfileCard.Size = UDim2.new(1, -12, 0, 48)
+    ProfileCard.Position = UDim2.new(0, 6, 1, -54)
+    ProfileCard.BackgroundColor3 = Theme.Container
+    ProfileCard.BackgroundTransparency = transparencyVal
+    ProfileCard.Parent = Sidebar
+    addCorner(ProfileCard, 8)
+    addStroke(ProfileCard, Theme.Outline, 1)
+
+    local AvatarImg = Instance.new("ImageLabel")
+    AvatarImg.Size = UDim2.new(0, 32, 0, 32)
+    AvatarImg.Position = UDim2.new(0, 8, 0.5, -16)
+    AvatarImg.BackgroundColor3 = Theme.Outline
+    AvatarImg.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size42x42)
+    AvatarImg.Parent = ProfileCard
+    addCorner(AvatarImg, 16)
+
+    local DispNameLab = Instance.new("TextLabel")
+    DispNameLab.Size = UDim2.new(1, -48, 0, 16)
+    DispNameLab.Position = UDim2.new(0, 46, 0, 8)
+    DispNameLab.BackgroundTransparency = 1
+    DispNameLab.Text = LocalPlayer.DisplayName
+    applyFont(DispNameLab)
+    DispNameLab.TextColor3 = Theme.Text
+    DispNameLab.TextTransparency = transparencyVal
+    DispNameLab.TextSize = 12
+    DispNameLab.TextXAlignment = Enum.TextXAlignment.Left
+    DispNameLab.Parent = ProfileCard
+
+    local UserLab = Instance.new("TextLabel")
+    UserLab.Size = UDim2.new(1, -48, 0, 14)
+    UserLab.Position = UDim2.new(0, 46, 0, 24)
+    UserLab.BackgroundTransparency = 1
+    UserLab.Text = "@" .. LocalPlayer.Name
+    applyFont(UserLab)
+    UserLab.TextColor3 = Theme.SubText
+    UserLab.TextTransparency = transparencyVal
+    UserLab.TextSize = 10
+    UserLab.TextXAlignment = Enum.TextXAlignment.Left
+    UserLab.Parent = ProfileCard
+
     local TabHolder = Instance.new("ScrollingFrame")
-    TabHolder.Size = UDim2.new(1, -12, 1, -12)
+    TabHolder.Size = UDim2.new(1, -12, 1, -66)
     TabHolder.Position = UDim2.new(0, 6, 0, 6)
     TabHolder.BackgroundTransparency = 1
     TabHolder.ScrollBarThickness = 0
@@ -268,6 +336,76 @@ function SpawnRealmXUI:CreateWindow(config)
     ContentHolder.BackgroundTransparency = 1
     ContentHolder.Parent = MainFrame
 
+    -- Top-Middle Toast Notification System
+    function Window:Notify(notifyConfig)
+        notifyConfig = notifyConfig or {}
+        local title = notifyConfig.Title or "Notification"
+        local content = notifyConfig.Content or ""
+        local useRobloxHeadshot = notifyConfig.Identity or false
+        local duration = notifyConfig.Duration or 3
+
+        local Toast = Instance.new("Frame")
+        Toast.Name = "ToastNotification"
+        Toast.Size = UDim2.new(0, 240, 0, 48)
+        Toast.Position = UDim2.new(0.5, -120, 0, -60)
+        Toast.BackgroundColor3 = Theme.Container
+        Toast.BackgroundTransparency = transparencyVal
+        Toast.ZIndex = 100
+        Toast.Parent = ScreenGui
+        addCorner(Toast, 24) -- Pill shape
+        addStroke(Toast, Theme.Accent, 1.5)
+
+        local thumbType = useRobloxHeadshot and Enum.ThumbnailType.HeadShot or Enum.ThumbnailType.AvatarBust
+        local thumbSize = Enum.ThumbnailSize.Size42x42
+        local thumbUrl = Players:GetUserThumbnailAsync(LocalPlayer.UserId, thumbType, thumbSize)
+
+        local Mugshot = Instance.new("ImageLabel")
+        Mugshot.Size = UDim2.new(0, 36, 0, 36)
+        Mugshot.Position = UDim2.new(0, 6, 0.5, -18)
+        Mugshot.BackgroundColor3 = Theme.Outline
+        Mugshot.Image = thumbUrl
+        Mugshot.ZIndex = 101
+        Mugshot.Parent = Toast
+        addCorner(Mugshot, 18)
+
+        local TTitle = Instance.new("TextLabel")
+        TTitle.Size = UDim2.new(1, -50, 0, 18)
+        TTitle.Position = UDim2.new(0, 48, 0, 7)
+        TTitle.BackgroundTransparency = 1
+        TTitle.Text = title
+        applyFont(TTitle)
+        TTitle.TextColor3 = Theme.Text
+        TTitle.TextSize = 12
+        TTitle.ZIndex = 101
+        TTitle.TextXAlignment = Enum.TextXAlignment.Left
+        TTitle.Parent = Toast
+
+        local TDesc = Instance.new("TextLabel")
+        TDesc.Size = UDim2.new(1, -50, 0, 16)
+        TDesc.Position = UDim2.new(0, 48, 0, 23)
+        TDesc.BackgroundTransparency = 1
+        TDesc.Text = content
+        applyFont(TDesc)
+        TDesc.TextColor3 = Theme.SubText
+        TDesc.TextSize = 10
+        TDesc.ZIndex = 101
+        TDesc.TextXAlignment = Enum.TextXAlignment.Left
+        TDesc.Parent = Toast
+
+        -- Slide Down to Top Middle
+        TweenService:Create(Toast, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0.5, -120, 0, 16)
+        }):Play()
+
+        task.delay(duration, function()
+            local fadeOut = TweenService:Create(Toast, TweenInfo.new(0.3), {
+                Position = UDim2.new(0.5, -120, 0, -60)
+            })
+            fadeOut:Play()
+            fadeOut.Completed:Connect(function() Toast:Destroy() end)
+        end)
+    end
+
     function Window:Tab(tabConfig)
         local tabName = typeof(tabConfig) == "table" and tabConfig.Title or tabConfig or "Tab"
         local tabIcon = typeof(tabConfig) == "table" and tabConfig.Icon or nil
@@ -276,6 +414,7 @@ function SpawnRealmXUI:CreateWindow(config)
         local TabBtn = Instance.new("TextButton")
         TabBtn.Size = UDim2.new(1, 0, 0, 32)
         TabBtn.BackgroundColor3 = Theme.Sidebar
+        TabBtn.BackgroundTransparency = transparencyVal
         TabBtn.Text = ""
         TabBtn.AutoButtonColor = false
         TabBtn.Parent = TabHolder
@@ -300,6 +439,7 @@ function SpawnRealmXUI:CreateWindow(config)
         TabLabel.Text = tabName
         applyFont(TabLabel)
         TabLabel.TextColor3 = Theme.SubText
+        TabLabel.TextTransparency = transparencyVal
         TabLabel.TextSize = 12
         TabLabel.TextXAlignment = Enum.TextXAlignment.Left
         TabLabel.Parent = TabBtn
@@ -351,6 +491,7 @@ function SpawnRealmXUI:CreateWindow(config)
             Label.Text = string.upper(titleText)
             applyFont(Label)
             Label.TextColor3 = Theme.SubText
+            Label.TextTransparency = transparencyVal
             Label.TextSize = 10
             Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.Parent = SecFrame
@@ -364,6 +505,7 @@ function SpawnRealmXUI:CreateWindow(config)
             ParaFrame.Size = UDim2.new(1, 0, 0, 0)
             ParaFrame.AutomaticSize = Enum.AutomaticSize.Y
             ParaFrame.BackgroundColor3 = Theme.Container
+            ParaFrame.BackgroundTransparency = transparencyVal
             ParaFrame.Parent = Page
             addCorner(ParaFrame, 8)
             addStroke(ParaFrame, Theme.Outline, 1)
@@ -387,6 +529,7 @@ function SpawnRealmXUI:CreateWindow(config)
             TitleLab.Text = titleText
             applyFont(TitleLab)
             TitleLab.TextColor3 = Theme.Text
+            TitleLab.TextTransparency = transparencyVal
             TitleLab.TextSize = 13
             TitleLab.TextXAlignment = Enum.TextXAlignment.Left
             TitleLab.TextWrapped = true
@@ -401,6 +544,7 @@ function SpawnRealmXUI:CreateWindow(config)
                 DescLab.Text = contentText
                 applyFont(DescLab)
                 DescLab.TextColor3 = Theme.SubText
+                DescLab.TextTransparency = transparencyVal
                 DescLab.TextSize = 11
                 DescLab.TextXAlignment = Enum.TextXAlignment.Left
                 DescLab.TextWrapped = true
@@ -427,6 +571,7 @@ function SpawnRealmXUI:CreateWindow(config)
             local BtnFrame = Instance.new("TextButton")
             BtnFrame.Size = UDim2.new(1, 0, 0, 36)
             BtnFrame.BackgroundColor3 = Theme.Container
+            BtnFrame.BackgroundTransparency = transparencyVal
             BtnFrame.Text = ""
             BtnFrame.AutoButtonColor = false
             BtnFrame.Parent = Page
@@ -440,6 +585,7 @@ function SpawnRealmXUI:CreateWindow(config)
             Label.Text = btnConfig.Title or "Button"
             applyFont(Label)
             Label.TextColor3 = Theme.Text
+            Label.TextTransparency = transparencyVal
             Label.TextSize = 12
             Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.Parent = BtnFrame
@@ -458,6 +604,7 @@ function SpawnRealmXUI:CreateWindow(config)
             local ToggleFrame = Instance.new("TextButton")
             ToggleFrame.Size = UDim2.new(1, 0, 0, 36)
             ToggleFrame.BackgroundColor3 = Theme.Container
+            ToggleFrame.BackgroundTransparency = transparencyVal
             ToggleFrame.Text = ""
             ToggleFrame.AutoButtonColor = false
             ToggleFrame.Parent = Page
@@ -471,6 +618,7 @@ function SpawnRealmXUI:CreateWindow(config)
             Label.Text = toggleConfig.Title or "Toggle"
             applyFont(Label)
             Label.TextColor3 = Theme.Text
+            Label.TextTransparency = transparencyVal
             Label.TextSize = 12
             Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.Parent = ToggleFrame
@@ -511,6 +659,7 @@ function SpawnRealmXUI:CreateWindow(config)
             local SliderFrame = Instance.new("Frame")
             SliderFrame.Size = UDim2.new(1, 0, 0, 44)
             SliderFrame.BackgroundColor3 = Theme.Container
+            SliderFrame.BackgroundTransparency = transparencyVal
             SliderFrame.Parent = Page
             addCorner(SliderFrame, 8)
             addStroke(SliderFrame, Theme.Outline, 1)
@@ -522,6 +671,7 @@ function SpawnRealmXUI:CreateWindow(config)
             Label.Text = sliderConfig.Title or "Slider"
             applyFont(Label)
             Label.TextColor3 = Theme.Text
+            Label.TextTransparency = transparencyVal
             Label.TextSize = 12
             Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.Parent = SliderFrame
@@ -533,6 +683,7 @@ function SpawnRealmXUI:CreateWindow(config)
             ValueLabel.Text = tostring(default)
             applyFont(ValueLabel)
             ValueLabel.TextColor3 = Theme.SubText
+            ValueLabel.TextTransparency = transparencyVal
             ValueLabel.TextSize = 11
             ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
             ValueLabel.Parent = SliderFrame
@@ -575,7 +726,6 @@ function SpawnRealmXUI:CreateWindow(config)
             end)
         end
 
-        -- Safe Missing Component Metatable (Ignores missing functions silently without crashing or notifying)
         local Tab = setmetatable({
             Page = Page,
             TabBtn = TabBtn,
@@ -595,8 +745,6 @@ function SpawnRealmXUI:CreateWindow(config)
         table.insert(Window.Tabs, Tab)
         return Tab
     end
-
-    function Window:Notify(notifyConfig) end
 
     return setmetatable(Window, Window)
 end
