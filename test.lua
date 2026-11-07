@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Fully Movable Header & Mini-Stats)
+-- SpawnRealm / Moondiety UI Library Module (Compact, Profile Card & Lucide Icons)
 local Library = {}
 Library.__index = Library
 
@@ -11,18 +11,52 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local TWEEN_INFO = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
--- Anti-Cheat Protection: Secure Root Container Resolver
-local function getProtectedParent()
-	if gethui then
-		return gethui()
-	elseif syn and syn.protect_gui then
-		local protected = Instance.new("Folder")
-		syn.protect_gui(protected)
-		protected.Parent = CoreGui
-		return protected
-	else
-		return CoreGui
+-- Comprehensive Lucide Icon Asset ID Registry
+local LucideIcons = {
+	["home"] = "rbxassetid://6023426915",
+	["shield"] = "rbxassetid://6023426985",
+	["sword"] = "rbxassetid://6023426846",
+	["settings"] = "rbxassetid://6023426993",
+	["user"] = "rbxassetid://6023426922",
+	["lock"] = "rbxassetid://6023426895",
+	["cpu"] = "rbxassetid://6023426810",
+	["search"] = "rbxassetid://6023426955",
+	["combat"] = "rbxassetid://6023426846",
+	["terminal"] = "rbxassetid://6023426980",
+	["globe"] = "rbxassetid://6023426871",
+	["folder"] = "rbxassetid://6023426863",
+	["chevronright"] = "rbxassetid://6034818372"
+}
+
+local function getLucideIcon(iconName)
+	if not iconName then return "rbxassetid://12787168883" end
+	if type(iconName) == "string" and iconName:match("^rbxassetid://") then
+		return iconName
 	end
+	local formatted = tostring(iconName):lower():gsub("[^a-z]", "")
+	return LucideIcons[formatted] or "rbxassetid://12787168883"
+end
+
+-- Dedicated Protected Folder & Root Container Resolver
+local function getProtectedParent()
+	local base
+	if gethui then
+		base = gethui()
+	elseif syn and syn.protect_gui then
+		base = Instance.new("Folder")
+		syn.protect_gui(base)
+		base.Parent = CoreGui
+	else
+		base = CoreGui
+	end
+
+	local folder = base:FindFirstChild("SR_DedicatedFolder")
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = "SR_DedicatedFolder_" .. math.random(1000, 9999)
+		folder.Parent = base
+	end
+	return folder
 end
 
 -- Helper: Make UI Smoothly Movable / Draggable
@@ -76,8 +110,9 @@ function Library.CreateWindow(config)
 	config = config or {}
 	local titleText = config.name or config.Name or "MOONDIETY"
 	local subText = config.subtitle or config.Subtitle or "Universal"
-	local iconId = config.UIicon or config.UiIcon or "rbxassetid://12787168883"
+	local iconId = getLucideIcon(config.UIicon or config.UiIcon or "shield")
 	local soundEnabled = (config.SoundButtons ~= false)
+	local userConfig = config.User or nil
 
 	local window = {}
 	
@@ -86,15 +121,16 @@ function Library.CreateWindow(config)
 	ScreenGui.Parent = getProtectedParent()
 	ScreenGui.ResetOnSpawn = false
 
-	-- Main Window Outer Black Outline
+	-- Main Window Outer Black Outline (Height reduced to 340 for a compact look)
 	local MainOuter = Instance.new("Frame")
 	MainOuter.Name = "MainOuter"
 	local targetWidth = 682
-	MainOuter.Size = UDim2.new(0, targetWidth, 0, 382)
-	MainOuter.Position = UDim2.new(0.5, -targetWidth/2, 0.5, -191)
+	local targetHeight = 340
+	MainOuter.Size = UDim2.new(0, targetWidth, 0, targetHeight)
+	MainOuter.Position = UDim2.new(0.5, -targetWidth/2, 0.5, -targetHeight/2)
 	MainOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	MainOuter.BorderSizePixel = 0
-	MainOuter.Visible = false -- Hidden during loading
+	MainOuter.Visible = false
 	MainOuter.Parent = ScreenGui
 
 	local MainOuterCorner = Instance.new("UICorner")
@@ -184,7 +220,7 @@ function Library.CreateWindow(config)
 		GlowImg.Size = UDim2.new(0, 120, 0, 120)
 		GlowImg.Position = UDim2.new(0.5, -60, 0, 15)
 		GlowImg.BackgroundTransparency = 1
-		GlowImg.Image = "rbxassetid://12787168883"
+		GlowImg.Image = iconId
 		GlowImg.ImageColor3 = Color3.fromRGB(220, 30, 60)
 		GlowImg.ImageTransparency = 0.6
 		GlowImg.Parent = LoadFrame
@@ -193,7 +229,7 @@ function Library.CreateWindow(config)
 		IconImg.Size = UDim2.new(0, 56, 0, 56)
 		IconImg.Position = UDim2.new(0.5, -28, 0, 32)
 		IconImg.BackgroundTransparency = 1
-		IconImg.Image = iconId ~= "" and iconId or "rbxassetid://12787168883"
+		IconImg.Image = iconId
 		IconImg.Parent = LoadFrame
 
 		local LoadTitle = Instance.new("TextLabel")
@@ -296,63 +332,39 @@ function Library.CreateWindow(config)
 	Topbar.BackgroundTransparency = 1
 	Topbar.Parent = Main
 
-	if iconId ~= "" then
-		local WindowIcon = Instance.new("ImageLabel")
-		WindowIcon.Size = UDim2.new(0, 24, 0, 24)
-		WindowIcon.Position = UDim2.new(0, 16, 0, 13)
-		WindowIcon.BackgroundTransparency = 1
-		WindowIcon.Image = iconId
-		WindowIcon.Parent = Topbar
+	local WindowIcon = Instance.new("ImageLabel")
+	WindowIcon.Size = UDim2.new(0, 24, 0, 24)
+	WindowIcon.Position = UDim2.new(0, 16, 0, 13)
+	WindowIcon.BackgroundTransparency = 1
+	WindowIcon.Image = iconId
+	WindowIcon.Parent = Topbar
 
-		local TitleLabel = Instance.new("TextLabel")
-		TitleLabel.Size = UDim2.new(0, 200, 0, 20)
-		TitleLabel.Position = UDim2.new(0, 48, 0, 8)
-		TitleLabel.BackgroundTransparency = 1
-		TitleLabel.Text = titleText
-		TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-		TitleLabel.TextSize = 16
-		TitleLabel.Font = Enum.Font.GothamBold
-		TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-		TitleLabel.Parent = Topbar
+	local TitleLabel = Instance.new("TextLabel")
+	TitleLabel.Size = UDim2.new(0, 200, 0, 20)
+	TitleLabel.Position = UDim2.new(0, 48, 0, 8)
+	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.Text = titleText
+	TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TitleLabel.TextSize = 16
+	TitleLabel.Font = Enum.Font.GothamBold
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.Parent = Topbar
 
-		local SubTitleLabel = Instance.new("TextLabel")
-		SubTitleLabel.Size = UDim2.new(0, 200, 0, 14)
-		SubTitleLabel.Position = UDim2.new(0, 48, 0, 26)
-		SubTitleLabel.BackgroundTransparency = 1
-		SubTitleLabel.Text = subText
-		SubTitleLabel.TextColor3 = Color3.fromRGB(130, 130, 140)
-		SubTitleLabel.TextSize = 11
-		SubTitleLabel.Font = Enum.Font.GothamMedium
-		SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-		SubTitleLabel.Parent = Topbar
-	else
-		local TitleLabel = Instance.new("TextLabel")
-		TitleLabel.Size = UDim2.new(0, 200, 0, 20)
-		TitleLabel.Position = UDim2.new(0, 16, 0, 8)
-		TitleLabel.BackgroundTransparency = 1
-		TitleLabel.Text = titleText
-		TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-		TitleLabel.TextSize = 16
-		TitleLabel.Font = Enum.Font.GothamBold
-		TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-		TitleLabel.Parent = Topbar
+	local SubTitleLabel = Instance.new("TextLabel")
+	SubTitleLabel.Size = UDim2.new(0, 200, 0, 14)
+	SubTitleLabel.Position = UDim2.new(0, 48, 0, 26)
+	SubTitleLabel.BackgroundTransparency = 1
+	SubTitleLabel.Text = subText
+	SubTitleLabel.TextColor3 = Color3.fromRGB(130, 130, 140)
+	SubTitleLabel.TextSize = 11
+	SubTitleLabel.Font = Enum.Font.GothamMedium
+	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	SubTitleLabel.Parent = Topbar
 
-		local SubTitleLabel = Instance.new("TextLabel")
-		SubTitleLabel.Size = UDim2.new(0, 200, 0, 14)
-		SubTitleLabel.Position = UDim2.new(0, 16, 0, 26)
-		SubTitleLabel.BackgroundTransparency = 1
-		SubTitleLabel.Text = subText
-		SubTitleLabel.TextColor3 = Color3.fromRGB(130, 130, 140)
-		SubTitleLabel.TextSize = 11
-		SubTitleLabel.Font = Enum.Font.GothamMedium
-		SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-		SubTitleLabel.Parent = Topbar
-	end
-
-	-- Mini Stats Widget (Freely Movable & Parented directly to ScreenGui for independent dragging)
+	-- Mini Stats Widget (Movable)
 	local StatsFrameOuter = Instance.new("Frame")
 	StatsFrameOuter.Size = UDim2.new(0, 246, 0, 32)
-	StatsFrameOuter.Position = UDim2.new(0.5, 40, 0.5, -191)
+	StatsFrameOuter.Position = UDim2.new(0.5, 40, 0.5, -170)
 	StatsFrameOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	StatsFrameOuter.BorderSizePixel = 0
 	StatsFrameOuter.Parent = ScreenGui
@@ -422,7 +434,8 @@ function Library.CreateWindow(config)
 	HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
 	HeadshotImg.Position = UDim2.new(0, 6, 0.5, -10)
 	HeadshotImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-	HeadshotImg.Image = ""
+	HeadshotImg.BackgroundTransparency = 0
+	HeadshotImg.BorderSizePixel = 0
 	HeadshotImg.Parent = StatsFrame
 
 	local HeadCorner = Instance.new("UICorner")
@@ -430,6 +443,7 @@ function Library.CreateWindow(config)
 	HeadCorner.Parent = HeadshotImg
 
 	task.spawn(function()
+		while not LocalPlayer do task.wait(0.1) end
 		pcall(function()
 			local content = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
 			if content then
@@ -484,10 +498,9 @@ function Library.CreateWindow(config)
 		end)
 	end)
 
-	-- Make Mini-Stats widget fully movable anywhere smoothly
 	makeDraggable(StatsFrameOuter, StatsFrameOuter)
 
-	-- Floating Toggle Button (Appears when GUI is minimized)
+	-- Floating Minimize / Restore Toggle Button
 	local ToggleBtnOuter = Instance.new("Frame")
 	ToggleBtnOuter.Name = "ToggleBtnOuter"
 	ToggleBtnOuter.Size = UDim2.new(0, 42, 0, 42)
@@ -517,7 +530,7 @@ function Library.CreateWindow(config)
 	ToggleBtn.Size = UDim2.new(1, -4, 1, -4)
 	ToggleBtn.Position = UDim2.new(0, 2, 0, 2)
 	ToggleBtn.BackgroundColor3 = Color3.fromRGB(18, 16, 20)
-	ToggleBtn.Image = "rbxassetid://12787168883"
+	ToggleBtn.Image = iconId
 	ToggleBtn.ScaleType = Enum.ScaleType.Fit
 	ToggleBtn.Parent = ToggleBtnOuter
 
@@ -526,6 +539,7 @@ function Library.CreateWindow(config)
 	TBtnCorner.Parent = ToggleBtn
 
 	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
+	makeDraggable(ToggleBtn, ToggleBtnOuter)
 
 	ToggleBtn.MouseButton1Click:Connect(function()
 		playSound("rbxassetid://122966251252708", soundEnabled)
@@ -572,13 +586,12 @@ function Library.CreateWindow(config)
 		ToggleBtnOuter.Visible = true
 	end)
 
-	-- Make entire main window smoothly movable via the Topbar header
 	makeDraggable(Topbar, MainOuter)
 
-	-- Sidebar Tab Container
+	-- Sidebar Tab Container (Height adjusted for compact layout)
 	local TabContainer = Instance.new("ScrollingFrame")
 	TabContainer.Name = "TabContainer"
-	TabContainer.Size = UDim2.new(0, 140, 1, -55)
+	TabContainer.Size = UDim2.new(0, 140, 1, userConfig and userConfig.Enabled ~= false and -112 or -55)
 	TabContainer.Position = UDim2.new(0, 12, 0, 48)
 	TabContainer.BackgroundTransparency = 1
 	TabContainer.ScrollBarThickness = 0
@@ -587,6 +600,80 @@ function Library.CreateWindow(config)
 	local TabList = Instance.new("UIListLayout")
 	TabList.Padding = UDim.new(0, 5)
 	TabList.Parent = TabContainer
+
+	-- User Profile Card (Bottom left of sidebar if enabled)
+	if userConfig and userConfig.Enabled ~= false then
+		local ProfileCard = Instance.new("TextButton")
+		ProfileCard.Name = "ProfileCard"
+		ProfileCard.Size = UDim2.new(0, 140, 0, 52)
+		ProfileCard.Position = UDim2.new(0, 12, 1, -60)
+		ProfileCard.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+		ProfileCard.AutoButtonColor = false
+		ProfileCard.Text = ""
+		ProfileCard.Parent = Main
+
+		local PCardCorner = Instance.new("UICorner")
+		PCardCorner.CornerRadius = UDim.new(0, 8)
+		PCardCorner.Parent = ProfileCard
+
+		local AvatarImg = Instance.new("ImageLabel")
+		AvatarImg.Size = UDim2.new(0, 36, 0, 36)
+		AvatarImg.Position = UDim2.new(0, 8, 0.5, -18)
+		AvatarImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
+		AvatarImg.BorderSizePixel = 0
+		AvatarImg.Parent = ProfileCard
+
+		local AvatarCorner = Instance.new("UICorner")
+		AvatarCorner.CornerRadius = UDim.new(0, 6)
+		AvatarCorner.Parent = AvatarImg
+
+		task.spawn(function()
+			pcall(function()
+				local content = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
+				if content then AvatarImg.Image = content end
+			end)
+		end)
+
+		local displayName = (userConfig.Anonymous == true) and "Anonymous" or LocalPlayer.Name
+		local handleName = (userConfig.Anonymous == true) and "@hidden" or ("@" .. LocalPlayer.Name)
+
+		local NameLbl = Instance.new("TextLabel")
+		NameLbl.Size = UDim2.new(1, -54, 0, 16)
+		NameLbl.Position = UDim2.new(0, 50, 0, 10)
+		NameLbl.BackgroundTransparency = 1
+		NameLbl.Text = displayName
+		NameLbl.TextColor3 = Color3.fromRGB(240, 240, 245)
+		NameLbl.TextSize = 11
+		NameLbl.Font = Enum.Font.GothamBold
+		NameLbl.TextXAlignment = Enum.TextXAlignment.Left
+		NameLbl.Parent = ProfileCard
+
+		local HandleLbl = Instance.new("TextLabel")
+		HandleLbl.Size = UDim2.new(1, -54, 0, 14)
+		HandleLbl.Position = UDim2.new(0, 50, 0, 26)
+		HandleLbl.BackgroundTransparency = 1
+		HandleLbl.Text = handleName
+		HandleLbl.TextColor3 = Color3.fromRGB(130, 130, 140)
+		HandleLbl.TextSize = 9
+		HandleLbl.Font = Enum.Font.GothamMedium
+		HandleLbl.TextXAlignment = Enum.TextXAlignment.Left
+		HandleLbl.Parent = ProfileCard
+
+		local ArrowIcon = Instance.new("ImageLabel")
+		ArrowIcon.Size = UDim2.new(0, 12, 0, 12)
+		ArrowIcon.Position = UDim2.new(1, -16, 0.5, -6)
+		ArrowIcon.BackgroundTransparency = 1
+		ArrowIcon.Image = getLucideIcon("chevronright")
+		ArrowIcon.ImageColor3 = Color3.fromRGB(150, 150, 160)
+		ArrowIcon.Parent = ProfileCard
+
+		ProfileCard.MouseButton1Click:Connect(function()
+			playSound("rbxassetid://122966251252708", soundEnabled)
+			if userConfig.Callback then
+				pcall(userConfig.Callback)
+			end
+		end)
+	end
 
 	local PagesHolder = Instance.new("Frame")
 	PagesHolder.Name = "PagesHolder"
@@ -598,7 +685,7 @@ function Library.CreateWindow(config)
 	local tabs = {}
 	local firstTab = true
 
-	function window:CreateTab(tabName)
+	function window:CreateTab(tabName, tabIcon)
 		local tab = {}
 		pcall(function()
 			local TabBtn = Instance.new("TextButton")
@@ -610,6 +697,16 @@ function Library.CreateWindow(config)
 			TabBtn.TextSize = 12
 			TabBtn.TextXAlignment = Enum.TextXAlignment.Left
 			TabBtn.Parent = TabContainer
+
+			if tabIcon then
+				local TIcon = Instance.new("ImageLabel")
+				TIcon.Size = UDim2.new(0, 16, 0, 16)
+				TIcon.Position = UDim2.new(0, 10, 0.5, -8)
+				TIcon.BackgroundTransparency = 1
+				TIcon.Image = getLucideIcon(tabIcon)
+				TIcon.Parent = TabBtn
+				TabBtn.Text = "      " .. tostring(tabName)
+			end
 
 			local TabCorner = Instance.new("UICorner")
 			TabCorner.CornerRadius = UDim.new(0, 7)
