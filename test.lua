@@ -51,11 +51,11 @@ function Library.CreateWindow(titleText, subText)
 	ScreenGui.Parent = (gethui and gethui()) or CoreGui
 	ScreenGui.ResetOnSpawn = false
 
-	-- Main Frame
+	-- Responsive Main Frame (Compact, fixed design scale suitable for mobile & PC)
 	local Main = Instance.new("Frame")
 	Main.Name = "Main"
-	Main.Size = UDim2.new(0, 750, 0, 440)
-	Main.Position = UDim2.new(0.5, -375, 0.5, -220)
+	Main.Size = UDim2.new(0, 620, 0, 370)
+	Main.Position = UDim2.new(0.5, -310, 0.5, -185)
 	Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 	Main.BorderSizePixel = 0
 	Main.Parent = ScreenGui
@@ -67,36 +67,36 @@ function Library.CreateWindow(titleText, subText)
 	-- Topbar / Header
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
-	Topbar.Size = UDim2.new(1, 0, 0, 55)
+	Topbar.Size = UDim2.new(1, 0, 0, 50)
 	Topbar.BackgroundTransparency = 1
 	Topbar.Parent = Main
 
 	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(0, 200, 0, 22)
-	TitleLabel.Position = UDim2.new(0, 20, 0, 10)
+	TitleLabel.Size = UDim2.new(0, 200, 0, 20)
+	TitleLabel.Position = UDim2.new(0, 16, 0, 8)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = titleText or "SpawnRealm"
 	TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	TitleLabel.TextSize = 18
+	TitleLabel.TextSize = 16
 	TitleLabel.Font = Enum.Font.GothamBold
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	TitleLabel.Parent = Topbar
 
 	local SubTitleLabel = Instance.new("TextLabel")
-	SubTitleLabel.Size = UDim2.new(0, 200, 0, 16)
-	SubTitleLabel.Position = UDim2.new(0, 20, 0, 30)
+	SubTitleLabel.Size = UDim2.new(0, 200, 0, 14)
+	SubTitleLabel.Position = UDim2.new(0, 16, 0, 26)
 	SubTitleLabel.BackgroundTransparency = 1
 	SubTitleLabel.Text = subText or "Universal"
 	SubTitleLabel.TextColor3 = Color3.fromRGB(130, 130, 140)
-	SubTitleLabel.TextSize = 12
+	SubTitleLabel.TextSize = 11
 	SubTitleLabel.Font = Enum.Font.GothamMedium
 	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	SubTitleLabel.Parent = Topbar
 
 	-- Mini Stats Widget (Top Right of Main Frame)
 	local StatsFrame = Instance.new("Frame")
-	StatsFrame.Size = UDim2.new(0, 230, 0, 28)
-	StatsFrame.Position = UDim2.new(1, -250, 0, 14)
+	StatsFrame.Size = UDim2.new(0, 210, 0, 26)
+	StatsFrame.Position = UDim2.new(1, -230, 0, 12)
 	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 	StatsFrame.BorderSizePixel = 0
 	StatsFrame.Parent = Topbar
@@ -109,16 +109,16 @@ function Library.CreateWindow(titleText, subText)
 	StatsLayout.FillDirection = Enum.FillDirection.Horizontal
 	StatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	StatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	StatsLayout.Padding = UDim.new(0, 12)
+	StatsLayout.Padding = UDim.new(0, 10)
 	StatsLayout.Parent = StatsFrame
 
 	local function createStatLabel(text)
 		local lbl = Instance.new("TextLabel")
-		lbl.Size = UDim2.new(0, 60, 1, 0)
+		lbl.Size = UDim2.new(0, 55, 1, 0)
 		lbl.BackgroundTransparency = 1
 		lbl.Text = text
 		lbl.TextColor3 = Color3.fromRGB(180, 180, 190)
-		lbl.TextSize = 11
+		lbl.TextSize = 10
 		lbl.Font = Enum.Font.GothamMedium
 		lbl.Parent = StatsFrame
 		return lbl
@@ -146,14 +146,14 @@ function Library.CreateWindow(titleText, subText)
 		end)
 	end)
 
-	-- Window Controls (Close)
+	-- Window Control (Close)
 	local CloseBtn = Instance.new("TextButton")
-	CloseBtn.Size = UDim2.new(0, 24, 0, 24)
-	CloseBtn.Position = UDim2.new(1, -35, 0, 16)
+	CloseBtn.Size = UDim2.new(0, 22, 0, 22)
+	CloseBtn.Position = UDim2.new(1, -32, 0, 14)
 	CloseBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 	CloseBtn.Text = "×"
 	CloseBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-	CloseBtn.TextSize = 16
+	CloseBtn.TextSize = 15
 	CloseBtn.Font = Enum.Font.GothamBold
 	CloseBtn.Parent = Topbar
 
@@ -170,21 +170,21 @@ function Library.CreateWindow(titleText, subText)
 	-- Sidebar Tab Container (Left)
 	local TabContainer = Instance.new("ScrollingFrame")
 	TabContainer.Name = "TabContainer"
-	TabContainer.Size = UDim2.new(0, 160, 1, -70)
-	TabContainer.Position = UDim2.new(0, 15, 0, 60)
+	TabContainer.Size = UDim2.new(0, 140, 1, -60)
+	TabContainer.Position = UDim2.new(0, 12, 0, 52)
 	TabContainer.BackgroundTransparency = 1
 	TabContainer.ScrollBarThickness = 0
 	TabContainer.Parent = Main
 
 	local TabList = Instance.new("UIListLayout")
-	TabList.Padding = UDim.new(0, 6)
+	TabList.Padding = UDim.new(0, 5)
 	TabList.Parent = TabContainer
 
 	-- Pages Holder Area (Right)
 	local PagesHolder = Instance.new("Frame")
 	PagesHolder.Name = "PagesHolder"
-	PagesHolder.Size = UDim2.new(1, -195, 1, -70)
-	PagesHolder.Position = UDim2.new(0, 185, 0, 60)
+	PagesHolder.Size = UDim2.new(1, -170, 1, -60)
+	PagesHolder.Position = UDim2.new(0, 160, 0, 52)
 	PagesHolder.BackgroundTransparency = 1
 	PagesHolder.Parent = Main
 
@@ -195,17 +195,17 @@ function Library.CreateWindow(titleText, subText)
 		local tab = {}
 		
 		local TabBtn = Instance.new("TextButton")
-		TabBtn.Size = UDim2.new(1, 0, 0, 38)
+		TabBtn.Size = UDim2.new(1, 0, 0, 34)
 		TabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 		TabBtn.Text = "   " .. tabName
 		TabBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
 		TabBtn.Font = Enum.Font.GothamMedium
-		TabBtn.TextSize = 13
+		TabBtn.TextSize = 12
 		TabBtn.TextXAlignment = Enum.TextXAlignment.Left
 		TabBtn.Parent = TabContainer
 
 		local TabCorner = Instance.new("UICorner")
-		TabCorner.CornerRadius = UDim.new(0, 8)
+		TabCorner.CornerRadius = UDim.new(0, 7)
 		TabCorner.Parent = TabBtn
 
 		-- Page Frame containing two columns
@@ -220,25 +220,25 @@ function Library.CreateWindow(titleText, subText)
 
 		local LeftCol = Instance.new("ScrollingFrame")
 		LeftCol.Name = "LeftColumn"
-		LeftCol.Size = UDim2.new(0.5, -6, 1, 0)
+		LeftCol.Size = UDim2.new(0.5, -5, 1, 0)
 		LeftCol.BackgroundTransparency = 1
 		LeftCol.ScrollBarThickness = 0
 		LeftCol.Parent = Page
 
 		local LeftLayout = Instance.new("UIListLayout")
-		LeftLayout.Padding = UDim.new(0, 10)
+		LeftLayout.Padding = UDim.new(0, 8)
 		LeftLayout.Parent = LeftCol
 
 		local RightCol = Instance.new("ScrollingFrame")
 		RightCol.Name = "RightColumn"
-		RightCol.Size = UDim2.new(0.5, -6, 1, 0)
-		RightCol.Position = UDim2.new(0.5, 6, 0, 0)
+		RightCol.Size = UDim2.new(0.5, -5, 1, 0)
+		RightCol.Position = UDim2.new(0.5, 5, 0, 0)
 		RightCol.BackgroundTransparency = 1
 		RightCol.ScrollBarThickness = 0
 		RightCol.Parent = Page
 
 		local RightLayout = Instance.new("UIListLayout")
-		RightLayout.Padding = UDim.new(0, 10)
+		RightLayout.Padding = UDim.new(0, 8)
 		RightLayout.Parent = RightCol
 
 		if firstTab then
@@ -263,33 +263,33 @@ function Library.CreateWindow(titleText, subText)
 			local targetCol = (columnSide:lower() == "right") and RightCol or LeftCol
 
 			local SectionFrame = Instance.new("Frame")
-			SectionFrame.Size = UDim2.new(1, 0, 0, 120)
+			SectionFrame.Size = UDim2.new(1, 0, 0, 100)
 			SectionFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
 			SectionFrame.BorderSizePixel = 0
 			SectionFrame.Parent = targetCol
 
 			local SecCorner = Instance.new("UICorner")
-			SecCorner.CornerRadius = UDim.new(0, 8)
+			SecCorner.CornerRadius = UDim.new(0, 7)
 			SecCorner.Parent = SectionFrame
 
 			local SecTitle = Instance.new("TextLabel")
-			SecTitle.Size = UDim2.new(1, -20, 0, 30)
-			SecTitle.Position = UDim2.new(0, 12, 0, 0)
+			SecTitle.Size = UDim2.new(1, -16, 0, 26)
+			SecTitle.Position = UDim2.new(0, 10, 0, 0)
 			SecTitle.BackgroundTransparency = 1
 			SecTitle.Text = sectionTitle
 			SecTitle.TextColor3 = Color3.fromRGB(220, 220, 230)
-			SecTitle.TextSize = 13
+			SecTitle.TextSize = 12
 			SecTitle.Font = Enum.Font.GothamBold
 			SecTitle.TextXAlignment = Enum.TextXAlignment.Left
 			SecTitle.Parent = SectionFrame
 
 			local InnerList = Instance.new("UIListLayout")
-			InnerList.Padding = UDim.new(0, 6)
+			InnerList.Padding = UDim.new(0, 5)
 			InnerList.SortOrder = Enum.SortOrder.LayoutOrder
 			InnerList.Parent = SectionFrame
 
 			InnerList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-				SectionFrame.Size = UDim2.new(1, 0, 0, InnerList.AbsoluteContentSize.Y + 15)
+				SectionFrame.Size = UDim2.new(1, 0, 0, InnerList.AbsoluteContentSize.Y + 12)
 			end)
 
 			local section = {}
@@ -298,37 +298,37 @@ function Library.CreateWindow(titleText, subText)
 				local state = default or false
 
 				local ToggleItem = Instance.new("Frame")
-				ToggleItem.Size = UDim2.new(1, -16, 0, desc and 42 or 32)
+				ToggleItem.Size = UDim2.new(1, -14, 0, desc and 38 or 28)
 				ToggleItem.BackgroundTransparency = 1
 				ToggleItem.Parent = SectionFrame
 
 				local Label = Instance.new("TextLabel")
-				Label.Size = UDim2.new(1, -60, 0, 18)
-				Label.Position = UDim2.new(0, 8, 0, desc and 3 or 7)
+				Label.Size = UDim2.new(1, -50, 0, 16)
+				Label.Position = UDim2.new(0, 6, 0, desc and 2 or 6)
 				Label.BackgroundTransparency = 1
 				Label.Text = name
 				Label.TextColor3 = Color3.fromRGB(210, 210, 220)
-				Label.TextSize = 12
+				Label.TextSize = 11
 				Label.Font = Enum.Font.GothamMedium
 				Label.TextXAlignment = Enum.TextXAlignment.Left
 				Label.Parent = ToggleItem
 
 				if desc then
 					local DescLabel = Instance.new("TextLabel")
-					DescLabel.Size = UDim2.new(1, -60, 0, 14)
-					DescLabel.Position = UDim2.new(0, 8, 0, 21)
+					DescLabel.Size = UDim2.new(1, -50, 0, 12)
+					DescLabel.Position = UDim2.new(0, 6, 0, 18)
 					DescLabel.BackgroundTransparency = 1
 					DescLabel.Text = desc
 					DescLabel.TextColor3 = Color3.fromRGB(120, 120, 130)
-					DescLabel.TextSize = 10
+					DescLabel.TextSize = 9
 					DescLabel.Font = Enum.Font.Gotham
 					DescLabel.TextXAlignment = Enum.TextXAlignment.Left
 					DescLabel.Parent = ToggleItem
 				end
 
 				local ToggleBtn = Instance.new("TextButton")
-				ToggleBtn.Size = UDim2.new(0, 36, 0, 20)
-				ToggleBtn.Position = UDim2.new(1, -40, 0.5, -10)
+				ToggleBtn.Size = UDim2.new(0, 32, 0, 18)
+				ToggleBtn.Position = UDim2.new(1, -36, 0.5, -9)
 				ToggleBtn.BackgroundColor3 = state and Color3.fromRGB(220, 30, 60) or Color3.fromRGB(45, 45, 52)
 				ToggleBtn.Text = ""
 				ToggleBtn.Parent = ToggleItem
@@ -338,8 +338,8 @@ function Library.CreateWindow(titleText, subText)
 				BtnCorner.Parent = ToggleBtn
 
 				local Circle = Instance.new("Frame")
-				Circle.Size = UDim2.new(0, 14, 0, 14)
-				Circle.Position = state and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
+				Circle.Size = UDim2.new(0, 12, 0, 12)
+				Circle.Position = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
 				Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 				Circle.Parent = ToggleBtn
 
@@ -349,7 +349,7 @@ function Library.CreateWindow(titleText, subText)
 
 				ToggleBtn.MouseButton1Click:Connect(function()
 					state = not state
-					local targetPos = state and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
+					local targetPos = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
 					local targetColor = state and Color3.fromRGB(220, 30, 60) or Color3.fromRGB(45, 45, 52)
 
 					TweenService:Create(Circle, TWEEN_INFO, {Position = targetPos}):Play()
@@ -360,18 +360,17 @@ function Library.CreateWindow(titleText, subText)
 
 			function section:CreateButton(name, callback)
 				local Btn = Instance.new("TextButton")
-				Btn.Size = UDim2.new(1, -16, 0, 32)
+				Btn.Size = UDim2.new(1, -14, 0, 28)
 				Btn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
-				Btn.Text = "  " + name -- handled safely below
 				Btn.Text = "  " .. name
 				Btn.TextColor3 = Color3.fromRGB(210, 210, 220)
 				Btn.Font = Enum.Font.GothamMedium
-				Btn.TextSize = 12
+				Btn.TextSize = 11
 				Btn.TextXAlignment = Enum.TextXAlignment.Left
 				Btn.Parent = SectionFrame
 
 				local BtnCorner = Instance.new("UICorner")
-				BtnCorner.CornerRadius = UDim.new(0, 6)
+				BtnCorner.CornerRadius = UDim.new(0, 5)
 				BtnCorner.Parent = Btn
 
 				Btn.MouseButton1Click:Connect(function()
