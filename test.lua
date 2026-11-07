@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Gen2 with Authentic Loading Screen)
+-- SpawnRealm / Moondiety UI Library Module (Gen2 with Shiny Animation & Audio Boost)
 local Library = {}
 Library.__index = Library
 
@@ -42,13 +42,13 @@ local function makeDraggable(topbar, object)
 	end)
 end
 
--- Sound Effect Helper
+-- Sound Effect Helper (Volume boosted to 1.0)
 local function playSound(soundId, enabled)
 	if not enabled or not soundId then return end
 	pcall(function()
 		local sound = Instance.new("Sound")
 		sound.SoundId = soundId
-		sound.Volume = 0.5
+		sound.Volume = 1.0
 		sound.Parent = CoreGui
 		sound:Play()
 		sound.Ended:Connect(function()
@@ -63,7 +63,7 @@ function Library.CreateWindow(config)
 	local titleText = config.name or config.Name or "MOONDIETY"
 	local subText = config.subtitle or config.Subtitle or "Universal"
 	local iconId = config.UIicon or config.UiIcon or "rbxassetid://12787168883"
-	local soundEnabled = (config.SoundButtons ~= false) -- defaults to true
+	local soundEnabled = (config.SoundButtons ~= false)
 
 	local window = {}
 	
@@ -72,7 +72,48 @@ function Library.CreateWindow(config)
 	ScreenGui.Parent = (gethui and gethui()) or CoreGui
 	ScreenGui.ResetOnSpawn = false
 
-	-- Authentic Moondiety Loading Screen
+	-- Responsive Main Frame (Hidden until loading finishes)
+	local Main = Instance.new("Frame")
+	Main.Name = "Main"
+	Main.Size = UDim2.new(0, 620, 0, 370)
+	Main.Position = UDim2.new(0.5, -310, 0.5, -185)
+	Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+	Main.BorderSizePixel = 0
+	Main.Visible = false 
+	Main.Parent = ScreenGui
+
+	local MainCorner = Instance.new("UICorner")
+	MainCorner.CornerRadius = UDim.new(0, 10)
+	MainCorner.Parent = Main
+
+	-- Main Window Shiny Reflection Overlay Effect
+	local MainShiny = Instance.new("Frame")
+	MainShiny.Size = UDim2.new(0, 120, 2, 0)
+	MainShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
+	MainShiny.Rotation = 30
+	MainShiny.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	MainShiny.BackgroundTransparency = 0.92
+	MainShiny.BorderSizePixel = 0
+	MainShiny.ClipsDescendants = true
+	MainShiny.Parent = Main
+
+	local MainShinyGrad = Instance.new("UIGradient")
+	MainShinyGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.5, 0.7),
+		NumberSequenceKeypoint.new(1, 1)
+	})
+	MainShinyGrad.Parent = MainShiny
+
+	task.spawn(function()
+		while Main and Main.Parent do
+			MainShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
+			TweenService:Create(MainShiny, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.2, 0, -0.5, 0)}):Play()
+			task.wait(6)
+		end
+	end)
+
+	-- Authentic Loading Screen
 	pcall(function()
 		local LoadGui = Instance.new("ScreenGui")
 		LoadGui.Name = "MoonDeityLoader"
@@ -89,7 +130,6 @@ function Library.CreateWindow(config)
 		LoadCorner.CornerRadius = UDim.new(0, 12)
 		LoadCorner.Parent = LoadFrame
 
-		-- Soft background red glow circle behind icon
 		local GlowImg = Instance.new("ImageLabel")
 		GlowImg.Size = UDim2.new(0, 120, 0, 120)
 		GlowImg.Position = UDim2.new(0.5, -60, 0, 15)
@@ -128,7 +168,6 @@ function Library.CreateWindow(config)
 		SubLoadTitle.TextXAlignment = Enum.TextXAlignment.Center
 		SubLoadTitle.Parent = LoadFrame
 
-		-- Progress Bar Labels
 		local StatusLabel = Instance.new("TextLabel")
 		StatusLabel.Size = UDim2.new(0, 200, 0, 16)
 		StatusLabel.Position = UDim2.new(0, 30, 0, 148)
@@ -151,7 +190,6 @@ function Library.CreateWindow(config)
 		PercentLabel.TextXAlignment = Enum.TextXAlignment.Right
 		PercentLabel.Parent = LoadFrame
 
-		-- Bar Container
 		local BarBg = Instance.new("Frame")
 		BarBg.Size = UDim2.new(1, -60, 0, 6)
 		BarBg.Position = UDim2.new(0, 30, 0, 168)
@@ -173,12 +211,12 @@ function Library.CreateWindow(config)
 		BarFillCorner.CornerRadius = UDim.new(1, 0)
 		BarFillCorner.Parent = BarFill
 
-		-- Bottom Security Footer
+		-- Changed footer text requested
 		local FooterLabel = Instance.new("TextLabel")
 		FooterLabel.Size = UDim2.new(1, 0, 0, 14)
 		FooterLabel.Position = UDim2.new(0, 0, 0, 198)
 		FooterLabel.BackgroundTransparency = 1
-		FooterLabel.Text = "SECURE BOOT | UNIVERSAL"
+		FooterLabel.Text = "Secure Boot | System"
 		FooterLabel.TextColor3 = Color3.fromRGB(90, 85, 95)
 		FooterLabel.TextSize = 9
 		FooterLabel.Font = Enum.Font.GothamBold
@@ -198,21 +236,9 @@ function Library.CreateWindow(config)
 			TweenService:Create(LoadFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
 			task.wait(0.3)
 			LoadGui:Destroy()
+			Main.Visible = true -- Show main UI after loading screen finishes
 		end)
 	end)
-
-	-- Responsive Main Frame
-	local Main = Instance.new("Frame")
-	Main.Name = "Main"
-	Main.Size = UDim2.new(0, 620, 0, 370)
-	Main.Position = UDim2.new(0.5, -310, 0.5, -185)
-	Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
-	Main.BorderSizePixel = 0
-	Main.Parent = ScreenGui
-
-	local MainCorner = Instance.new("UICorner")
-	MainCorner.CornerRadius = UDim.new(0, 10)
-	MainCorner.Parent = Main
 
 	-- Topbar / Header
 	local Topbar = Instance.new("Frame")
@@ -274,39 +300,93 @@ function Library.CreateWindow(config)
 		SubTitleLabel.Parent = Topbar
 	end
 
-	-- Movable Mini Stats Widget (Top Right Corner with Player Headshot)
+	-- Movable Mini Stats Widget with Double Outline (White inner, Black outer) & Shiny Reflection
+	local StatsFrameOuter = Instance.new("Frame")
+	StatsFrameOuter.Size = UDim2.new(0, 246, 0, 34)
+	StatsFrameOuter.Position = UDim2.new(1, -300, 0, 8)
+	StatsFrameOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Super tiny black outer outline base
+	StatsFrameOuter.BorderSizePixel = 0
+	StatsFrameOuter.Parent = ScreenGui
+
+	local OuterCorner = Instance.new("UICorner")
+	OuterCorner.CornerRadius = UDim.new(0, 8)
+	OuterCorner.Parent = StatsFrameOuter
+
+	local StatsFrameInner = Instance.new("Frame")
+	StatsFrameInner.Size = UDim2.new(1, -2, 1, -2)
+	StatsFrameInner.Position = UDim2.new(0, 1, 0, 1)
+	StatsFrameInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Tiny white outline base
+	StatsFrameInner.BorderSizePixel = 0
+	StatsFrameInner.Parent = StatsFrameOuter
+
+	local InnerCorner = Instance.new("UICorner")
+	InnerCorner.CornerRadius = UDim.new(0, 7)
+	InnerCorner.Parent = StatsFrameInner
+
 	local StatsFrame = Instance.new("Frame")
-	StatsFrame.Size = UDim2.new(0, 240, 0, 28)
-	StatsFrame.Position = UDim2.new(1, -295, 0, 11)
+	StatsFrame.Size = UDim2.new(1, -4, 1, -4)
+	StatsFrame.Position = UDim2.new(0, 2, 0, 2)
 	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 	StatsFrame.BorderSizePixel = 0
-	StatsFrame.Parent = ScreenGui
+	StatsFrame.Parent = StatsFrameOuter
 
 	local StatsCorner = Instance.new("UICorner")
 	StatsCorner.CornerRadius = UDim.new(0, 6)
 	StatsCorner.Parent = StatsFrame
 
-	makeDraggable(StatsFrame, StatsFrame)
+	makeDraggable(StatsFrameOuter, StatsFrameOuter)
 
+	-- Mini-stats shiny reflection effect
+	local StatsShiny = Instance.new("Frame")
+	StatsShiny.Size = UDim2.new(0, 60, 2, 0)
+	StatsShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
+	StatsShiny.Rotation = 30
+	StatsShiny.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	StatsShiny.BackgroundTransparency = 0.92
+	StatsShiny.BorderSizePixel = 0
+	StatsShiny.ClipsDescendants = true
+	StatsShiny.Parent = StatsFrame
+
+	local StatsShinyGrad = Instance.new("UIGradient")
+	StatsShinyGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.5, 0.7),
+		NumberSequenceKeypoint.new(1, 1)
+	})
+	StatsShinyGrad.Parent = StatsShiny
+
+	task.spawn(function()
+		while StatsFrameOuter and StatsFrameOuter.Parent do
+			StatsShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
+			TweenService:Create(StatsShiny, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.3, 0, -0.5, 0)}):Play()
+			task.wait(6)
+		end
+	end)
+
+	-- Player Headshot Renderer Fix
 	local HeadshotImg = Instance.new("ImageLabel")
-	HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
-	HeadshotImg.Position = UDim2.new(0, 4, 0.5, -10)
+	HeadshotImg.Size = UDim2.new(0, 22, 0, 22)
+	HeadshotImg.Position = UDim2.new(0, 6, 0.5, -11)
 	HeadshotImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-	HeadshotImg.Image = "rbxassetid://0"
+	HeadshotImg.Image = ""
 	HeadshotImg.Parent = StatsFrame
 
 	local HeadCorner = Instance.new("UICorner")
 	HeadCorner.CornerRadius = UDim.new(1, 0)
 	HeadCorner.Parent = HeadshotImg
 
-	pcall(function()
-		local content = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
-		HeadshotImg.Image = content
+	task.spawn(function()
+		pcall(function()
+			local content, isReady = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
+			if content then
+				HeadshotImg.Image = content
+			end
+		end)
 	end)
 
 	local StatsContainer = Instance.new("Frame")
-	StatsContainer.Size = UDim2.new(1, -30, 1, 0)
-	StatsContainer.Position = UDim2.new(0, 28, 0, 0)
+	StatsContainer.Size = UDim2.new(1, -32, 1, 0)
+	StatsContainer.Position = UDim2.new(0, 32, 0, 0)
 	StatsContainer.BackgroundTransparency = 1
 	StatsContainer.Parent = StatsFrame
 
@@ -369,6 +449,7 @@ function Library.CreateWindow(config)
 		pcall(function() ScreenGui:Destroy() end)
 	end)
 
+	-- Make entire main window movable from the Topbar header
 	makeDraggable(Topbar, Main)
 
 	-- Sidebar Tab Container
