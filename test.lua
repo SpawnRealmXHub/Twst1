@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Gen2 Fully Fixed)
+-- SpawnRealm / Moondiety UI Library Module (Gen2 Fully Rectified)
 local Library = {}
 Library.__index = Library
 
@@ -42,7 +42,7 @@ local function makeDraggable(topbar, object)
 	end)
 end
 
--- Sound Effect Helper (Volume boosted to 1.5)
+-- Sound Effect Helper (Volume at 1.5)
 local function playSound(soundId, enabled)
 	if not enabled or not soundId then return end
 	pcall(function()
@@ -64,7 +64,7 @@ function Library.CreateWindow(config)
 	local subText = config.subtitle or config.Subtitle or "Universal"
 	local iconId = config.UIicon or config.UiIcon or "rbxassetid://12787168883"
 	local soundEnabled = (config.SoundButtons ~= false)
-	local useSideLayout = (config.UISiderLayout ~= false) -- defaults to true
+	local useSideLayout = (config.UISiderLayout ~= false)
 
 	local window = {}
 	
@@ -73,26 +73,28 @@ function Library.CreateWindow(config)
 	ScreenGui.Parent = (gethui and gethui()) or CoreGui
 	ScreenGui.ResetOnSpawn = false
 
-	-- Main Window Outer Outline (Black outer frame)
+	-- Main Window Outer Black Outline
 	local MainOuter = Instance.new("Frame")
 	MainOuter.Name = "MainOuter"
-	MainOuter.Size = UDim2.new(0, 682, 0, 382)
-	MainOuter.Position = UDim2.new(0.5, -341, 0.5, -191)
+	-- UISiderLayout = false makes the GUI width shorter/cleaner
+	local targetWidth = useSideLayout and 682 or 540
+	MainOuter.Size = UDim2.new(0, targetWidth, 0, 382)
+	MainOuter.Position = UDim2.new(0.5, -targetWidth/2, 0.5, -191)
 	MainOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	MainOuter.BorderSizePixel = 0
-	MainOuter.Visible = false
+	MainOuter.Visible = false -- Hidden during loading
 	MainOuter.Parent = ScreenGui
 
 	local MainOuterCorner = Instance.new("UICorner")
 	MainOuterCorner.CornerRadius = UDim.new(0, 11)
 	MainOuterCorner.Parent = MainOuter
 
-	-- Main Window Inner White Outline
+	-- Main Window Inner Neon White Outline
 	local MainInner = Instance.new("Frame")
 	MainInner.Size = UDim2.new(1, -2, 1, -2)
 	MainInner.Position = UDim2.new(0, 1, 0, 1)
 	MainInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	MainInner.BackgroundTransparency = 0.85
+	MainInner.BackgroundTransparency = 0.35
 	MainInner.BorderSizePixel = 0
 	MainInner.Parent = MainOuter
 
@@ -100,7 +102,7 @@ function Library.CreateWindow(config)
 	MainInnerCorner.CornerRadius = UDim.new(0, 10)
 	MainInnerCorner.Parent = MainInner
 
-	-- Responsive Main Frame (Compact Moondiety Height/Width)
+	-- Responsive Main Frame
 	local Main = Instance.new("Frame")
 	Main.Name = "Main"
 	Main.Size = UDim2.new(1, -4, 1, -4)
@@ -113,21 +115,30 @@ function Library.CreateWindow(config)
 	MainCorner.CornerRadius = UDim.new(0, 9)
 	MainCorner.Parent = Main
 
-	-- Main Window Shiny Reflection Overlay Effect
+	-- Shiny Clipping Container
+	local ShinyClip = Instance.new("Frame")
+	ShinyClip.Size = UDim2.new(1, 0, 1, 0)
+	ShinyClip.BackgroundTransparency = 1
+	ShinyClip.ClipsDescendants = true
+	ShinyClip.Parent = Main
+
+	local ShinyClipCorner = Instance.new("UICorner")
+	ShinyClipCorner.CornerRadius = UDim.new(0, 9)
+	ShinyClipCorner.Parent = ShinyClip
+
 	local MainShiny = Instance.new("Frame")
-	MainShiny.Size = UDim2.new(0, 120, 2, 0)
+	MainShiny.Size = UDim2.new(0, 100, 2, 0)
 	MainShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
 	MainShiny.Rotation = 30
 	MainShiny.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	MainShiny.BackgroundTransparency = 0.92
+	MainShiny.BackgroundTransparency = 0.93
 	MainShiny.BorderSizePixel = 0
-	MainShiny.ClipsDescendants = true
-	MainShiny.Parent = Main
+	MainShiny.Parent = ShinyClip
 
 	local MainShinyGrad = Instance.new("UIGradient")
 	MainShinyGrad.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.5, 0.7),
+		NumberSequenceKeypoint.new(0.5, 0.6),
 		NumberSequenceKeypoint.new(1, 1)
 	})
 	MainShinyGrad.Parent = MainShiny
@@ -135,8 +146,8 @@ function Library.CreateWindow(config)
 	task.spawn(function()
 		while MainOuter and MainOuter.Parent do
 			MainShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
-			TweenService:Create(MainShiny, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.2, 0, -0.5, 0)}):Play()
-			task.wait(6)
+			TweenService:Create(MainShiny, TweenInfo.new(3.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.3, 0, -0.5, 0)}):Play()
+			task.wait(7)
 		end
 	end)
 
@@ -326,20 +337,13 @@ function Library.CreateWindow(config)
 		SubTitleLabel.Parent = Topbar
 	end
 
-	-- Movable Mini Stats Widget with Double Outline & Outline Shiny Animation
+	-- Movable Mini Stats Widget (Top Right Corner of Header)
 	local StatsFrameOuter = Instance.new("Frame")
 	StatsFrameOuter.Size = UDim2.new(0, 246, 0, 32)
-	if useSideLayout then
-		StatsFrameOuter.Position = UDim2.new(1, -290, 0, 10)
-		StatsFrameOuter.Parent = Topbar
-	else
-		StatsFrameOuter.Position = UDim2.new(1, -300, 0, 8)
-		StatsFrameOuter.Parent = ScreenGui
-		makeDraggable(StatsFrameOuter, StatsFrameOuter)
-	end
-
+	StatsFrameOuter.Position = UDim2.new(1, -290, 0, 10)
 	StatsFrameOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	StatsFrameOuter.BorderSizePixel = 0
+	StatsFrameOuter.Parent = Topbar
 
 	local OuterCorner = Instance.new("UICorner")
 	OuterCorner.CornerRadius = UDim.new(0, 8)
@@ -367,7 +371,16 @@ function Library.CreateWindow(config)
 	StatsCorner.CornerRadius = UDim.new(0, 6)
 	StatsCorner.Parent = StatsFrame
 
-	-- Mini-stats outline/body shiny reflection effect
+	local StatsClip = Instance.new("Frame")
+	StatsClip.Size = UDim2.new(1, 0, 1, 0)
+	StatsClip.BackgroundTransparency = 1
+	StatsClip.ClipsDescendants = true
+	StatsClip.Parent = StatsFrameOuter
+
+	local StatsClipCorner = Instance.new("UICorner")
+	StatsClipCorner.CornerRadius = UDim.new(0, 8)
+	StatsClipCorner.Parent = StatsClip
+
 	local StatsShiny = Instance.new("Frame")
 	StatsShiny.Size = UDim2.new(0, 50, 2, 0)
 	StatsShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
@@ -375,8 +388,7 @@ function Library.CreateWindow(config)
 	StatsShiny.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	StatsShiny.BackgroundTransparency = 0.88
 	StatsShiny.BorderSizePixel = 0
-	StatsShiny.ClipsDescendants = true
-	StatsShiny.Parent = StatsFrameOuter
+	StatsShiny.Parent = StatsClip
 
 	local StatsShinyGrad = Instance.new("UIGradient")
 	StatsShinyGrad.Transparency = NumberSequence.new({
@@ -394,7 +406,6 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Player Headshot Renderer Fix
 	local HeadshotImg = Instance.new("ImageLabel")
 	HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
 	HeadshotImg.Position = UDim2.new(0, 6, 0.5, -10)
@@ -461,7 +472,53 @@ function Library.CreateWindow(config)
 		end)
 	end)
 
-	-- Window Control (Close)
+	-- Floating Toggle Button (Appears when GUI is minimized)
+	local ToggleBtnOuter = Instance.new("Frame")
+	ToggleBtnOuter.Name = "ToggleBtnOuter"
+	ToggleBtnOuter.Size = UDim2.new(0, 42, 0, 42)
+	ToggleBtnOuter.Position = UDim2.new(0, 40, 0, 200)
+	ToggleBtnOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	ToggleBtnOuter.BorderSizePixel = 0
+	ToggleBtnOuter.Visible = false
+	ToggleBtnOuter.Parent = ScreenGui
+
+	local TBtnOuterCorner = Instance.new("UICorner")
+	TBtnOuterCorner.CornerRadius = UDim.new(0, 10)
+	TBtnOuterCorner.Parent = ToggleBtnOuter
+
+	local ToggleBtnInner = Instance.new("Frame")
+	ToggleBtnInner.Size = UDim2.new(1, -2, 1, -2)
+	ToggleBtnInner.Position = UDim2.new(0, 1, 0, 1)
+	ToggleBtnInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	ToggleBtnInner.BackgroundTransparency = 0.35
+	ToggleBtnInner.BorderSizePixel = 0
+	ToggleBtnInner.Parent = ToggleBtnOuter
+
+	local TBtnInnerCorner = Instance.new("UICorner")
+	TBtnInnerCorner.CornerRadius = UDim.new(0, 9)
+	TBtnInnerCorner.Parent = ToggleBtnInner
+
+	local ToggleBtn = Instance.new("ImageButton")
+	ToggleBtn.Size = UDim2.new(1, -4, 1, -4)
+	ToggleBtn.Position = UDim2.new(0, 2, 0, 2)
+	ToggleBtn.BackgroundColor3 = Color3.fromRGB(18, 16, 20)
+	ToggleBtn.Image = "rbxassetid://12787168883"
+	ToggleBtn.ScaleType = Enum.ScaleType.Fit
+	ToggleBtn.Parent = ToggleBtnOuter
+
+	local TBtnCorner = Instance.new("UICorner")
+	TBtnCorner.CornerRadius = UDim.new(0, 8)
+	TBtnCorner.Parent = ToggleBtn
+
+	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
+
+	ToggleBtn.MouseButton1Click:Connect(function()
+		playSound("rbxassetid://122966251252708", soundEnabled)
+		MainOuter.Visible = true
+		ToggleBtnOuter.Visible = false
+	end)
+
+	-- Window Controls (Minimize & Close)
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 22, 0, 22)
 	CloseBtn.Position = UDim2.new(1, -32, 0, 14)
@@ -480,7 +537,27 @@ function Library.CreateWindow(config)
 		pcall(function() ScreenGui:Destroy() end)
 	end)
 
-	-- Make entire main window movable from the Topbar header
+	local MinBtn = Instance.new("TextButton")
+	MinBtn.Size = UDim2.new(0, 22, 0, 22)
+	MinBtn.Position = UDim2.new(1, -58, 0, 14)
+	MinBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+	MinBtn.Text = "-"
+	MinBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+	MinBtn.TextSize = 15
+	MinBtn.Font = Enum.Font.GothamBold
+	MinBtn.Parent = Topbar
+
+	local MinCorner = Instance.new("UICorner")
+	MinCorner.CornerRadius = UDim.new(0, 6)
+	MinCorner.Parent = MinBtn
+
+	MinBtn.MouseButton1Click:Connect(function()
+		playSound("rbxassetid://122966251252708", soundEnabled)
+		MainOuter.Visible = false
+		ToggleBtnOuter.Visible = true
+	end)
+
+	-- Make entire main window movable from the Topbar header using MainOuter
 	makeDraggable(Topbar, MainOuter)
 
 	-- Sidebar Tab Container
