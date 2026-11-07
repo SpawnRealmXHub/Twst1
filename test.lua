@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Compact, Profile Card & Lucide Icons)
+-- SpawnRealm / Moondiety UI Library Module (Anonymous Profile, Sliders & Scrolling Fixes)
 local Library = {}
 Library.__index = Library
 
@@ -11,7 +11,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local TWEEN_INFO = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
--- Comprehensive Lucide Icon Asset ID Registry
+-- Lucide Icon Registry
 local LucideIcons = {
 	["home"] = "rbxassetid://6023426915",
 	["shield"] = "rbxassetid://6023426985",
@@ -37,7 +37,6 @@ local function getLucideIcon(iconName)
 	return LucideIcons[formatted] or "rbxassetid://12787168883"
 end
 
--- Dedicated Protected Folder & Root Container Resolver
 local function getProtectedParent()
 	local base
 	if gethui then
@@ -59,7 +58,6 @@ local function getProtectedParent()
 	return folder
 end
 
--- Helper: Make UI Smoothly Movable / Draggable
 local function makeDraggable(handle, object)
 	local dragging, dragInput, dragStart, startPos
 
@@ -90,7 +88,6 @@ local function makeDraggable(handle, object)
 	end)
 end
 
--- Sound Effect Helper (Volume at 1.5)
 local function playSound(soundId, enabled)
 	if not enabled or not soundId then return end
 	pcall(function()
@@ -105,7 +102,6 @@ local function playSound(soundId, enabled)
 	end)
 end
 
--- Create Main Window
 function Library.CreateWindow(config)
 	config = config or {}
 	local titleText = config.name or config.Name or "MOONDIETY"
@@ -121,11 +117,10 @@ function Library.CreateWindow(config)
 	ScreenGui.Parent = getProtectedParent()
 	ScreenGui.ResetOnSpawn = false
 
-	-- Main Window Outer Black Outline (Height reduced to 340 for a compact look)
 	local MainOuter = Instance.new("Frame")
 	MainOuter.Name = "MainOuter"
 	local targetWidth = 682
-	local targetHeight = 340
+	local targetHeight = 350
 	MainOuter.Size = UDim2.new(0, targetWidth, 0, targetHeight)
 	MainOuter.Position = UDim2.new(0.5, -targetWidth/2, 0.5, -targetHeight/2)
 	MainOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -137,7 +132,6 @@ function Library.CreateWindow(config)
 	MainOuterCorner.CornerRadius = UDim.new(0, 11)
 	MainOuterCorner.Parent = MainOuter
 
-	-- Main Window Inner Neon White Outline
 	local MainInner = Instance.new("Frame")
 	MainInner.Size = UDim2.new(1, -2, 1, -2)
 	MainInner.Position = UDim2.new(0, 1, 0, 1)
@@ -150,7 +144,6 @@ function Library.CreateWindow(config)
 	MainInnerCorner.CornerRadius = UDim.new(0, 10)
 	MainInnerCorner.Parent = MainInner
 
-	-- Responsive Main Frame
 	local Main = Instance.new("Frame")
 	Main.Name = "Main"
 	Main.Size = UDim2.new(1, -4, 1, -4)
@@ -163,7 +156,6 @@ function Library.CreateWindow(config)
 	MainCorner.CornerRadius = UDim.new(0, 9)
 	MainCorner.Parent = Main
 
-	-- Shiny Clipping Container
 	local ShinyClip = Instance.new("Frame")
 	ShinyClip.Size = UDim2.new(1, 0, 1, 0)
 	ShinyClip.BackgroundTransparency = 1
@@ -254,70 +246,8 @@ function Library.CreateWindow(config)
 		SubLoadTitle.TextXAlignment = Enum.TextXAlignment.Center
 		SubLoadTitle.Parent = LoadFrame
 
-		local StatusLabel = Instance.new("TextLabel")
-		StatusLabel.Size = UDim2.new(0, 200, 0, 16)
-		StatusLabel.Position = UDim2.new(0, 30, 0, 148)
-		StatusLabel.BackgroundTransparency = 1
-		StatusLabel.Text = "Loading Universal UI..."
-		StatusLabel.TextColor3 = Color3.fromRGB(160, 150, 160)
-		StatusLabel.TextSize = 11
-		StatusLabel.Font = Enum.Font.GothamMedium
-		StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
-		StatusLabel.Parent = LoadFrame
-
-		local PercentLabel = Instance.new("TextLabel")
-		PercentLabel.Size = UDim2.new(0, 60, 0, 16)
-		PercentLabel.Position = UDim2.new(1, -90, 0, 148)
-		PercentLabel.BackgroundTransparency = 1
-		PercentLabel.Text = "0%"
-		PercentLabel.TextColor3 = Color3.fromRGB(220, 60, 80)
-		PercentLabel.TextSize = 11
-		PercentLabel.Font = Enum.Font.GothamBold
-		PercentLabel.TextXAlignment = Enum.TextXAlignment.Right
-		PercentLabel.Parent = LoadFrame
-
-		local BarBg = Instance.new("Frame")
-		BarBg.Size = UDim2.new(1, -60, 0, 6)
-		BarBg.Position = UDim2.new(0, 30, 0, 168)
-		BarBg.BackgroundColor3 = Color3.fromRGB(35, 30, 38)
-		BarBg.BorderSizePixel = 0
-		BarBg.Parent = LoadFrame
-
-		local BarBgCorner = Instance.new("UICorner")
-		BarBgCorner.CornerRadius = UDim.new(1, 0)
-		BarBgCorner.Parent = BarBg
-
-		local BarFill = Instance.new("Frame")
-		BarFill.Size = UDim2.new(0, 0, 1, 0)
-		BarFill.BackgroundColor3 = Color3.fromRGB(220, 30, 60)
-		BarFill.BorderSizePixel = 0
-		BarFill.Parent = BarBg
-
-		local BarFillCorner = Instance.new("UICorner")
-		BarFillCorner.CornerRadius = UDim.new(1, 0)
-		BarFillCorner.Parent = BarFill
-
-		local FooterLabel = Instance.new("TextLabel")
-		FooterLabel.Size = UDim2.new(1, 0, 0, 14)
-		FooterLabel.Position = UDim2.new(0, 0, 0, 198)
-		FooterLabel.BackgroundTransparency = 1
-		FooterLabel.Text = "Secure Boot | System"
-		FooterLabel.TextColor3 = Color3.fromRGB(90, 85, 95)
-		FooterLabel.TextSize = 9
-		FooterLabel.Font = Enum.Font.GothamBold
-		FooterLabel.TextXAlignment = Enum.TextXAlignment.Center
-		FooterLabel.Parent = LoadFrame
-
 		task.spawn(function()
-			for i = 1, 100 do
-				BarFill.Size = UDim2.new(i / 100, 0, 1, 0)
-				PercentLabel.Text = i .. "%"
-				if i == 100 then
-					StatusLabel.Text = "Ready!"
-				end
-				task.wait(0.015)
-			end
-			task.wait(0.2)
+			task.wait(0.6)
 			TweenService:Create(LoadFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
 			task.wait(0.3)
 			LoadGui:Destroy()
@@ -325,7 +255,6 @@ function Library.CreateWindow(config)
 		end)
 	end)
 
-	-- Topbar / Header
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
 	Topbar.Size = UDim2.new(1, 0, 0, 50)
@@ -361,10 +290,10 @@ function Library.CreateWindow(config)
 	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	SubTitleLabel.Parent = Topbar
 
-	-- Mini Stats Widget (Movable)
+	-- Mini Stats Widget
 	local StatsFrameOuter = Instance.new("Frame")
 	StatsFrameOuter.Size = UDim2.new(0, 246, 0, 32)
-	StatsFrameOuter.Position = UDim2.new(0.5, 40, 0.5, -170)
+	StatsFrameOuter.Position = UDim2.new(0.5, 40, 0.5, -175)
 	StatsFrameOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	StatsFrameOuter.BorderSizePixel = 0
 	StatsFrameOuter.Parent = ScreenGui
@@ -395,46 +324,10 @@ function Library.CreateWindow(config)
 	StatsCorner.CornerRadius = UDim.new(0, 6)
 	StatsCorner.Parent = StatsFrame
 
-	local StatsClip = Instance.new("Frame")
-	StatsClip.Size = UDim2.new(1, 0, 1, 0)
-	StatsClip.BackgroundTransparency = 1
-	StatsClip.ClipsDescendants = true
-	StatsClip.Parent = StatsFrameOuter
-
-	local StatsClipCorner = Instance.new("UICorner")
-	StatsClipCorner.CornerRadius = UDim.new(0, 8)
-	StatsClipCorner.Parent = StatsClip
-
-	local StatsShiny = Instance.new("Frame")
-	StatsShiny.Size = UDim2.new(0, 50, 2, 0)
-	StatsShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
-	StatsShiny.Rotation = 30
-	StatsShiny.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	StatsShiny.BackgroundTransparency = 0.88
-	StatsShiny.BorderSizePixel = 0
-	StatsShiny.Parent = StatsClip
-
-	local StatsShinyGrad = Instance.new("UIGradient")
-	StatsShinyGrad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.5, 0.5),
-		NumberSequenceKeypoint.new(1, 1)
-	})
-	StatsShinyGrad.Parent = StatsShiny
-
-	task.spawn(function()
-		while StatsFrameOuter and StatsFrameOuter.Parent do
-			StatsShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
-			TweenService:Create(StatsShiny, TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.3, 0, -0.5, 0)}):Play()
-			task.wait(5)
-		end
-	end)
-
 	local HeadshotImg = Instance.new("ImageLabel")
 	HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
 	HeadshotImg.Position = UDim2.new(0, 6, 0.5, -10)
 	HeadshotImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-	HeadshotImg.BackgroundTransparency = 0
 	HeadshotImg.BorderSizePixel = 0
 	HeadshotImg.Parent = StatsFrame
 
@@ -446,9 +339,7 @@ function Library.CreateWindow(config)
 		while not LocalPlayer do task.wait(0.1) end
 		pcall(function()
 			local content = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
-			if content then
-				HeadshotImg.Image = content
-			end
+			if content then HeadshotImg.Image = content end
 		end)
 	end)
 
@@ -488,9 +379,7 @@ function Library.CreateWindow(config)
 			if lastUpdate >= 1 then
 				lastUpdate = 0
 				local ping = 0
-				pcall(function()
-					ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
-				end)
+				pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
 				PingLabel.Text = ping .. " ms"
 				FpsLabel.Text = math.floor(1 / dt) .. " fps"
 				PlayersLabel.Text = #Players:GetPlayers() .. " players"
@@ -500,7 +389,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(StatsFrameOuter, StatsFrameOuter)
 
-	-- Floating Minimize / Restore Toggle Button
+	-- Floating Toggle Button
 	local ToggleBtnOuter = Instance.new("Frame")
 	ToggleBtnOuter.Name = "ToggleBtnOuter"
 	ToggleBtnOuter.Size = UDim2.new(0, 42, 0, 42)
@@ -521,10 +410,6 @@ function Library.CreateWindow(config)
 	ToggleBtnInner.BackgroundTransparency = 0.35
 	ToggleBtnInner.BorderSizePixel = 0
 	ToggleBtnInner.Parent = ToggleBtnOuter
-
-	local TBtnInnerCorner = Instance.new("UICorner")
-	TBtnInnerCorner.CornerRadius = UDim.new(0, 9)
-	TBtnInnerCorner.Parent = ToggleBtnInner
 
 	local ToggleBtn = Instance.new("ImageButton")
 	ToggleBtn.Size = UDim2.new(1, -4, 1, -4)
@@ -547,7 +432,7 @@ function Library.CreateWindow(config)
 		ToggleBtnOuter.Visible = false
 	end)
 
-	-- Window Controls (Minimize & Close)
+	-- Window Controls
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 22, 0, 22)
 	CloseBtn.Position = UDim2.new(1, -32, 0, 14)
@@ -588,7 +473,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, MainOuter)
 
-	-- Sidebar Tab Container (Height adjusted for compact layout)
+	-- Sidebar Tab Container
 	local TabContainer = Instance.new("ScrollingFrame")
 	TabContainer.Name = "TabContainer"
 	TabContainer.Size = UDim2.new(0, 140, 1, userConfig and userConfig.Enabled ~= false and -112 or -55)
@@ -601,8 +486,10 @@ function Library.CreateWindow(config)
 	TabList.Padding = UDim.new(0, 5)
 	TabList.Parent = TabContainer
 
-	-- User Profile Card (Bottom left of sidebar if enabled)
+	-- User Profile Card (Handles Anonymous true/false toggle for mugshot, name, & subtitle)
 	if userConfig and userConfig.Enabled ~= false then
+		local isAnonymous = (userConfig.Anonymous == true)
+
 		local ProfileCard = Instance.new("TextButton")
 		ProfileCard.Name = "ProfileCard"
 		ProfileCard.Size = UDim2.new(0, 140, 0, 52)
@@ -627,15 +514,20 @@ function Library.CreateWindow(config)
 		AvatarCorner.CornerRadius = UDim.new(0, 6)
 		AvatarCorner.Parent = AvatarImg
 
-		task.spawn(function()
-			pcall(function()
-				local content = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
-				if content then AvatarImg.Image = content end
+		if isAnonymous then
+			-- Hide mugshot or show secure generic icon
+			AvatarImg.Image = getLucideIcon("user")
+		else
+			task.spawn(function()
+				pcall(function()
+					local content = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
+					if content then AvatarImg.Image = content end
+				end)
 			end)
-		end)
+		end
 
-		local displayName = (userConfig.Anonymous == true) and "Anonymous" or LocalPlayer.Name
-		local handleName = (userConfig.Anonymous == true) and "@hidden" or ("@" .. LocalPlayer.Name)
+		local displayName = isAnonymous and "Anonymous" or LocalPlayer.Name
+		local handleName = isAnonymous and "Hidden User" or ("@" .. LocalPlayer.Name)
 
 		local NameLbl = Instance.new("TextLabel")
 		NameLbl.Size = UDim2.new(1, -54, 0, 16)
@@ -712,35 +604,44 @@ function Library.CreateWindow(config)
 			TabCorner.CornerRadius = UDim.new(0, 7)
 			TabCorner.Parent = TabBtn
 
+			-- Main Page Scrolling Frame (Supports full vertical scrolling with custom scrollbar)
 			local Page = Instance.new("ScrollingFrame")
 			Page.Name = tostring(tabName) .. "Page"
 			Page.Size = UDim2.new(1, 0, 1, 0)
 			Page.BackgroundTransparency = 1
-			Page.ScrollBarThickness = 3
-			Page.ScrollBarImageColor3 = Color3.fromRGB(50, 50, 60)
+			Page.ScrollBarThickness = 4
+			Page.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 95)
+			Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
 			Page.Visible = false
 			Page.Parent = PagesHolder
 
-			local LeftCol = Instance.new("ScrollingFrame")
+			local LeftCol = Instance.new("Frame")
 			LeftCol.Size = UDim2.new(0.5, -5, 1, 0)
 			LeftCol.BackgroundTransparency = 1
-			LeftCol.ScrollBarThickness = 0
 			LeftCol.Parent = Page
 
 			local LeftLayout = Instance.new("UIListLayout")
 			LeftLayout.Padding = UDim.new(0, 8)
 			LeftLayout.Parent = LeftCol
 
-			local RightCol = Instance.new("ScrollingFrame")
+			LeftLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				LeftCol.Size = UDim2.new(0.5, -5, 0, LeftLayout.AbsoluteContentSize.Y)
+			end)
+
+			local RightCol = Instance.new("Frame")
 			RightCol.Size = UDim2.new(0.5, -5, 1, 0)
 			RightCol.Position = UDim2.new(0.5, 5, 0, 0)
 			RightCol.BackgroundTransparency = 1
-			RightCol.ScrollBarThickness = 0
 			RightCol.Parent = Page
 
 			local RightLayout = Instance.new("UIListLayout")
 			RightLayout.Padding = UDim.new(0, 8)
 			RightLayout.Parent = RightCol
+
+			RightLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				RightCol.Size = UDim2.new(0.5, -5, 0, RightLayout.AbsoluteContentSize.Y)
+			end)
 
 			if firstTab then
 				Page.Visible = true
@@ -769,7 +670,7 @@ function Library.CreateWindow(config)
 					local targetCol = (tostring(columnSide):lower() == "right") and RightCol or LeftCol
 
 					local SectionFrame = Instance.new("Frame")
-					SectionFrame.Size = UDim2.new(1, 0, 0, 100)
+					SectionFrame.Size = UDim2.new(1, 0, 0, 40)
 					SectionFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
 					SectionFrame.BorderSizePixel = 0
 					SectionFrame.Parent = targetCol
@@ -888,6 +789,92 @@ function Library.CreateWindow(config)
 									TweenService:Create(Btn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(28, 28, 34)}):Play()
 								end)
 								if callback then pcall(callback) end
+							end)
+						end)
+					end
+
+					function section:CreateSlider(name, min, max, default, callback)
+						pcall(function()
+							min = min or 0
+							max = max or 100
+							default = default or min
+							local value = default
+
+							local SliderItem = Instance.new("Frame")
+							SliderItem.Size = UDim2.new(1, -14, 0, 42)
+							SliderItem.BackgroundTransparency = 1
+							SliderItem.Parent = SectionFrame
+
+							local Label = Instance.new("TextLabel")
+							Label.Size = UDim2.new(1, 0, 0, 16)
+							Label.Position = UDim2.new(0, 6, 0, 2)
+							Label.BackgroundTransparency = 1
+							Label.Text = tostring(name)
+							Label.TextColor3 = Color3.fromRGB(210, 210, 220)
+							Label.TextSize = 11
+							Label.Font = Enum.Font.GothamMedium
+							Label.TextXAlignment = Enum.TextXAlignment.Left
+							Label.Parent = SliderItem
+
+							local ValLabel = Instance.new("TextLabel")
+							ValLabel.Size = UDim2.new(0, 50, 0, 16)
+							ValLabel.Position = UDim2.new(1, -56, 0, 2)
+							ValLabel.BackgroundTransparency = 1
+							ValLabel.Text = tostring(default)
+							ValLabel.TextColor3 = Color3.fromRGB(220, 30, 60)
+							ValLabel.TextSize = 11
+							ValLabel.Font = Enum.Font.GothamBold
+							ValLabel.TextXAlignment = Enum.TextXAlignment.Right
+							ValLabel.Parent = SliderItem
+
+							local SliderBar = Instance.new("Frame")
+							SliderBar.Size = UDim2.new(1, -12, 0, 6)
+							SliderBar.Position = UDim2.new(0, 6, 0, 26)
+							SliderBar.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
+							SliderBar.BorderSizePixel = 0
+							SliderBar.Parent = SliderItem
+
+							local SBarCorner = Instance.new("UICorner")
+							SBarCorner.CornerRadius = UDim.new(1, 0)
+							SBarCorner.Parent = SliderBar
+
+							local SliderFill = Instance.new("Frame")
+							SliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+							SliderFill.BackgroundColor3 = Color3.fromRGB(220, 30, 60)
+							SliderFill.BorderSizePixel = 0
+							SliderFill.Parent = SliderBar
+
+							local SFillCorner = Instance.new("UICorner")
+							SFillCorner.CornerRadius = UDim.new(1, 0)
+							SFillCorner.Parent = SliderFill
+
+							local draggingSlider = false
+
+							local function updateSlider(input)
+								local pos = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+								value = math.floor(min + ((max - min) * pos))
+								SliderFill.Size = UDim2.new(pos, 0, 1, 0)
+								ValLabel.Text = tostring(value)
+								if callback then pcall(callback, value) end
+							end
+
+							SliderBar.InputBegan:Connect(function(input)
+								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+									draggingSlider = true
+									updateSlider(input)
+								end
+							end)
+
+							UserInputService.InputEnded:Connect(function(input)
+								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+									draggingSlider = false
+								end
+							end)
+
+							UserInputService.InputChanged:Connect(function(input)
+								if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+									updateSlider(input)
+								end
 							end)
 						end)
 					end
