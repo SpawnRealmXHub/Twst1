@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Gen2 Fully Rectified)
+-- SpawnRealm / Moondiety UI Library Module (Fully Movable Header & Mini-Stats)
 local Library = {}
 Library.__index = Library
 
@@ -11,12 +11,26 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local TWEEN_INFO = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
--- Helper: Make UI Draggy
-local function makeDraggable(topbar, object)
+-- Anti-Cheat Protection: Secure Root Container Resolver
+local function getProtectedParent()
+	if gethui then
+		return gethui()
+	elseif syn and syn.protect_gui then
+		local protected = Instance.new("Folder")
+		syn.protect_gui(protected)
+		protected.Parent = CoreGui
+		return protected
+	else
+		return CoreGui
+	end
+end
+
+-- Helper: Make UI Smoothly Movable / Draggable
+local function makeDraggable(handle, object)
 	local dragging, dragInput, dragStart, startPos
 
-	topbar.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+	handle.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = input.Position
 			startPos = object.Position
@@ -28,8 +42,8 @@ local function makeDraggable(topbar, object)
 		end
 	end)
 
-	topbar.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then
+	handle.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
 			dragInput = input
 		end
 	end)
@@ -49,7 +63,7 @@ local function playSound(soundId, enabled)
 		local sound = Instance.new("Sound")
 		sound.SoundId = soundId
 		sound.Volume = 1.5
-		sound.Parent = CoreGui
+		sound.Parent = getProtectedParent()
 		sound:Play()
 		sound.Ended:Connect(function()
 			sound:Destroy()
@@ -64,20 +78,18 @@ function Library.CreateWindow(config)
 	local subText = config.subtitle or config.Subtitle or "Universal"
 	local iconId = config.UIicon or config.UiIcon or "rbxassetid://12787168883"
 	local soundEnabled = (config.SoundButtons ~= false)
-	local useSideLayout = (config.UISiderLayout ~= false)
 
 	local window = {}
 	
 	local ScreenGui = Instance.new("ScreenGui")
-	ScreenGui.Name = "MoonDeityHub_" .. math.random(1000, 9999)
-	ScreenGui.Parent = (gethui and gethui()) or CoreGui
+	ScreenGui.Name = "SR_" .. math.random(100000, 999999)
+	ScreenGui.Parent = getProtectedParent()
 	ScreenGui.ResetOnSpawn = false
 
 	-- Main Window Outer Black Outline
 	local MainOuter = Instance.new("Frame")
 	MainOuter.Name = "MainOuter"
-	-- UISiderLayout = false makes the GUI width shorter/cleaner
-	local targetWidth = useSideLayout and 682 or 540
+	local targetWidth = 682
 	MainOuter.Size = UDim2.new(0, targetWidth, 0, 382)
 	MainOuter.Position = UDim2.new(0.5, -targetWidth/2, 0.5, -191)
 	MainOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -154,8 +166,8 @@ function Library.CreateWindow(config)
 	-- Loading Screen
 	pcall(function()
 		local LoadGui = Instance.new("ScreenGui")
-		LoadGui.Name = "MoonDeityLoader"
-		LoadGui.Parent = ScreenGui
+		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
+		LoadGui.Parent = getProtectedParent()
 
 		local LoadFrame = Instance.new("Frame")
 		LoadFrame.Size = UDim2.new(0, 440, 0, 230)
@@ -337,13 +349,13 @@ function Library.CreateWindow(config)
 		SubTitleLabel.Parent = Topbar
 	end
 
-	-- Movable Mini Stats Widget (Top Right Corner of Header)
+	-- Mini Stats Widget (Freely Movable & Parented directly to ScreenGui for independent dragging)
 	local StatsFrameOuter = Instance.new("Frame")
 	StatsFrameOuter.Size = UDim2.new(0, 246, 0, 32)
-	StatsFrameOuter.Position = UDim2.new(1, -290, 0, 10)
+	StatsFrameOuter.Position = UDim2.new(0.5, 40, 0.5, -191)
 	StatsFrameOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	StatsFrameOuter.BorderSizePixel = 0
-	StatsFrameOuter.Parent = Topbar
+	StatsFrameOuter.Parent = ScreenGui
 
 	local OuterCorner = Instance.new("UICorner")
 	OuterCorner.CornerRadius = UDim.new(0, 8)
@@ -472,6 +484,9 @@ function Library.CreateWindow(config)
 		end)
 	end)
 
+	-- Make Mini-Stats widget fully movable anywhere smoothly
+	makeDraggable(StatsFrameOuter, StatsFrameOuter)
+
 	-- Floating Toggle Button (Appears when GUI is minimized)
 	local ToggleBtnOuter = Instance.new("Frame")
 	ToggleBtnOuter.Name = "ToggleBtnOuter"
@@ -557,7 +572,7 @@ function Library.CreateWindow(config)
 		ToggleBtnOuter.Visible = true
 	end)
 
-	-- Make entire main window movable from the Topbar header using MainOuter
+	-- Make entire main window smoothly movable via the Topbar header
 	makeDraggable(Topbar, MainOuter)
 
 	-- Sidebar Tab Container
