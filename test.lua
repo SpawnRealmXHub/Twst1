@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Gen2 with Shiny Animation & Audio Boost)
+-- SpawnRealm / Moondiety UI Library Module (Gen2 Fully Fixed)
 local Library = {}
 Library.__index = Library
 
@@ -42,13 +42,13 @@ local function makeDraggable(topbar, object)
 	end)
 end
 
--- Sound Effect Helper (Volume boosted to 1.0)
+-- Sound Effect Helper (Volume boosted to 1.5)
 local function playSound(soundId, enabled)
 	if not enabled or not soundId then return end
 	pcall(function()
 		local sound = Instance.new("Sound")
 		sound.SoundId = soundId
-		sound.Volume = 1.0
+		sound.Volume = 1.5
 		sound.Parent = CoreGui
 		sound:Play()
 		sound.Ended:Connect(function()
@@ -64,6 +64,7 @@ function Library.CreateWindow(config)
 	local subText = config.subtitle or config.Subtitle or "Universal"
 	local iconId = config.UIicon or config.UiIcon or "rbxassetid://12787168883"
 	local soundEnabled = (config.SoundButtons ~= false)
+	local useSideLayout = (config.UISiderLayout ~= false) -- defaults to true
 
 	local window = {}
 	
@@ -72,18 +73,44 @@ function Library.CreateWindow(config)
 	ScreenGui.Parent = (gethui and gethui()) or CoreGui
 	ScreenGui.ResetOnSpawn = false
 
-	-- Responsive Main Frame (Hidden until loading finishes)
+	-- Main Window Outer Outline (Black outer frame)
+	local MainOuter = Instance.new("Frame")
+	MainOuter.Name = "MainOuter"
+	MainOuter.Size = UDim2.new(0, 682, 0, 382)
+	MainOuter.Position = UDim2.new(0.5, -341, 0.5, -191)
+	MainOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	MainOuter.BorderSizePixel = 0
+	MainOuter.Visible = false
+	MainOuter.Parent = ScreenGui
+
+	local MainOuterCorner = Instance.new("UICorner")
+	MainOuterCorner.CornerRadius = UDim.new(0, 11)
+	MainOuterCorner.Parent = MainOuter
+
+	-- Main Window Inner White Outline
+	local MainInner = Instance.new("Frame")
+	MainInner.Size = UDim2.new(1, -2, 1, -2)
+	MainInner.Position = UDim2.new(0, 1, 0, 1)
+	MainInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	MainInner.BackgroundTransparency = 0.85
+	MainInner.BorderSizePixel = 0
+	MainInner.Parent = MainOuter
+
+	local MainInnerCorner = Instance.new("UICorner")
+	MainInnerCorner.CornerRadius = UDim.new(0, 10)
+	MainInnerCorner.Parent = MainInner
+
+	-- Responsive Main Frame (Compact Moondiety Height/Width)
 	local Main = Instance.new("Frame")
 	Main.Name = "Main"
-	Main.Size = UDim2.new(0, 620, 0, 370)
-	Main.Position = UDim2.new(0.5, -310, 0.5, -185)
+	Main.Size = UDim2.new(1, -4, 1, -4)
+	Main.Position = UDim2.new(0, 2, 0, 2)
 	Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 	Main.BorderSizePixel = 0
-	Main.Visible = false 
-	Main.Parent = ScreenGui
+	Main.Parent = MainOuter
 
 	local MainCorner = Instance.new("UICorner")
-	MainCorner.CornerRadius = UDim.new(0, 10)
+	MainCorner.CornerRadius = UDim.new(0, 9)
 	MainCorner.Parent = Main
 
 	-- Main Window Shiny Reflection Overlay Effect
@@ -106,14 +133,14 @@ function Library.CreateWindow(config)
 	MainShinyGrad.Parent = MainShiny
 
 	task.spawn(function()
-		while Main and Main.Parent do
+		while MainOuter and MainOuter.Parent do
 			MainShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
 			TweenService:Create(MainShiny, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.2, 0, -0.5, 0)}):Play()
 			task.wait(6)
 		end
 	end)
 
-	-- Authentic Loading Screen
+	-- Loading Screen
 	pcall(function()
 		local LoadGui = Instance.new("ScreenGui")
 		LoadGui.Name = "MoonDeityLoader"
@@ -211,7 +238,6 @@ function Library.CreateWindow(config)
 		BarFillCorner.CornerRadius = UDim.new(1, 0)
 		BarFillCorner.Parent = BarFill
 
-		-- Changed footer text requested
 		local FooterLabel = Instance.new("TextLabel")
 		FooterLabel.Size = UDim2.new(1, 0, 0, 14)
 		FooterLabel.Position = UDim2.new(0, 0, 0, 198)
@@ -236,7 +262,7 @@ function Library.CreateWindow(config)
 			TweenService:Create(LoadFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
 			task.wait(0.3)
 			LoadGui:Destroy()
-			Main.Visible = true -- Show main UI after loading screen finishes
+			MainOuter.Visible = true
 		end)
 	end)
 
@@ -300,13 +326,20 @@ function Library.CreateWindow(config)
 		SubTitleLabel.Parent = Topbar
 	end
 
-	-- Movable Mini Stats Widget with Double Outline (White inner, Black outer) & Shiny Reflection
+	-- Movable Mini Stats Widget with Double Outline & Outline Shiny Animation
 	local StatsFrameOuter = Instance.new("Frame")
-	StatsFrameOuter.Size = UDim2.new(0, 246, 0, 34)
-	StatsFrameOuter.Position = UDim2.new(1, -300, 0, 8)
-	StatsFrameOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Super tiny black outer outline base
+	StatsFrameOuter.Size = UDim2.new(0, 246, 0, 32)
+	if useSideLayout then
+		StatsFrameOuter.Position = UDim2.new(1, -290, 0, 10)
+		StatsFrameOuter.Parent = Topbar
+	else
+		StatsFrameOuter.Position = UDim2.new(1, -300, 0, 8)
+		StatsFrameOuter.Parent = ScreenGui
+		makeDraggable(StatsFrameOuter, StatsFrameOuter)
+	end
+
+	StatsFrameOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	StatsFrameOuter.BorderSizePixel = 0
-	StatsFrameOuter.Parent = ScreenGui
 
 	local OuterCorner = Instance.new("UICorner")
 	OuterCorner.CornerRadius = UDim.new(0, 8)
@@ -315,7 +348,7 @@ function Library.CreateWindow(config)
 	local StatsFrameInner = Instance.new("Frame")
 	StatsFrameInner.Size = UDim2.new(1, -2, 1, -2)
 	StatsFrameInner.Position = UDim2.new(0, 1, 0, 1)
-	StatsFrameInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Tiny white outline base
+	StatsFrameInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	StatsFrameInner.BorderSizePixel = 0
 	StatsFrameInner.Parent = StatsFrameOuter
 
@@ -334,23 +367,21 @@ function Library.CreateWindow(config)
 	StatsCorner.CornerRadius = UDim.new(0, 6)
 	StatsCorner.Parent = StatsFrame
 
-	makeDraggable(StatsFrameOuter, StatsFrameOuter)
-
-	-- Mini-stats shiny reflection effect
+	-- Mini-stats outline/body shiny reflection effect
 	local StatsShiny = Instance.new("Frame")
-	StatsShiny.Size = UDim2.new(0, 60, 2, 0)
+	StatsShiny.Size = UDim2.new(0, 50, 2, 0)
 	StatsShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
 	StatsShiny.Rotation = 30
 	StatsShiny.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	StatsShiny.BackgroundTransparency = 0.92
+	StatsShiny.BackgroundTransparency = 0.88
 	StatsShiny.BorderSizePixel = 0
 	StatsShiny.ClipsDescendants = true
-	StatsShiny.Parent = StatsFrame
+	StatsShiny.Parent = StatsFrameOuter
 
 	local StatsShinyGrad = Instance.new("UIGradient")
 	StatsShinyGrad.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.5, 0.7),
+		NumberSequenceKeypoint.new(0.5, 0.5),
 		NumberSequenceKeypoint.new(1, 1)
 	})
 	StatsShinyGrad.Parent = StatsShiny
@@ -358,15 +389,15 @@ function Library.CreateWindow(config)
 	task.spawn(function()
 		while StatsFrameOuter and StatsFrameOuter.Parent do
 			StatsShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
-			TweenService:Create(StatsShiny, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.3, 0, -0.5, 0)}):Play()
-			task.wait(6)
+			TweenService:Create(StatsShiny, TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.3, 0, -0.5, 0)}):Play()
+			task.wait(5)
 		end
 	end)
 
 	-- Player Headshot Renderer Fix
 	local HeadshotImg = Instance.new("ImageLabel")
-	HeadshotImg.Size = UDim2.new(0, 22, 0, 22)
-	HeadshotImg.Position = UDim2.new(0, 6, 0.5, -11)
+	HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
+	HeadshotImg.Position = UDim2.new(0, 6, 0.5, -10)
 	HeadshotImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
 	HeadshotImg.Image = ""
 	HeadshotImg.Parent = StatsFrame
@@ -377,7 +408,7 @@ function Library.CreateWindow(config)
 
 	task.spawn(function()
 		pcall(function()
-			local content, isReady = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
+			local content = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
 			if content then
 				HeadshotImg.Image = content
 			end
@@ -385,8 +416,8 @@ function Library.CreateWindow(config)
 	end)
 
 	local StatsContainer = Instance.new("Frame")
-	StatsContainer.Size = UDim2.new(1, -32, 1, 0)
-	StatsContainer.Position = UDim2.new(0, 32, 0, 0)
+	StatsContainer.Size = UDim2.new(1, -30, 1, 0)
+	StatsContainer.Position = UDim2.new(0, 28, 0, 0)
 	StatsContainer.BackgroundTransparency = 1
 	StatsContainer.Parent = StatsFrame
 
@@ -394,12 +425,12 @@ function Library.CreateWindow(config)
 	StatsLayout.FillDirection = Enum.FillDirection.Horizontal
 	StatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	StatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	StatsLayout.Padding = UDim.new(0, 8)
+	StatsLayout.Padding = UDim.new(0, 6)
 	StatsLayout.Parent = StatsContainer
 
 	local function createStatLabel(text)
 		local lbl = Instance.new("TextLabel")
-		lbl.Size = UDim2.new(0, 60, 1, 0)
+		lbl.Size = UDim2.new(0, 58, 1, 0)
 		lbl.BackgroundTransparency = 1
 		lbl.Text = text
 		lbl.TextColor3 = Color3.fromRGB(180, 180, 190)
@@ -450,13 +481,13 @@ function Library.CreateWindow(config)
 	end)
 
 	-- Make entire main window movable from the Topbar header
-	makeDraggable(Topbar, Main)
+	makeDraggable(Topbar, MainOuter)
 
 	-- Sidebar Tab Container
 	local TabContainer = Instance.new("ScrollingFrame")
 	TabContainer.Name = "TabContainer"
-	TabContainer.Size = UDim2.new(0, 140, 1, -60)
-	TabContainer.Position = UDim2.new(0, 12, 0, 52)
+	TabContainer.Size = UDim2.new(0, 140, 1, -55)
+	TabContainer.Position = UDim2.new(0, 12, 0, 48)
 	TabContainer.BackgroundTransparency = 1
 	TabContainer.ScrollBarThickness = 0
 	TabContainer.Parent = Main
@@ -467,8 +498,8 @@ function Library.CreateWindow(config)
 
 	local PagesHolder = Instance.new("Frame")
 	PagesHolder.Name = "PagesHolder"
-	PagesHolder.Size = UDim2.new(1, -170, 1, -60)
-	PagesHolder.Position = UDim2.new(0, 160, 0, 52)
+	PagesHolder.Size = UDim2.new(1, -165, 1, -55)
+	PagesHolder.Position = UDim2.new(0, 158, 0, 48)
 	PagesHolder.BackgroundTransparency = 1
 	PagesHolder.Parent = Main
 
@@ -479,7 +510,7 @@ function Library.CreateWindow(config)
 		local tab = {}
 		pcall(function()
 			local TabBtn = Instance.new("TextButton")
-			TabBtn.Size = UDim2.new(1, 0, 0, 34)
+			TabBtn.Size = UDim2.new(1, 0, 0, 32)
 			TabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 			TabBtn.Text = "   " .. tostring(tabName)
 			TabBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
