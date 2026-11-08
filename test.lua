@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Dual Pill Configurable via CreateWindow)
+-- SpawnRealm / Moondiety UI Library Module (Compacted Performance Pill & Dual Configurable Pills)
 local Library = {}
 Library.__index = Library
 
@@ -233,13 +233,13 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- 1. Top-Middle Radar & Wave Performance Pill (Controlled by PillUIWaves)
+	-- 1. Top-Middle Radar & Wave Performance Pill (Compacted Width)
 	local WavesStatsFrame = nil
 	if pillUIWavesEnabled then
 		WavesStatsFrame = Instance.new("Frame")
 		WavesStatsFrame.Name = "WavesStatsFrame"
-		WavesStatsFrame.Size = UDim2.new(0, 310, 0, 38)
-		WavesStatsFrame.Position = UDim2.new(0.5, -155, 0, 12)
+		WavesStatsFrame.Size = UDim2.new(0, 185, 0, 34)
+		WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 12)
 		WavesStatsFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
 		WavesStatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 		WavesStatsFrame.BorderSizePixel = 0
@@ -274,8 +274,8 @@ function Library.CreateWindow(config)
 		end)
 
 		local RadarContainer = Instance.new("Frame")
-		RadarContainer.Size = UDim2.new(0, 24, 0, 24)
-		RadarContainer.Position = UDim2.new(0, 10, 0.5, -12)
+		RadarContainer.Size = UDim2.new(0, 20, 0, 20)
+		RadarContainer.Position = UDim2.new(0, 8, 0.5, -10)
 		RadarContainer.BackgroundTransparency = 1
 		RadarContainer.ClipsDescendants = false
 		RadarContainer.Parent = WavesStatsFrame
@@ -309,8 +309,8 @@ function Library.CreateWindow(config)
 					rCorner.Parent = ring
 
 					TweenService:Create(ring, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 28, 0, 28),
-						Position = UDim2.new(0.5, -14, 0.5, -14),
+						Size = UDim2.new(0, 24, 0, 24),
+						Position = UDim2.new(0.5, -12, 0.5, -12),
 						BackgroundTransparency = 1
 					}):Play()
 
@@ -323,75 +323,32 @@ function Library.CreateWindow(config)
 		end)
 
 		local CenterContent = Instance.new("Frame")
-		CenterContent.Size = UDim2.new(1, -110, 1, 0)
-		CenterContent.Position = UDim2.new(0, 36, 0, 0)
+		CenterContent.Size = UDim2.new(1, -56, 1, 0)
+		CenterContent.Position = UDim2.new(0, 28, 0, 0)
 		CenterContent.BackgroundTransparency = 1
 		CenterContent.Parent = WavesStatsFrame
 
 		local CenterIcon = Instance.new("ImageLabel")
-		CenterIcon.Size = UDim2.new(0, 14, 0, 14)
-		CenterIcon.Position = UDim2.new(0, 0, 0.5, -7)
+		CenterIcon.Size = UDim2.new(0, 13, 0, 13)
+		CenterIcon.Position = UDim2.new(0, 0, 0.5, -6.5)
 		CenterIcon.BackgroundTransparency = 1
 		CenterIcon.Image = iconId
 		CenterIcon.Parent = CenterContent
 
 		local CenterTitle = Instance.new("TextLabel")
-		CenterTitle.Size = UDim2.new(1, -16, 0, 16)
-		CenterTitle.Position = UDim2.new(0, 18, 0, 3)
+		CenterTitle.Size = UDim2.new(1, -15, 1, 0)
+		CenterTitle.Position = UDim2.new(0, 15, 0, 0)
 		CenterTitle.BackgroundTransparency = 1
 		CenterTitle.Text = "SpawnRealmXHub"
 		CenterTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-		CenterTitle.TextSize = 11
+		CenterTitle.TextSize = 10
 		CenterTitle.Font = Enum.Font.GothamBold
 		CenterTitle.TextXAlignment = Enum.TextXAlignment.Left
 		CenterTitle.Parent = CenterContent
 
-		local MiniStatsRow = Instance.new("Frame")
-		MiniStatsRow.Size = UDim2.new(1, 0, 0, 14)
-		MiniStatsRow.Position = UDim2.new(0, 18, 0, 20)
-		MiniStatsRow.BackgroundTransparency = 1
-		MiniStatsRow.Parent = CenterContent
-
-		local MiniStatsLayout = Instance.new("UIListLayout")
-		MiniStatsLayout.FillDirection = Enum.FillDirection.Horizontal
-		MiniStatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-		MiniStatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-		MiniStatsLayout.Padding = UDim.new(0, 8)
-		MiniStatsLayout.Parent = MiniStatsRow
-
-		local function createMiniStat(iconName, defaultText)
-			local h = Instance.new("Frame")
-			h.Size = UDim2.new(0, 50, 1, 0)
-			h.BackgroundTransparency = 1
-			h.Parent = MiniStatsRow
-
-			local ico = Instance.new("ImageLabel")
-			ico.Size = UDim2.new(0, 10, 0, 10)
-			ico.Position = UDim2.new(0, 0, 0.5, -5)
-			ico.BackgroundTransparency = 1
-			ico.Image = getIconAsset(iconName)
-			ico.ImageColor3 = Color3.fromRGB(160, 160, 175)
-			ico.Parent = h
-
-			local t = Instance.new("TextLabel")
-			t.Size = UDim2.new(1, -12, 1, 0)
-			t.Position = UDim2.new(0, 12, 0, 0)
-			t.BackgroundTransparency = 1
-			t.Text = defaultText
-			t.TextColor3 = Color3.fromRGB(180, 180, 190)
-			t.TextSize = 9
-			t.Font = Enum.Font.GothamMedium
-			t.TextXAlignment = Enum.TextXAlignment.Left
-			t.Parent = h
-			return t
-		end
-
-		local PingStatLbl = createMiniStat("zap", "32ms")
-		local PlayersStatLbl = createMiniStat("users", "12plrs")
-
 		local WaveContainer = Instance.new("Frame")
-		WaveContainer.Size = UDim2.new(0, 26, 0, 18)
-		WaveContainer.Position = UDim2.new(1, -34, 0.5, -9)
+		WaveContainer.Size = UDim2.new(0, 22, 0, 16)
+		WaveContainer.Position = UDim2.new(1, -26, 0.5, -8)
 		WaveContainer.BackgroundTransparency = 1
 		WaveContainer.Parent = WavesStatsFrame
 
@@ -399,12 +356,12 @@ function Library.CreateWindow(config)
 		WaveLayout.FillDirection = Enum.FillDirection.Horizontal
 		WaveLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 		WaveLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-		WaveLayout.Padding = UDim.new(0, 3)
+		WaveLayout.Padding = UDim.new(0, 2)
 		WaveLayout.Parent = WaveContainer
 
 		local function createWaveBar()
 			local bar = Instance.new("Frame")
-			bar.Size = UDim2.new(0, 5, 0, 10)
+			bar.Size = UDim2.new(0, 4, 0, 8)
 			bar.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
 			bar.BorderSizePixel = 0
 			bar.Parent = WaveContainer
@@ -425,8 +382,6 @@ function Library.CreateWindow(config)
 				pcall(function()
 					local ping = 0
 					pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
-					PingStatLbl.Text = ping .. "ms"
-					PlayersStatLbl.Text = #Players:GetPlayers() .. "plrs"
 
 					if ping < 100 then
 						PingDot.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
@@ -446,22 +401,22 @@ function Library.CreateWindow(config)
 
 				if fps >= 50 then
 					col = Color3.fromRGB(46, 204, 113)
-					h1, h2, h3 = 6, 12, 16
+					h1, h2, h3 = 5, 10, 14
 				elseif fps >= 30 then
 					col = Color3.fromRGB(241, 196, 15)
-					h1, h2, h3 = 10, 14, 12
+					h1, h2, h3 = 8, 12, 10
 				else
 					col = Color3.fromRGB(231, 76, 60)
-					h1, h2, h3 = 16, 18, 14
+					h1, h2, h3 = 14, 16, 12
 				end
 
 				bar1.BackgroundColor3 = col
 				bar2.BackgroundColor3 = col
 				bar3.BackgroundColor3 = col
 
-				bar1.Size = UDim2.new(0, 5, 0, h1)
-				bar2.Size = UDim2.new(0, 5, 0, h2)
-				bar3.Size = UDim2.new(0, 5, 0, h3)
+				bar1.Size = UDim2.new(0, 4, 0, h1)
+				bar2.Size = UDim2.new(0, 4, 0, h2)
+				bar3.Size = UDim2.new(0, 4, 0, h3)
 			end)
 		end)
 
@@ -717,7 +672,7 @@ function Library.CreateWindow(config)
 
 				if WavesStatsFrame then
 					WavesStatsFrame.Size = UDim2.new(0, 0, 0, 0)
-					WavesStatsFrame.Position = UDim2.new(0.5, -155, 0, 12)
+					WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 12)
 				end
 				if StatsFrame then
 					StatsFrame.Size = UDim2.new(0, 0, 0, 0)
@@ -732,8 +687,8 @@ function Library.CreateWindow(config)
 
 				if WavesStatsFrame then
 					TweenService:Create(WavesStatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 310, 0, 38),
-						Position = UDim2.new(0.5, -155, 0, 12),
+						Size = UDim2.new(0, 185, 0, 34),
+						Position = UDim2.new(0.5, -92, 0, 12),
 						BackgroundTransparency = 0
 					}):Play()
 				end
@@ -933,7 +888,7 @@ function Library.CreateWindow(config)
 		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
 		if WavesStatsFrame then
 			WavesStatsFrame.Size = UDim2.new(0, 0, 0, 0)
-			WavesStatsFrame.Position = UDim2.new(0.5, -155, 0, 12)
+			WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 12)
 		end
 		if StatsFrame then
 			StatsFrame.Size = UDim2.new(0, 0, 0, 0)
@@ -952,8 +907,8 @@ function Library.CreateWindow(config)
 
 		if WavesStatsFrame then
 			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 310, 0, 38),
-				Position = UDim2.new(0.5, -155, 0, 12),
+				Size = UDim2.new(0, 185, 0, 34),
+				Position = UDim2.new(0.5, -92, 0, 12),
 				BackgroundTransparency = 0
 			}):Play()
 		end
@@ -996,7 +951,7 @@ function Library.CreateWindow(config)
 		if WavesStatsFrame then
 			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(0.5, -155, 0, 12),
+				Position = UDim2.new(0.5, -92, 0, 12),
 				BackgroundTransparency = 1
 			}):Play()
 		end
@@ -1035,7 +990,7 @@ function Library.CreateWindow(config)
 		if WavesStatsFrame then
 			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(0.5, -155, 0, 12),
+				Position = UDim2.new(0.5, -92, 0, 12),
 				BackgroundTransparency = 1
 			}):Play()
 		end
@@ -1557,7 +1512,7 @@ function Library.CreateWindow(config)
 							local Btn = Instance.new("TextButton")
 							Btn.Size = UDim2.new(1, -18, 0, 28)
 							Btn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
-							Btn.Text = "  " + tostring(name)
+							Btn.Text = "  " .. tostring(name)
 							Btn.TextColor3 = Color3.fromRGB(210, 210, 220)
 							Btn.Font = Enum.Font.GothamMedium
 							Btn.TextSize = 11
