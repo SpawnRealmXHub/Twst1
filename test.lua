@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Smooth Rounded Corners & Rotating UIStroke Border Beam)
+-- SpawnRealm / Moondiety UI Library Module (Corner Radius 30, Rotating Neon Border & ~100 Latte-Soft Lucide Icons)
 local Library = {}
 Library.__index = Library
 
@@ -11,21 +11,135 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local TWEEN_INFO = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
--- Lucide Icon Registry
+-- Expanded Latte-Soft Lucide Roblox Compiled Icon Registry (~100 Icons, 256px Asset IDs)
 local LucideIcons = {
-	["home"] = "rbxassetid://6023426915",
-	["shield"] = "rbxassetid://6023426985",
-	["sword"] = "rbxassetid://6023426846",
-	["settings"] = "rbxassetid://6023426993",
-	["user"] = "rbxassetid://6023426922",
-	["lock"] = "rbxassetid://6023426895",
-	["cpu"] = "rbxassetid://6023426810",
-	["search"] = "rbxassetid://6023426955",
-	["combat"] = "rbxassetid://6023426846",
-	["terminal"] = "rbxassetid://602342680",
-	["globe"] = "rbxassetid://6023426871",
-	["folder"] = "rbxassetid://6023426863",
-	["chevronright"] = "rbxassetid://6034818372"
+	-- Navigation & General UI
+	["home"] = "rbxassetid://10734949856",
+	["settings"] = "rbxassetid://10734950309",
+	["user"] = "rbxassetid://10735031441",
+	["users"] = "rbxassetid://10735031601",
+	["search"] = "rbxassetid://10735005431",
+	["menu"] = "rbxassetid://10734978184",
+	["grid"] = "rbxassetid://10734941926",
+	["list"] = "rbxassetid://10734974026",
+	["folder"] = "rbxassetid://10734928173",
+	["folderopen"] = "rbxassetid://10734928509",
+	["file"] = "rbxassetid://10734924151",
+	["files"] = "rbxassetid://10734924619",
+	["bookmark"] = "rbxassetid://10734876643",
+	["star"] = "rbxassetid://10735016335",
+	["heart"] = "rbxassetid://10734944967",
+	["flag"] = "rbxassetid://10734926528",
+	["tag"] = "rbxassetid://10735022802",
+	["tags"] = "rbxassetid://10735023062",
+	["filter"] = "rbxassetid://10734925852",
+	["sliders"] = "rbxassetid://10735008543",
+	["globe"] = "rbxassetid://10734936274",
+	["map"] = "rbxassetid://10734976451",
+	["compass"] = "rbxassetid://10734887754",
+	["navigation"] = "rbxassetid://10734981134",
+
+	-- Combat, Gaming & Utilities
+	["shield"] = "rbxassetid://10709791437",
+	["shieldalert"] = "rbxassetid://10709791689",
+	["shieldcheck"] = "rbxassetid://10709791881",
+	["sword"] = "rbxassetid://10747371351",
+	["combat"] = "rbxassetid://10747371351",
+	["crosshair"] = "rbxassetid://10734885564",
+	["target"] = "rbxassetid://10735022416",
+	["zap"] = "rbxassetid://10735034606",
+	["flame"] = "rbxassetid://10734927237",
+	["skull"] = "rbxassetid://10735008064",
+	["ghost"] = "rbxassetid://10734934336",
+	["eye"] = "rbxassetid://10734920239",
+	["eyeoff"] = "rbxassetid://10734920409",
+	["lock"] = "rbxassetid://10734975736",
+	["unlock"] = "rbxassetid://10735027877",
+	["key"] = "rbxassetid://10734963503",
+	["cpu"] = "rbxassetid://10734885834",
+	["terminal"] = "rbxassetid://10735024403",
+	["code"] = "rbxassetid://10734884242",
+	["bug"] = "rbxassetid://10734878193",
+	["activity"] = "rbxassetid://10734870503",
+	["radio"] = "rbxassetid://10734997420",
+	["wifi"] = "rbxassetid://10735033722",
+	["wifioff"] = "rbxassetid://10735033907",
+	["volume"] = "rbxassetid://10735032506",
+	["volumex"] = "rbxassetid://10735032902",
+	["bell"] = "rbxassetid://10734875630",
+	["belloff"] = "rbxassetid://10734875953",
+
+	-- Media, Playback & Controls
+	["play"] = "rbxassetid://10734992435",
+	["pause"] = "rbxassetid://10734983059",
+	["stop"] = "rbxassetid://10735017281",
+	["fastforward"] = "rbxassetid://10734923297",
+	["rewind"] = "rbxassetid://10734999824",
+	["repeat"] = "rbxassetid://10734999243",
+	["shuffle"] = "rbxassetid://10735007324",
+	["volume1"] = "rbxassetid://10735032115",
+	["volume2"] = "rbxassetid://10735032506",
+	["mic"] = "rbxassetid://10734978716",
+	["micoff"] = "rbxassetid://10734979105",
+	["camera"] = "rbxassetid://10734881373",
+	["video"] = "rbxassetid://10735031154",
+	["image"] = "rbxassetid://10734954778",
+
+	-- Actions, Editing & Tools
+	["refresh"] = "rbxassetid://10734998706",
+	["trash"] = "rbxassetid://10735026916",
+	["download"] = "rbxassetid://10734914175",
+	["upload"] = "rbxassetid://10735028475",
+	["share"] = "rbxassetid://10735011704",
+	["external"] = "rbxassetid://10734921616",
+	["link"] = "rbxassetid://10734971358",
+	["copy"] = "rbxassetid://10734884949",
+	["scissors"] = "rbxassetid://10735003901",
+	["edit"] = "rbxassetid://10734918579",
+	["plus"] = "rbxassetid://10734995059",
+	["minus"] = "rbxassetid://10734979435",
+	["x"] = "rbxassetid://10735034177",
+	["check"] = "rbxassetid://10734882173",
+	["chevronright"] = "rbxassetid://10734886616",
+	["chevronleft"] = "rbxassetid://10734886361",
+	["chevromup"] = "rbxassetid://10734886915",
+	["chevrondown"] = "rbxassetid://10734885994",
+	["arrowright"] = "rbxassetid://10734873111",
+	["arrowleft"] = "rbxassetid://10734872628",
+	["arrowup"] = "rbxassetid://10734873461",
+	["arrowdown"] = "rbxassetid://10734872081",
+
+	-- System, Power & Status
+	["power"] = "rbxassetid://10734995393",
+	["wifi"] = "rbxassetid://10735033722",
+	["battery"] = "rbxassetid://10734874945",
+	["harddrive"] = "rbxassetid://10734944365",
+	["server"] = "rbxassetid://10735010078",
+	["database"] = "rbxassetid://10734910356",
+	["cloud"] = "rbxassetid://10734883196",
+	["clouddownload"] = "rbxassetid://10734883405",
+	["cloudupload"] = "rbxassetid://10734883838",
+	["maximize"] = "rbxassetid://10734976767",
+	["minimize"] = "rbxassetid://10734979854",
+	["maximize2"] = "rbxassetid://10734977239",
+	["minimize2"] = "rbxassetid://10734980181",
+	["rotatecw"] = "rbxassetid://10735000572",
+	["rotateccw"] = "rbxassetid://10735000213",
+	["info"] = "rbxassetid://10734958133",
+	["help"] = "rbxassetid://10734947936",
+	["alerttriangle"] = "rbxassetid://10734871051",
+	["alertcircle"] = "rbxassetid://10734870716",
+	["alertoctagon"] = "rbxassetid://10734870877",
+	["clock"] = "rbxassetid://10734882823",
+	["calendar"] = "rbxassetid://10734880436",
+	["gift"] = "rbxassetid://10734933939",
+	["award"] = "rbxassetid://10734874523",
+	["trophy"] = "rbxassetid://10735027411",
+	["package"] = "rbxassetid://10734982638",
+	["box"] = "rbxassetid://10734877202",
+	["layers"] = "rbxassetid://10734969248",
+	["layout"] = "rbxassetid://10734969578",
+	["grid"] = "rbxassetid://10734941926"
 }
 
 local function getLucideIcon(iconName)
@@ -106,7 +220,7 @@ function Library.CreateWindow(config)
 	config = config or {}
 	local titleText = config.name or config.Name or "MOONDIETY"
 	local subText = config.subtitle or config.Subtitle or "Universal"
-	local iconId = getLucideIcon(config.UIicon or config.UiIcon or "shield") or "rbxassetid://12787168883"
+	local iconId = getLucideIcon(config.UIicon or config.UiIcon or "shield") or "rbxassetid://10709791437"
 	local soundEnabled = (config.SoundButtons ~= false)
 	local userConfig = config.User or nil
 
@@ -128,22 +242,22 @@ function Library.CreateWindow(config)
 	Main.Visible = false
 	Main.Parent = ScreenGui
 
-	-- Smooth, elegant rounded corners (not blocky)
+	-- Ultra-smooth corner radius set precisely to 30
 	local MainCorner = Instance.new("UICorner")
-	MainCorner.CornerRadius = UDim.new(0, 14)
+	MainCorner.CornerRadius = UDim.new(0, 30)
 	MainCorner.Parent = Main
 
-	-- Proper UIStroke Border with rotating gradient for the moving line animation
+	-- Rotating UIStroke Border Beam with Corner 30
 	local MainStroke = Instance.new("UIStroke")
-	MainStroke.Thickness = 1.8
+	MainStroke.Thickness = 2
 	MainStroke.Parent = Main
 
 	local MainStrokeGrad = Instance.new("UIGradient")
 	MainStrokeGrad.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(0.25, 0.8),
+		NumberSequenceKeypoint.new(0.25, 0.7),
 		NumberSequenceKeypoint.new(0.5, 0),
-		NumberSequenceKeypoint.new(0.75, 0.8),
+		NumberSequenceKeypoint.new(0.75, 0.7),
 		NumberSequenceKeypoint.new(1, 0)
 	})
 	MainStrokeGrad.Parent = MainStroke
@@ -162,7 +276,7 @@ function Library.CreateWindow(config)
 	ShinyClip.Parent = Main
 
 	local ShinyClipCorner = Instance.new("UICorner")
-	ShinyClipCorner.CornerRadius = UDim.new(0, 14)
+	ShinyClipCorner.CornerRadius = UDim.new(0, 30)
 	ShinyClipCorner.Parent = ShinyClip
 
 	local MainShiny = Instance.new("Frame")
@@ -190,7 +304,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Mini Stats Widget (Smooth rounded corners with rotating moving border line)
+	-- Mini Stats Widget (Corner Radius 30 with rotating neon beam)
 	local StatsFrame = Instance.new("Frame")
 	StatsFrame.Name = "StatsFrame"
 	StatsFrame.Size = UDim2.new(0, 246, 0, 32)
@@ -201,19 +315,19 @@ function Library.CreateWindow(config)
 	StatsFrame.Parent = ScreenGui
 
 	local StatsCorner = Instance.new("UICorner")
-	StatsCorner.CornerRadius = UDim.new(0, 12)
+	StatsCorner.CornerRadius = UDim.new(0, 30)
 	StatsCorner.Parent = StatsFrame
 
 	local StatsStroke = Instance.new("UIStroke")
-	StatsStroke.Thickness = 1.5
+	StatsStroke.Thickness = 1.8
 	StatsStroke.Parent = StatsFrame
 
 	local StatsStrokeGrad = Instance.new("UIGradient")
 	StatsStrokeGrad.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(0.3, 0.8),
+		NumberSequenceKeypoint.new(0.3, 0.7),
 		NumberSequenceKeypoint.new(0.5, 0),
-		NumberSequenceKeypoint.new(0.8, 0.8),
+		NumberSequenceKeypoint.new(0.8, 0.7),
 		NumberSequenceKeypoint.new(1, 0)
 	})
 	StatsStrokeGrad.Parent = StatsStroke
@@ -227,7 +341,7 @@ function Library.CreateWindow(config)
 
 	local HeadshotImg = Instance.new("ImageLabel")
 	HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
-	HeadshotImg.Position = UDim2.new(0, 6, 0.5, -10)
+	HeadshotImg.Position = UDim2.new(0, 8, 0.5, -10)
 	HeadshotImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
 	HeadshotImg.BorderSizePixel = 0
 	HeadshotImg.Parent = StatsFrame
@@ -244,8 +358,8 @@ function Library.CreateWindow(config)
 	end)
 
 	local StatsContainer = Instance.new("Frame")
-	StatsContainer.Size = UDim2.new(1, -30, 1, 0)
-	StatsContainer.Position = UDim2.new(0, 28, 0, 0)
+	StatsContainer.Size = UDim2.new(1, -32, 1, 0)
+	StatsContainer.Position = UDim2.new(0, 32, 0, 0)
 	StatsContainer.BackgroundTransparency = 1
 	StatsContainer.Parent = StatsFrame
 
@@ -289,54 +403,73 @@ function Library.CreateWindow(config)
 
 	makeDraggable(StatsFrame, StatsFrame)
 
-	-- Loading Screen
+	-- 10x Cooler Loading Screen
 	pcall(function()
 		local LoadGui = Instance.new("ScreenGui")
 		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
 		LoadGui.Parent = getProtectedParent()
 
 		local LoadFrame = Instance.new("Frame")
-		LoadFrame.Size = UDim2.new(0, 400, 0, 200)
-		LoadFrame.Position = UDim2.new(0.5, -200, 0.5, -100)
-		LoadFrame.BackgroundColor3 = Color3.fromRGB(18, 16, 22)
+		LoadFrame.Size = UDim2.new(0, 420, 0, 210)
+		LoadFrame.Position = UDim2.new(0.5, -210, 0.5, -105)
+		LoadFrame.BackgroundColor3 = Color3.fromRGB(14, 13, 18)
 		LoadFrame.BorderSizePixel = 0
 		LoadFrame.Parent = LoadGui
 
 		local LoadCorner = Instance.new("UICorner")
-		LoadCorner.CornerRadius = UDim.new(0, 12)
+		LoadCorner.CornerRadius = UDim.new(0, 30)
 		LoadCorner.Parent = LoadFrame
 
+		local LoadStroke = Instance.new("UIStroke")
+		LoadStroke.Thickness = 2.5
+		LoadStroke.Parent = LoadFrame
+
+		local LoadStrokeGrad = Instance.new("UIGradient")
+		LoadStrokeGrad.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0),
+			NumberSequenceKeypoint.new(0.5, 0.4),
+			NumberSequenceKeypoint.new(1, 0)
+		})
+		LoadStrokeGrad.Parent = LoadStroke
+
+		task.spawn(function()
+			while LoadStrokeGrad and LoadStrokeGrad.Parent do
+				TweenService:Create(LoadStrokeGrad, TweenInfo.new(2.5, Enum.EasingStyle.Linear), {Rotation = LoadStrokeGrad.Rotation + 360}):Play()
+				task.wait(2.5)
+			end
+		end)
+
 		local IconImg = Instance.new("ImageLabel")
-		IconImg.Size = UDim2.new(0, 48, 0, 48)
-		IconImg.Position = UDim2.new(0.5, -24, 0, 30)
+		IconImg.Size = UDim2.new(0, 54, 0, 54)
+		IconImg.Position = UDim2.new(0.5, -27, 0, 28)
 		IconImg.BackgroundTransparency = 1
 		IconImg.Image = iconId
 		IconImg.Parent = LoadFrame
 
 		local LoadTitle = Instance.new("TextLabel")
 		LoadTitle.Size = UDim2.new(1, 0, 0, 24)
-		LoadTitle.Position = UDim2.new(0, 0, 0, 90)
+		LoadTitle.Position = UDim2.new(0, 0, 0, 96)
 		LoadTitle.BackgroundTransparency = 1
 		LoadTitle.Text = string.upper(titleText)
 		LoadTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-		LoadTitle.TextSize = 16
+		LoadTitle.TextSize = 18
 		LoadTitle.Font = Enum.Font.GothamBold
 		LoadTitle.TextXAlignment = Enum.TextXAlignment.Center
 		LoadTitle.Parent = LoadFrame
 
 		local SubLoadTitle = Instance.new("TextLabel")
 		SubLoadTitle.Size = UDim2.new(1, 0, 0, 16)
-		SubLoadTitle.Position = UDim2.new(0, 0, 0, 116)
+		SubLoadTitle.Position = UDim2.new(0, 0, 0, 124)
 		SubLoadTitle.BackgroundTransparency = 1
-		SubLoadTitle.Text = "LOADING SECURE INTERFACE..."
-		SubLoadTitle.TextColor3 = Color3.fromRGB(180, 180, 190)
+		SubLoadTitle.Text = "ESTABLISHING SECURE CONNECTION..."
+		SubLoadTitle.TextColor3 = Color3.fromRGB(170, 170, 185)
 		SubLoadTitle.TextSize = 10
 		SubLoadTitle.Font = Enum.Font.GothamBold
 		SubLoadTitle.TextXAlignment = Enum.TextXAlignment.Center
 		SubLoadTitle.Parent = LoadFrame
 
 		task.spawn(function()
-			task.wait(1.2)
+			task.wait(1.4)
 			TweenService:Create(LoadFrame, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
 			task.wait(0.4)
 			LoadGui:Destroy()
@@ -399,7 +532,7 @@ function Library.CreateWindow(config)
 	ToggleBtn.Parent = ToggleBtnOuter
 
 	local TBtnCorner = Instance.new("UICorner")
-	TBtnCorner.CornerRadius = UDim.new(0, 10)
+	TBtnCorner.CornerRadius = UDim.new(0, 21)
 	TBtnCorner.Parent = ToggleBtn
 
 	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
@@ -424,7 +557,7 @@ function Library.CreateWindow(config)
 	CloseBtn.Parent = Topbar
 
 	local CloseCorner = Instance.new("UICorner")
-	CloseCorner.CornerRadius = UDim.new(0, 6)
+	CloseCorner.CornerRadius = UDim.new(0, 11)
 	CloseCorner.Parent = CloseBtn
 
 	CloseBtn.MouseButton1Click:Connect(function()
@@ -442,7 +575,7 @@ function Library.CreateWindow(config)
 	MinBtn.Parent = Topbar
 
 	local MinCorner = Instance.new("UICorner")
-	MinCorner.CornerRadius = UDim.new(0, 6)
+	MinCorner.CornerRadius = UDim.new(0, 11)
 	MinCorner.Parent = MinBtn
 
 	MinBtn.MouseButton1Click:Connect(function()
@@ -467,7 +600,7 @@ function Library.CreateWindow(config)
 	TabList.Padding = UDim.new(0, 5)
 	TabList.Parent = TabContainer
 
-	-- User Profile Card
+	-- User Profile Card (Corner Radius 30)
 	if userConfig and userConfig.Enabled ~= false then
 		local isAnonymous = (userConfig.Anonymous == true)
 
@@ -481,7 +614,7 @@ function Library.CreateWindow(config)
 		ProfileCard.Parent = Main
 
 		local PCardCorner = Instance.new("UICorner")
-		PCardCorner.CornerRadius = UDim.new(0, 10)
+		PCardCorner.CornerRadius = UDim.new(0, 30)
 		PCardCorner.Parent = ProfileCard
 
 		local AvatarImg = Instance.new("ImageLabel")
@@ -492,7 +625,7 @@ function Library.CreateWindow(config)
 		AvatarImg.Parent = ProfileCard
 
 		local AvatarCorner = Instance.new("UICorner")
-		AvatarCorner.CornerRadius = UDim.new(0, 8)
+		AvatarCorner.CornerRadius = UDim.new(0, 17)
 		AvatarCorner.Parent = AvatarImg
 
 		if isAnonymous then
@@ -628,7 +761,7 @@ function Library.CreateWindow(config)
 			DotContainer.Parent = TabBtn
 
 			local TabCorner = Instance.new("UICorner")
-			TabCorner.CornerRadius = UDim.new(0, 10)
+			TabCorner.CornerRadius = UDim.new(0, 30)
 			TabCorner.Parent = TabBtn
 
 			local Page = Instance.new("ScrollingFrame")
@@ -719,7 +852,7 @@ function Library.CreateWindow(config)
 							dot.Parent = DotContainer
 
 							local dotCorner = Instance.new("UICorner")
-							dotCorner.CornerRadius = UDim.new(0, 10)
+							dotCorner.CornerRadius = UDim.new(0, 30)
 							dotCorner.Parent = dot
 
 							local slowTravelTime = 1.2 + (math.random() * 0.6)
@@ -753,12 +886,12 @@ function Library.CreateWindow(config)
 					SectionFrame.Parent = targetCol
 
 					local SecCorner = Instance.new("UICorner")
-					SecCorner.CornerRadius = UDim.new(0, 10)
+					SecCorner.CornerRadius = UDim.new(0, 30)
 					SecCorner.Parent = SectionFrame
 
 					local SecTitle = Instance.new("TextLabel")
-					SecTitle.Size = UDim2.new(1, -16, 0, 26)
-					SecTitle.Position = UDim2.new(0, 10, 0, 0)
+					SecTitle.Size = UDim2.new(1, -20, 0, 26)
+					SecTitle.Position = UDim2.new(0, 14, 0, 0)
 					SecTitle.BackgroundTransparency = 1
 					SecTitle.Text = tostring(sectionTitle)
 					SecTitle.TextColor3 = Color3.fromRGB(220, 220, 230)
@@ -773,7 +906,7 @@ function Library.CreateWindow(config)
 					InnerList.Parent = SectionFrame
 
 					InnerList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-						SectionFrame.Size = UDim2.new(1, 0, 0, InnerList.AbsoluteContentSize.Y + 12)
+						SectionFrame.Size = UDim2.new(1, 0, 0, InnerList.AbsoluteContentSize.Y + 14)
 					end)
 
 					function section:CreateToggle(name, desc, default, callback)
@@ -781,13 +914,13 @@ function Library.CreateWindow(config)
 							local state = default or false
 
 							local ToggleItem = Instance.new("Frame")
-							ToggleItem.Size = UDim2.new(1, -14, 0, desc and 38 or 28)
+							ToggleItem.Size = UDim2.new(1, -18, 0, desc and 38 or 28)
 							ToggleItem.BackgroundTransparency = 1
 							ToggleItem.Parent = SectionFrame
 
 							local Label = Instance.new("TextLabel")
 							Label.Size = UDim2.new(1, -50, 0, 16)
-							Label.Position = UDim2.new(0, 6, 0, desc and 2 or 6)
+							Label.Position = UDim2.new(0, 8, 0, desc and 2 or 6)
 							Label.BackgroundTransparency = 1
 							Label.Text = tostring(name)
 							Label.TextColor3 = Color3.fromRGB(210, 210, 220)
@@ -799,7 +932,7 @@ function Library.CreateWindow(config)
 							if desc then
 								local DescLabel = Instance.new("TextLabel")
 								DescLabel.Size = UDim2.new(1, -50, 0, 12)
-								DescLabel.Position = UDim2.new(0, 6, 0, 18)
+								DescLabel.Position = UDim2.new(0, 8, 0, 18)
 								DescLabel.BackgroundTransparency = 1
 								DescLabel.Text = tostring(desc)
 								DescLabel.TextColor3 = Color3.fromRGB(120, 120, 130)
@@ -817,7 +950,7 @@ function Library.CreateWindow(config)
 							ToggleBtn.Parent = ToggleItem
 
 							local BtnCorner = Instance.new("UICorner")
-							BtnCorner.CornerRadius = UDim.new(0, 10)
+							BtnCorner.CornerRadius = UDim.new(0, 30)
 							BtnCorner.Parent = ToggleBtn
 
 							local Circle = Instance.new("Frame")
@@ -827,7 +960,7 @@ function Library.CreateWindow(config)
 							Circle.Parent = ToggleBtn
 
 							local CircleCorner = Instance.new("UICorner")
-							CircleCorner.CornerRadius = UDim.new(0, 10)
+							CircleCorner.CornerRadius = UDim.new(0, 30)
 							CircleCorner.Parent = Circle
 
 							ToggleBtn.MouseButton1Click:Connect(function()
@@ -847,7 +980,7 @@ function Library.CreateWindow(config)
 					function section:CreateButton(name, callback)
 						pcall(function()
 							local Btn = Instance.new("TextButton")
-							Btn.Size = UDim2.new(1, -14, 0, 28)
+							Btn.Size = UDim2.new(1, -18, 0, 28)
 							Btn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
 							Btn.Text = "  " .. tostring(name)
 							Btn.TextColor3 = Color3.fromRGB(210, 210, 220)
@@ -857,7 +990,7 @@ function Library.CreateWindow(config)
 							Btn.Parent = SectionFrame
 
 							local BtnCorner = Instance.new("UICorner")
-							BtnCorner.CornerRadius = UDim.new(0, 10)
+							BtnCorner.CornerRadius = UDim.new(0, 30)
 							BtnCorner.Parent = Btn
 
 							Btn.MouseButton1Click:Connect(function()
@@ -879,13 +1012,13 @@ function Library.CreateWindow(config)
 							local value = default
 
 							local SliderItem = Instance.new("Frame")
-							SliderItem.Size = UDim2.new(1, -14, 0, 42)
+							SliderItem.Size = UDim2.new(1, -18, 0, 42)
 							SliderItem.BackgroundTransparency = 1
 							SliderItem.Parent = SectionFrame
 
 							local Label = Instance.new("TextLabel")
 							Label.Size = UDim2.new(1, 0, 0, 16)
-							Label.Position = UDim2.new(0, 6, 0, 2)
+							Label.Position = UDim2.new(0, 8, 0, 2)
 							Label.BackgroundTransparency = 1
 							Label.Text = tostring(name)
 							Label.TextColor3 = Color3.fromRGB(210, 210, 220)
@@ -906,14 +1039,14 @@ function Library.CreateWindow(config)
 							ValLabel.Parent = SliderItem
 
 							local SliderBar = Instance.new("Frame")
-							SliderBar.Size = UDim2.new(1, -12, 0, 6)
-							SliderBar.Position = UDim2.new(0, 6, 0, 26)
+							SliderBar.Size = UDim2.new(1, -16, 0, 6)
+							SliderBar.Position = UDim2.new(0, 8, 0, 26)
 							SliderBar.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
 							SliderBar.BorderSizePixel = 0
 							SliderBar.Parent = SliderItem
 
 							local SBarCorner = Instance.new("UICorner")
-							SBarCorner.CornerRadius = UDim.new(0, 10)
+							SBarCorner.CornerRadius = UDim.new(0, 30)
 							SBarCorner.Parent = SliderBar
 
 							local SliderFill = Instance.new("Frame")
@@ -923,7 +1056,7 @@ function Library.CreateWindow(config)
 							SliderFill.Parent = SliderBar
 
 							local SFillCorner = Instance.new("UICorner")
-							SFillCorner.CornerRadius = UDim.new(0, 10)
+							SFillCorner.CornerRadius = UDim.new(0, 30)
 							SFillCorner.Parent = SliderFill
 
 							local draggingSlider = false
@@ -950,7 +1083,7 @@ function Library.CreateWindow(config)
 							end)
 
 							UserInputService.InputChanged:Connect(function(input)
-								if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType ==Enum.UserInputType.Touch) then
+								if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 									updateSlider(input)
 								end
 							end)
