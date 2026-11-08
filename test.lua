@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Continuous Looping Tab Dot Animations)
+-- SpawnRealm / Moondiety UI Library Module (Green Toggles, Search Highlight, Shorter Searchbar & Icon Padding)
 local Library = {}
 Library.__index = Library
 
@@ -570,16 +570,16 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- Search Bar Logic with Magnifying Glass Icon on Left Side
+	-- Search Bar Logic: Shortened width, non-clickable icon on left, typing padding protection
 	local SearchBox = nil
 	if searchBarEnabled then
 		SearchBox = Instance.new("TextBox")
 		SearchBox.Name = "SearchBox"
-		SearchBox.Size = UDim2.new(0, 140, 0, 28)
+		SearchBox.Size = UDim2.new(0, 126, 0, 28) -- Slightly shorter width
 		SearchBox.Position = UDim2.new(0, 12, 0, 52)
 		SearchBox.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
 		SearchBox.BorderSizePixel = 0
-		SearchBox.PlaceholderText = "Search feature..."
+		SearchBox.PlaceholderText = "Search..."
 		SearchBox.Text = ""
 		SearchBox.TextColor3 = Color3.fromRGB(240, 240, 245)
 		SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 130)
@@ -594,17 +594,19 @@ function Library.CreateWindow(config)
 		SearchCorner.CornerRadius = UDim.new(0, 30)
 		SearchCorner.Parent = SearchBox
 
-		-- Magnifying Glass Icon on Left
+		-- Magnifying Glass Icon on Left (Unclickable / Background decorative element)
 		local SearchIcon = Instance.new("ImageLabel")
 		SearchIcon.Size = UDim2.new(0, 14, 0, 14)
 		SearchIcon.Position = UDim2.new(0, 8, 0.5, -7)
 		SearchIcon.BackgroundTransparency = 1
 		SearchIcon.Image = getLucideIcon("search")
 		SearchIcon.ImageColor3 = Color3.fromRGB(130, 130, 140)
+		SearchIcon.Active = false
+		SearchIcon.Selectable = false
 		SearchIcon.Parent = SearchBox
 
 		local SearchPadding = Instance.new("UIPadding")
-		SearchPadding.PaddingLeft = UDim.new(0, 28)
+		SearchPadding.PaddingLeft = UDim.new(0, 28) -- Keeps typing safely away from the icon
 		SearchPadding.Parent = SearchBox
 	end
 	
@@ -852,7 +854,7 @@ function Library.CreateWindow(config)
 				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
 
-				-- Start Continuous Looping Dot Animation
+				-- Looping Dot Animation
 				if loopConnection then task.cancel(loopConnection) end
 				loopConnection = task.spawn(function()
 					while tabObj.Active and DotContainer and DotContainer.Parent do
@@ -880,7 +882,7 @@ function Library.CreateWindow(config)
 								dot:Destroy()
 							end)
 						end)
-						task.wait(0.18) -- Spawns new looping dots continuously
+						task.wait(0.18)
 					end
 				end)
 			end
@@ -909,7 +911,6 @@ function Library.CreateWindow(config)
 				tabObj.Active = true
 				activeTabObject = tabObj
 				
-				-- Trigger initial loop for default tab
 				loopConnection = task.spawn(function()
 					while tabObj.Active and DotContainer and DotContainer.Parent do
 						task.spawn(function()
@@ -1018,7 +1019,8 @@ function Library.CreateWindow(config)
 							local ToggleBtn = Instance.new("TextButton")
 							ToggleBtn.Size = UDim2.new(0, 32, 0, 18)
 							ToggleBtn.Position = UDim2.new(1, -36, 0.5, -9)
-							ToggleBtn.BackgroundColor3 = state and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(45, 45, 52)
+							-- Smooth green color when enabled, normal dark gray when disabled
+							ToggleBtn.BackgroundColor3 = state and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(45, 45, 52)
 							ToggleBtn.Text = ""
 							ToggleBtn.Parent = ToggleItem
 
@@ -1029,7 +1031,7 @@ function Library.CreateWindow(config)
 							local Circle = Instance.new("Frame")
 							Circle.Size = UDim2.new(0, 12, 0, 12)
 							Circle.Position = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
-							Circle.BackgroundColor3 = state and Color3.fromRGB(15, 15, 18) or Color3.fromRGB(255, 255, 255)
+							Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 							Circle.Parent = ToggleBtn
 
 							local CircleCorner = Instance.new("UICorner")
@@ -1040,10 +1042,9 @@ function Library.CreateWindow(config)
 								playSound("rbxassetid://75698187458888", soundEnabled, 2.0)
 								state = not state
 								local targetPos = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
-								local targetColor = state and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(45, 45, 52)
-								local circleColor = state and Color3.fromRGB(15, 15, 18) or Color3.fromRGB(255, 255, 255)
+								local targetColor = state and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(45, 45, 52)
 
-								TweenService:Create(Circle, TWEEN_INFO, {Position = targetPos, BackgroundColor3 = circleColor}):Play()
+								TweenService:Create(Circle, TWEEN_INFO, {Position = targetPos}):Play()
 								TweenService:Create(ToggleBtn, TWEEN_INFO, {BackgroundColor3 = targetColor}):Play()
 								if callback then pcall(callback, state) end
 							end)
@@ -1057,6 +1058,7 @@ function Library.CreateWindow(config)
 							local Btn = Instance.new("TextButton")
 							Btn.Size = UDim2.new(1, -18, 0, 28)
 							Btn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+							Btn.Text = "  " + tostring(name) -- safely handled below
 							Btn.Text = "  " .. tostring(name)
 							Btn.TextColor3 = Color3.fromRGB(210, 210, 220)
 							Btn.Font = Enum.Font.GothamMedium
@@ -1187,7 +1189,7 @@ function Library.CreateWindow(config)
 		return tabObj
 	end
 
-	-- Search Functionality Logic
+	-- Search Functionality Logic with Clear Highlight Animation
 	if searchBarEnabled and SearchBox then
 		SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
 			local query = SearchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
@@ -1200,8 +1202,8 @@ function Library.CreateWindow(config)
 					end
 					task.spawn(function()
 						pcall(function()
-							for i = 1, 2 do
-								TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 0.5}):Play()
+							for i = 1, 3 do
+								TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 0.4}):Play()
 								task.wait(0.15)
 								TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 1}):Play()
 								task.wait(0.15)
