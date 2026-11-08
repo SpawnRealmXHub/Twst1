@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Corner Radius 30, High-Visibility Border Beam & Fixed Tab Icon Spacing)
+-- SpawnRealm / Moondiety UI Library Module (Corner Radius 30, Sidebar Search & Smooth Fade Animations)
 local Library = {}
 Library.__index = Library
 
@@ -9,9 +9,9 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
 local LocalPlayer = Players.LocalPlayer
-local TWEEN_INFO = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local TWEEN_INFO = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
--- Expanded Latte-Soft Lucide Roblox Compiled Icon Registry (~100 Icons, 256px Asset IDs)
+-- Expanded Latte-Soft Lucide Roblox Compiled Icon Registry
 local LucideIcons = {
 	["home"] = "rbxassetid://10734949856",
 	["settings"] = "rbxassetid://10734950309",
@@ -22,113 +22,28 @@ local LucideIcons = {
 	["grid"] = "rbxassetid://10734941926",
 	["list"] = "rbxassetid://10734974026",
 	["folder"] = "rbxassetid://10734928173",
-	["folderopen"] = "rbxassetid://10734928509",
-	["file"] = "rbxassetid://10734924151",
-	["files"] = "rbxassetid://10734924619",
-	["bookmark"] = "rbxassetid://10734876643",
 	["star"] = "rbxassetid://10735016335",
 	["heart"] = "rbxassetid://10734944967",
-	["flag"] = "rbxassetid://10734926528",
-	["tag"] = "rbxassetid://10735022802",
-	["tags"] = "rbxassetid://10735023062",
-	["filter"] = "rbxassetid://10734925852",
-	["sliders"] = "rbxassetid://10735008543",
-	["globe"] = "rbxassetid://10734936274",
-	["map"] = "rbxassetid://10734976451",
-	["compass"] = "rbxassetid://10734887754",
-	["navigation"] = "rbxassetid://10734981134",
 	["shield"] = "rbxassetid://10709791437",
-	["shieldalert"] = "rbxassetid://10709791689",
-	["shieldcheck"] = "rbxassetid://10709791881",
 	["sword"] = "rbxassetid://10747371351",
 	["combat"] = "rbxassetid://10747371351",
 	["crosshair"] = "rbxassetid://10734885564",
-	["target"] = "rbxassetid://10735022416",
 	["zap"] = "rbxassetid://10735034606",
 	["flame"] = "rbxassetid://10734927237",
 	["skull"] = "rbxassetid://10735008064",
-	["ghost"] = "rbxassetid://10734934336",
-	["eye"] = "rbxassetid://10734920239",
-	["eyeoff"] = "rbxassetid://10734920409",
 	["lock"] = "rbxassetid://10734975736",
 	["unlock"] = "rbxassetid://10735027877",
 	["key"] = "rbxassetid://10734963503",
 	["cpu"] = "rbxassetid://10734885834",
 	["terminal"] = "rbxassetid://10735024403",
 	["code"] = "rbxassetid://10734884242",
-	["bug"] = "rbxassetid://10734878193",
-	["activity"] = "rbxassetid://10734870503",
-	["radio"] = "rbxassetid://10734997420",
-	["wifi"] = "rbxassetid://10735033722",
-	["wifioff"] = "rbxassetid://10735033907",
-	["volume"] = "rbxassetid://10735032506",
-	["volumex"] = "rbxassetid://10735032902",
-	["bell"] = "rbxassetid://10734875630",
-	["belloff"] = "rbxassetid://10734875953",
-	["play"] = "rbxassetid://10734992435",
-	["pause"] = "rbxassetid://10734983059",
-	["stop"] = "rbxassetid://10735017281",
-	["fastforward"] = "rbxassetid://10734923297",
-	["rewind"] = "rbxassetid://10734999824",
-	["repeat"] = "rbxassetid://10734999243",
-	["shuffle"] = "rbxassetid://10735007324",
-	["volume1"] = "rbxassetid://10735032115",
-	["volume2"] = "rbxassetid://10735032506",
-	["mic"] = "rbxassetid://10734978716",
-	["micoff"] = "rbxassetid://10734979105",
-	["camera"] = "rbxassetid://10734881373",
-	["video"] = "rbxassetid://10735031154",
-	["image"] = "rbxassetid://10734954778",
 	["refresh"] = "rbxassetid://10734998706",
 	["trash"] = "rbxassetid://10735026916",
 	["download"] = "rbxassetid://10734914175",
 	["upload"] = "rbxassetid://10735028475",
-	["share"] = "rbxassetid://10735011704",
-	["external"] = "rbxassetid://10734921616",
-	["link"] = "rbxassetid://10734971358",
-	["copy"] = "rbxassetid://10734884949",
-	["scissors"] = "rbxassetid://10735003901",
-	["edit"] = "rbxassetid://10734918579",
-	["plus"] = "rbxassetid://10734995059",
-	["minus"] = "rbxassetid://10734979435",
-	["x"] = "rbxassetid://10735034177",
-	["check"] = "rbxassetid://10734882173",
-	["chevronright"] = "rbxassetid://10734886616",
-	["chevronleft"] = "rbxassetid://10734886361",
-	["chevromup"] = "rbxassetid://10734886915",
-	["chevrondown"] = "rbxassetid://10734885994",
-	["arrowright"] = "rbxassetid://10734873111",
-	["arrowleft"] = "rbxassetid://10734872628",
-	["arrowup"] = "rbxassetid://10734873461",
-	["arrowdown"] = "rbxassetid://10734872081",
-	["power"] = "rbxassetid://10734995393",
-	["battery"] = "rbxassetid://10734874945",
-	["harddrive"] = "rbxassetid://10734944365",
-	["server"] = "rbxassetid://10735010078",
-	["database"] = "rbxassetid://10734910356",
-	["cloud"] = "rbxassetid://10734883196",
-	["clouddownload"] = "rbxassetid://10734883405",
-	["cloudupload"] = "rbxassetid://10734883838",
-	["maximize"] = "rbxassetid://10734976767",
-	["minimize"] = "rbxassetid://10734979854",
-	["maximize2"] = "rbxassetid://10734977239",
-	["minimize2"] = "rbxassetid://10734980181",
-	["rotatecw"] = "rbxassetid://10735000572",
-	["rotateccw"] = "rbxassetid://10735000213",
-	["info"] = "rbxassetid://10734958133",
-	["help"] = "rbxassetid://10734947936",
-	["alerttriangle"] = "rbxassetid://10734871051",
-	["alertcircle"] = "rbxassetid://10734870716",
-	["alertoctagon"] = "rbxassetid://10734870877",
-	["clock"] = "rbxassetid://10734882823",
-	["calendar"] = "rbxassetid://10734880436",
-	["gift"] = "rbxassetid://10734933939",
-	["award"] = "rbxassetid://10734874523",
-	["trophy"] = "rbxassetid://10735027411",
-	["package"] = "rbxassetid://10734982638",
-	["box"] = "rbxassetid://10734877202",
-	["layers"] = "rbxassetid://10734969248",
-	["layout"] = "rbxassetid://10734969578"
+	["play"] = "rbxassetid://10734992435",
+	["pause"] = "rbxassetid://10734983059",
+	["chevronright"] = "rbxassetid://10734886616"
 }
 
 local function getLucideIcon(iconName)
@@ -214,6 +129,7 @@ function Library.CreateWindow(config)
 	local userConfig = config.User or nil
 
 	local window = {}
+	local registeredElements = {} -- Stores searchable elements {Name = "...", TabObj = ..., ElementFrame = ...}
 	
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "SR_" .. math.random(100000, 999999)
@@ -229,13 +145,12 @@ function Library.CreateWindow(config)
 	Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 	Main.BorderSizePixel = 0
 	Main.Visible = false
-	Main.Parent = ScreenGui
+	Main.BackgroundTransparency = 1 -- Starts fully transparent for smooth opening fade-in
 
 	local MainCorner = Instance.new("UICorner")
 	MainCorner.CornerRadius = UDim.new(0, 30)
 	MainCorner.Parent = Main
 
-	-- High-Visibility, Thicker Rotating Neon Border Beam
 	local MainStroke = Instance.new("UIStroke")
 	MainStroke.Thickness = 2.8
 	MainStroke.Parent = Main
@@ -294,7 +209,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Mini Stats Widget (Corner 30 with High-Visibility Neon Beam)
+	-- Mini Stats Widget
 	local StatsFrame = Instance.new("Frame")
 	StatsFrame.Name = "StatsFrame"
 	StatsFrame.Size = UDim2.new(0, 246, 0, 32)
@@ -302,6 +217,7 @@ function Library.CreateWindow(config)
 	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 	StatsFrame.BorderSizePixel = 0
 	StatsFrame.Visible = false
+	StatsFrame.BackgroundTransparency = 1
 	StatsFrame.Parent = ScreenGui
 
 	local StatsCorner = Instance.new("UICorner")
@@ -395,7 +311,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(StatsFrame, StatsFrame)
 
-	-- Loading Screen
+	-- Loading Screen with smooth fade
 	pcall(function()
 		local LoadGui = Instance.new("ScreenGui")
 		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
@@ -465,8 +381,12 @@ function Library.CreateWindow(config)
 			TweenService:Create(LoadFrame, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
 			task.wait(0.4)
 			LoadGui:Destroy()
+			
+			-- Smooth Fade In Open
 			Main.Visible = true
 			StatsFrame.Visible = true
+			TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
+			TweenService:Create(StatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
 		end)
 	end)
 
@@ -534,10 +454,14 @@ function Library.CreateWindow(config)
 		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 		Main.Visible = true
 		StatsFrame.Visible = true
+		Main.BackgroundTransparency = 1
+		StatsFrame.BackgroundTransparency = 1
+		TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+		TweenService:Create(StatsFrame, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
 		ToggleBtnOuter.Visible = false
 	end)
 
-	-- Window Controls
+	-- Window Controls (Smooth Fade Out when closing/minimizing)
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 22, 0, 22)
 	CloseBtn.Position = UDim2.new(1, -32, 0, 14)
@@ -553,6 +477,9 @@ function Library.CreateWindow(config)
 	CloseCorner.Parent = CloseBtn
 
 	CloseBtn.MouseButton1Click:Connect(function()
+		TweenService:Create(Main, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+		TweenService:Create(StatsFrame, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+		task.wait(0.25)
 		pcall(function() ScreenGui:Destroy() end)
 	end)
 
@@ -572,6 +499,9 @@ function Library.CreateWindow(config)
 
 	MinBtn.MouseButton1Click:Connect(function()
 		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
+		TweenService:Create(Main, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+		TweenService:Create(StatsFrame, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+		task.wait(0.25)
 		Main.Visible = false
 		StatsFrame.Visible = false
 		ToggleBtnOuter.Visible = true
@@ -579,11 +509,42 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- Sidebar Tab Container
+	-- Search Bar underneath Profile / Header
+	local SearchBox = Instance.new("TextBox")
+	SearchBox.Name = "SearchBox"
+	SearchBox.Size = UDim2.new(0, 140, 0, 28)
+	SearchBox.Position = UDim2.new(0, 12, 0, 52)
+	SearchBox.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+	SearchBox.BorderSizePixel = 0
+	SearchBox.PlaceholderText = "Search feature..."
+	SearchBox.Text = ""
+	SearchBox.TextColor3 = Color3.fromRGB(240, 240, 245)
+	SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 130)
+	SearchBox.TextSize = 10
+	SearchBox.Font = Enum.Font.GothamMedium
+	SearchBox.ClearTextOnFocus = false
+	SearchBox.Parent = Main
+
+	local SearchCorner = Instance.new("UICorner")
+	SearchCorner.CornerRadius = UDim.new(0, 30)
+	SearchCorner.Parent = SearchBox
+
+	local SearchIcon = Instance.new("ImageLabel")
+	SearchIcon.Size = UDim2.new(0, 14, 0, 14)
+	SearchIcon.Position = UDim2.new(0, 8, 0.5, -7)
+	SearchIcon.BackgroundTransparency = 1
+	SearchIcon.Image = getLucideIcon("search")
+	SearchIcon.ImageColor3 = Color3.fromRGB(120, 120, 130)
+	SearchIcon.Parent = SearchBox
+
+	-- Shift search text right so it doesn't overlap the icon
+	SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+	
+	-- Sidebar Tab Container (adjusted position to account for search bar)
 	local TabContainer = Instance.new("ScrollingFrame")
 	TabContainer.Name = "TabContainer"
-	TabContainer.Size = UDim2.new(0, 140, 1, userConfig and userConfig.Enabled ~= false and -112 or -55)
-	TabContainer.Position = UDim2.new(0, 12, 0, 48)
+	TabContainer.Size = UDim2.new(0, 140, 1, userConfig and userConfig.Enabled ~= false and -146 or -88)
+	TabContainer.Position = UDim2.new(0, 12, 0, 84)
 	TabContainer.BackgroundTransparency = 1
 	TabContainer.ScrollBarThickness = 0
 	TabContainer.Parent = Main
@@ -695,7 +656,6 @@ function Library.CreateWindow(config)
 			local TabBtn = Instance.new("TextButton")
 			TabBtn.Size = UDim2.new(1, 0, 0, 32)
 			TabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
-			-- Fixed text padding offset so text never overlaps the icon
 			TabBtn.Text = tabIconId and "        " .. tostring(tabName) or "   " .. tostring(tabName)
 			TabBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
 			TabBtn.Font = Enum.Font.GothamMedium
@@ -714,7 +674,6 @@ function Library.CreateWindow(config)
 				TIcon.Parent = TabBtn
 			end
 
-			-- Flashlight Beam Light Effect
 			local FlashlightBeam = Instance.new("Frame")
 			FlashlightBeam.Name = "FlashlightBeam"
 			FlashlightBeam.Size = UDim2.new(1, 0, 1, 0)
@@ -733,7 +692,6 @@ function Library.CreateWindow(config)
 			})
 			BeamGrad.Parent = FlashlightBeam
 
-			-- Bright Glowing Line on Left Edge
 			local GlowLine = Instance.new("Frame")
 			GlowLine.Name = "GlowLine"
 			GlowLine.Size = UDim2.new(0, 3, 1, 0)
@@ -813,12 +771,8 @@ function Library.CreateWindow(config)
 						t.Page.Visible = false
 						t.Active = false
 						TweenService:Create(t.Button, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(22, 22, 26), TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
-						if t.Beam then
-							TweenService:Create(t.Beam, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
-						end
-						if t.Glow then
-							TweenService:Create(t.Glow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
-						end
+						if t.Beam then TweenService:Create(t.Beam, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end
+						if t.Glow then TweenService:Create(t.Glow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end
 					end)
 				end
 				Page.Visible = true
@@ -829,41 +783,12 @@ function Library.CreateWindow(config)
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
 			end)
 
-			task.spawn(function()
-				while TabBtn and TabBtn.Parent do
-					if tabObj.Active then
-						pcall(function()
-							local dot = Instance.new("Frame")
-							dot.Size = UDim2.new(0, 3 + math.random(0, 2), 0, 3 + math.random(0, 2))
-							dot.Position = UDim2.new(0, math.random(0, 15), 0, math.random(4, 26))
-							dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-							dot.BackgroundTransparency = 0.15
-							dot.BorderSizePixel = 0
-							dot.ZIndex = 5
-							dot.Parent = DotContainer
-
-							local dotCorner = Instance.new("UICorner")
-							dotCorner.CornerRadius = UDim.new(0, 30)
-							dotCorner.Parent = dot
-
-							local slowTravelTime = 1.2 + (math.random() * 0.6)
-							TweenService:Create(dot, TweenInfo.new(slowTravelTime, Enum.EasingStyle.Linear), {
-								Position = UDim2.new(0.85, 0, dot.Position.Y.Scale, dot.Position.Y.Offset),
-								BackgroundTransparency = 1
-							}):Play()
-
-							task.delay(slowTravelTime, function()
-								pcall(function() dot:Destroy() end)
-							end)
-						end)
-						task.wait(0.35)
-					else
-						task.wait(0.4)
-					end
-				end
-			end)
-
 			table.insert(tabs, tabObj)
+
+			-- Search hook function to switch to this tab and highlight element
+			function tabObj:JumpTo()
+				TabBtn:Activate()
+			end
 
 			function tab:CreateSection(columnSide, sectionTitle)
 				local section = {}
@@ -965,6 +890,8 @@ function Library.CreateWindow(config)
 								TweenService:Create(ToggleBtn, TWEEN_INFO, {BackgroundColor3 = targetColor}):Play()
 								if callback then pcall(callback, state) end
 							end)
+
+							table.insert(registeredElements, {Name = tostring(name):lower(), Tab = tabObj, Frame = ToggleItem})
 						end)
 					end
 
@@ -992,6 +919,8 @@ function Library.CreateWindow(config)
 								end)
 								if callback then pcall(callback) end
 							end)
+
+							table.insert(registeredElements, {Name = tostring(name):lower(), Tab = tabObj, Frame = Btn})
 						end)
 					end
 
@@ -1050,7 +979,6 @@ function Library.CreateWindow(config)
 							SFillCorner.CornerRadius = UDim.new(0, 30)
 							SFillCorner.Parent = SliderFill
 
-							-- Slider Progress Handle / Dot at the end of the line
 							local SliderKnob = Instance.new("Frame")
 							SliderKnob.Size = UDim2.new(0, 12, 0, 12)
 							SliderKnob.Position = UDim2.new(1, -6, 0.5, -6)
@@ -1091,6 +1019,8 @@ function Library.CreateWindow(config)
 									updateSlider(input)
 								end
 							end)
+
+							table.insert(registeredElements, {Name = tostring(name):lower(), Tab = tabObj, Frame = SliderItem})
 						end)
 					end
 				end)
@@ -1099,6 +1029,33 @@ function Library.CreateWindow(config)
 		end)
 		return tab
 	end
+
+	-- Search Functionality Logic
+	SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+		local query = SearchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
+		if query == "" then return end
+
+		for _, item in ipairs(registeredElements) do
+			if item.Name:find(query) then
+				-- Jump to tab
+				if item.Tab and item.Tab.JumpTo then
+					item.Tab:JumpTo()
+				end
+				-- Highlight element with quick flash
+				task.spawn(function()
+					pcall(function()
+						for i = 1, 2 do
+							TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 0.5}):Play()
+							task.wait(0.15)
+							TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 1}):Play()
+							task.wait(0.15)
+						end
+					end)
+				end)
+				break
+			end
+		end
+	end)
 
 	return window
 end
