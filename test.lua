@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Flashlight Beam, Persistent Glow & Slow Dots)
+-- SpawnRealm / Moondiety UI Library Module (Compact Height, Corner Radius 2 & Perimeter Moving Outline)
 local Library = {}
 Library.__index = Library
 
@@ -120,7 +120,7 @@ function Library.CreateWindow(config)
 	local MainOuter = Instance.new("Frame")
 	MainOuter.Name = "MainOuter"
 	local targetWidth = 682
-	local targetHeight = 350
+	local targetHeight = 310 -- Made compact as requested
 	MainOuter.Size = UDim2.new(0, targetWidth, 0, targetHeight)
 	MainOuter.Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2)
 	MainOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -128,8 +128,9 @@ function Library.CreateWindow(config)
 	MainOuter.Visible = false
 	MainOuter.Parent = ScreenGui
 
+	-- UI Corner set precisely to 2 for main window
 	local MainOuterCorner = Instance.new("UICorner")
-	MainOuterCorner.CornerRadius = UDim.new(0, 11)
+	MainOuterCorner.CornerRadius = UDim.new(0, 2)
 	MainOuterCorner.Parent = MainOuter
 
 	local MainInner = Instance.new("Frame")
@@ -141,7 +142,7 @@ function Library.CreateWindow(config)
 	MainInner.Parent = MainOuter
 
 	local MainInnerCorner = Instance.new("UICorner")
-	MainInnerCorner.CornerRadius = UDim.new(0, 10)
+	MainInnerCorner.CornerRadius = UDim.new(0, 2)
 	MainInnerCorner.Parent = MainInner
 
 	local Main = Instance.new("Frame")
@@ -153,8 +154,48 @@ function Library.CreateWindow(config)
 	Main.Parent = MainOuter
 
 	local MainCorner = Instance.new("UICorner")
-	MainCorner.CornerRadius = UDim.new(0, 9)
+	MainCorner.CornerRadius = UDim.new(0, 2)
 	MainCorner.Parent = Main
+
+	-- Perimeter Moving Outline Border Effect with Corner Fades
+	local PerimeterGlow = Instance.new("Frame")
+	PerimeterGlow.Name = "PerimeterGlow"
+	PerimeterGlow.Size = UDim2.new(1, 4, 1, 4)
+	PerimeterGlow.Position = UDim2.new(0, -2, 0, -2)
+	PerimeterGlow.BackgroundTransparency = 1
+	PerimeterGlow.BorderSizePixel = 0
+	PerimeterGlow.ZIndex = 10
+	PerimeterGlow.Parent = MainOuter
+
+	local PerimeterCorner = Instance.new("UICorner")
+	PerimeterCorner.CornerRadius = UDim.new(0, 2)
+	PerimeterCorner.Parent = PerimeterGlow
+
+	-- Outline gradient and particle sheen that fades near corners
+	local PerimeterGrad = Instance.new("UIGradient")
+	PerimeterGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.1),    -- Top-left corner (fades slightly)
+		NumberSequenceKeypoint.new(0.08, 0),   -- Normal line brightness
+		NumberSequenceKeypoint.new(0.2, 0),
+		NumberSequenceKeypoint.new(0.25, 0.4), -- Top-right corner fade
+		NumberSequenceKeypoint.new(0.3, 0),
+		NumberSequenceKeypoint.new(0.5, 0),
+		NumberSequenceKeypoint.new(0.55, 0.4), -- Bottom-right corner fade
+		NumberSequenceKeypoint.new(0.6, 0),
+		NumberSequenceKeypoint.new(0.75, 0),
+		NumberSequenceKeypoint.new(0.8, 0.4),  -- Bottom-left corner fade
+		NumberSequenceKeypoint.new(0.85, 0),
+		NumberSequenceKeypoint.new(1, 0.1)
+	})
+	PerimeterGrad.Parent = PerimeterGlow
+
+	-- Animate moving rotation / offset to create traversing shiny outline effect
+	task.spawn(function()
+		while PerimeterGrad and PerimeterGrad.Parent do
+			TweenService:Create(PerimeterGrad, TweenInfo.new(3, Enum.EasingStyle.Linear), {Rotation = PerimeterGrad.Rotation + 360}):Play()
+			task.wait(3)
+		end
+	end)
 
 	local ShinyClip = Instance.new("Frame")
 	ShinyClip.Size = UDim2.new(1, 0, 1, 0)
@@ -163,7 +204,7 @@ function Library.CreateWindow(config)
 	ShinyClip.Parent = Main
 
 	local ShinyClipCorner = Instance.new("UICorner")
-	ShinyClipCorner.CornerRadius = UDim.new(0, 9)
+	ShinyClipCorner.CornerRadius = UDim.new(0, 2)
 	ShinyClipCorner.Parent = ShinyClip
 
 	local MainShiny = Instance.new("Frame")
@@ -191,18 +232,18 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Mini Stats Widget (Corner Radius set precisely to 8)
+	-- Mini Stats Widget (Corner Radius precisely 2)
 	local StatsFrameOuter = Instance.new("Frame")
 	StatsFrameOuter.Name = "StatsFrameOuter"
 	StatsFrameOuter.Size = UDim2.new(0, 246, 0, 32)
-	StatsFrameOuter.Position = UDim2.new(0.5, 90, 0.45, -195)
+	StatsFrameOuter.Position = UDim2.new(0.5, 90, 0.45, -175)
 	StatsFrameOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	StatsFrameOuter.BorderSizePixel = 0
 	StatsFrameOuter.Visible = false
 	StatsFrameOuter.Parent = ScreenGui
 
 	local OuterCorner = Instance.new("UICorner")
-	OuterCorner.CornerRadius = UDim.new(0, 8)
+	OuterCorner.CornerRadius = UDim.new(0, 2)
 	OuterCorner.Parent = StatsFrameOuter
 
 	local StatsFrameInner = Instance.new("Frame")
@@ -213,7 +254,7 @@ function Library.CreateWindow(config)
 	StatsFrameInner.Parent = StatsFrameOuter
 
 	local StatsInnerCorner = Instance.new("UICorner")
-	StatsInnerCorner.CornerRadius = UDim.new(0, 8)
+	StatsInnerCorner.CornerRadius = UDim.new(0, 2)
 	StatsInnerCorner.Parent = StatsFrameInner
 
 	local StatsFrame = Instance.new("Frame")
@@ -224,7 +265,7 @@ function Library.CreateWindow(config)
 	StatsFrame.Parent = StatsFrameOuter
 
 	local StatsCorner = Instance.new("UICorner")
-	StatsCorner.CornerRadius = UDim.new(0, 8)
+	StatsCorner.CornerRadius = UDim.new(0, 2)
 	StatsCorner.Parent = StatsFrame
 
 	local HeadshotImg = Instance.new("ImageLabel")
@@ -305,7 +346,7 @@ function Library.CreateWindow(config)
 		LoadFrame.Parent = LoadGui
 
 		local LoadCorner = Instance.new("UICorner")
-		LoadCorner.CornerRadius = UDim.new(0, 12)
+		LoadCorner.CornerRadius = UDim.new(0, 2)
 		LoadCorner.Parent = LoadFrame
 
 		local IconImg = Instance.new("ImageLabel")
@@ -401,7 +442,7 @@ function Library.CreateWindow(config)
 	ToggleBtn.Parent = ToggleBtnOuter
 
 	local TBtnCorner = Instance.new("UICorner")
-	TBtnCorner.CornerRadius = UDim.new(0, 8)
+	TBtnCorner.CornerRadius = UDim.new(0, 2)
 	TBtnCorner.Parent = ToggleBtn
 
 	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
@@ -426,7 +467,7 @@ function Library.CreateWindow(config)
 	CloseBtn.Parent = Topbar
 
 	local CloseCorner = Instance.new("UICorner")
-	CloseCorner.CornerRadius = UDim.new(0, 6)
+	CloseCorner.CornerRadius = UDim.new(0, 2)
 	CloseCorner.Parent = CloseBtn
 
 	CloseBtn.MouseButton1Click:Connect(function()
@@ -444,7 +485,7 @@ function Library.CreateWindow(config)
 	MinBtn.Parent = Topbar
 
 	local MinCorner = Instance.new("UICorner")
-	MinCorner.CornerRadius = UDim.new(0, 6)
+	MinCorner.CornerRadius = UDim.new(0, 2)
 	MinCorner.Parent = MinBtn
 
 	MinBtn.MouseButton1Click:Connect(function()
@@ -483,7 +524,7 @@ function Library.CreateWindow(config)
 		ProfileCard.Parent = Main
 
 		local PCardCorner = Instance.new("UICorner")
-		PCardCorner.CornerRadius = UDim.new(0, 8)
+		PCardCorner.CornerRadius = UDim.new(0, 2)
 		PCardCorner.Parent = ProfileCard
 
 		local AvatarImg = Instance.new("ImageLabel")
@@ -494,7 +535,7 @@ function Library.CreateWindow(config)
 		AvatarImg.Parent = ProfileCard
 
 		local AvatarCorner = Instance.new("UICorner")
-		AvatarCorner.CornerRadius = UDim.new(0, 6)
+		AvatarCorner.CornerRadius = UDim.new(0, 2)
 		AvatarCorner.Parent = AvatarImg
 
 		if isAnonymous then
@@ -590,7 +631,7 @@ function Library.CreateWindow(config)
 				TIcon.Parent = TabBtn
 			end
 
-			-- Flashlight Beam Light Effect (Wide range white light emitting across the tab)
+			-- Flashlight Beam Light Effect
 			local FlashlightBeam = Instance.new("Frame")
 			FlashlightBeam.Name = "FlashlightBeam"
 			FlashlightBeam.Size = UDim2.new(1, 0, 1, 0)
@@ -603,9 +644,9 @@ function Library.CreateWindow(config)
 
 			local BeamGrad = Instance.new("UIGradient")
 			BeamGrad.Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 0.55),  -- Bright wide white light source on the left
+				NumberSequenceKeypoint.new(0, 0.55),
 				NumberSequenceKeypoint.new(0.4, 0.85),
-				NumberSequenceKeypoint.new(1, 1)      -- Fades out smoothly towards the right side
+				NumberSequenceKeypoint.new(1, 1)
 			})
 			BeamGrad.Parent = FlashlightBeam
 
@@ -630,7 +671,7 @@ function Library.CreateWindow(config)
 			DotContainer.Parent = TabBtn
 
 			local TabCorner = Instance.new("UICorner")
-			TabCorner.CornerRadius = UDim.new(0, 7)
+			TabCorner.CornerRadius = UDim.new(0, 2)
 			TabCorner.Parent = TabBtn
 
 			local Page = Instance.new("ScrollingFrame")
@@ -721,13 +762,13 @@ function Library.CreateWindow(config)
 							dot.Parent = DotContainer
 
 							local dotCorner = Instance.new("UICorner")
-							dotCorner.CornerRadius = UDim.new(1, 0)
+							dotCorner.CornerRadius = UDim.new(0, 2)
 							dotCorner.Parent = dot
 
-							local slowTravelTime = 1.2 + (math.random() * 0.6) -- Much slower moving
+							local slowTravelTime = 1.2 + (math.random() * 0.6)
 							TweenService:Create(dot, TweenInfo.new(slowTravelTime, Enum.EasingStyle.Linear), {
 								Position = UDim2.new(0.85, 0, dot.Position.Y.Scale, dot.Position.Y.Offset),
-								BackgroundTransparency = 1 -- Slowly disappearing near the right side
+								BackgroundTransparency = 1
 							}):Play()
 
 							task.delay(slowTravelTime, function()
@@ -755,7 +796,7 @@ function Library.CreateWindow(config)
 					SectionFrame.Parent = targetCol
 
 					local SecCorner = Instance.new("UICorner")
-					SecCorner.CornerRadius = UDim.new(0, 7)
+					SecCorner.CornerRadius = UDim.new(0, 2)
 					SecCorner.Parent = SectionFrame
 
 					local SecTitle = Instance.new("TextLabel")
@@ -819,7 +860,7 @@ function Library.CreateWindow(config)
 							ToggleBtn.Parent = ToggleItem
 
 							local BtnCorner = Instance.new("UICorner")
-							BtnCorner.CornerRadius = UDim.new(1, 0)
+							BtnCorner.CornerRadius = UDim.new(0, 2)
 							BtnCorner.Parent = ToggleBtn
 
 							local Circle = Instance.new("Frame")
@@ -829,11 +870,11 @@ function Library.CreateWindow(config)
 							Circle.Parent = ToggleBtn
 
 							local CircleCorner = Instance.new("UICorner")
-							CircleCorner.CornerRadius = UDim.new(1, 0)
+							CircleCorner.CornerRadius = UDim.new(0, 2)
 							CircleCorner.Parent = Circle
 
 							ToggleBtn.MouseButton1Click:Connect(function()
-								playSound("rbxassetid://75698187458888", soundEnabled, 2.0) -- Volume set to 2.0
+								playSound("rbxassetid://75698187458888", soundEnabled, 2.0)
 								state = not state
 								local targetPos = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
 								local targetColor = state and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(45, 45, 52)
@@ -859,7 +900,7 @@ function Library.CreateWindow(config)
 							Btn.Parent = SectionFrame
 
 							local BtnCorner = Instance.new("UICorner")
-							BtnCorner.CornerRadius = UDim.new(0, 5)
+							BtnCorner.CornerRadius = UDim.new(0, 2)
 							BtnCorner.Parent = Btn
 
 							Btn.MouseButton1Click:Connect(function()
@@ -915,7 +956,7 @@ function Library.CreateWindow(config)
 							SliderBar.Parent = SliderItem
 
 							local SBarCorner = Instance.new("UICorner")
-							SBarCorner.CornerRadius = UDim.new(1, 0)
+							SBarCorner.CornerRadius = UDim.new(0, 2)
 							SBarCorner.Parent = SliderBar
 
 							local SliderFill = Instance.new("Frame")
@@ -925,7 +966,7 @@ function Library.CreateWindow(config)
 							SliderFill.Parent = SliderBar
 
 							local SFillCorner = Instance.new("UICorner")
-							SFillCorner.CornerRadius = UDim.new(1, 0)
+							SFillCorner.CornerRadius = UDim.new(0, 2)
 							SFillCorner.Parent = SliderFill
 
 							local draggingSlider = false
