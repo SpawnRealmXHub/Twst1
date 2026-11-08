@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Fixed Independent Draggables, Top Pills, & Circular Toggle Button)
+-- SpawnRealm / Moondiety UI Library Module
 local Library = {}
 Library.__index = Library
 
@@ -140,7 +140,6 @@ function Library.CreateWindow(config)
 	local existingFolder = parentBase:FindFirstChild("SR_DedicatedFolder")
 	if existingFolder then
 		existingFolder:Destroy()
-		return
 	end
 
 	local window = {}
@@ -420,7 +419,7 @@ function Library.CreateWindow(config)
 		makeDraggable(WavesStatsFrame, WavesStatsFrame)
 	end
 
-	-- 2. Top-Right Mini Stats Pill (Positioned at Top Right)
+	-- 2. Top-Right Mini Stats Pill
 	local StatsFrame = nil
 	if pillUIFPSEnabled then
 		StatsFrame = Instance.new("Frame")
@@ -551,7 +550,7 @@ function Library.CreateWindow(config)
 	ToggleBtnOuter.Parent = ScreenGui
 
 	local TBtnOuterCorner = Instance.new("UICorner")
-	TBtnOuterCorner.CornerRadius = UDim.new(1, 0) -- Perfect Circle
+	TBtnOuterCorner.CornerRadius = UDim.new(1, 0)
 	TBtnOuterCorner.Parent = ToggleBtnOuter
 
 	local ToggleBtnStroke = Instance.new("UIStroke")
@@ -753,7 +752,6 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- Search Bar Logic
 	local SearchBox = nil
 	if searchBarEnabled then
 		SearchBox = Instance.new("TextBox")
