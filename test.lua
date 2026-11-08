@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Continuous Tab Particles, Bright Glow & Loading Fix)
+-- SpawnRealm / Moondiety UI Library Module (Flashlight Beam, Persistent Glow & Slow Dots)
 local Library = {}
 Library.__index = Library
 
@@ -88,12 +88,12 @@ local function makeDraggable(handle, object)
 	end)
 end
 
-local function playSound(soundId, enabled)
+local function playSound(soundId, enabled, volume)
 	if not enabled or not soundId then return end
 	pcall(function()
 		local sound = Instance.new("Sound")
 		sound.SoundId = soundId
-		sound.Volume = 1.5
+		sound.Volume = volume or 1.5
 		sound.Parent = getProtectedParent()
 		sound:Play()
 		sound.Ended:Connect(function()
@@ -121,7 +121,6 @@ function Library.CreateWindow(config)
 	MainOuter.Name = "MainOuter"
 	local targetWidth = 682
 	local targetHeight = 350
-	-- Positioned slightly to the middle-top
 	MainOuter.Size = UDim2.new(0, targetWidth, 0, targetHeight)
 	MainOuter.Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2)
 	MainOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -192,7 +191,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Mini Stats Widget (Positioned Top-Right, Hidden during loading)
+	-- Mini Stats Widget (Corner Radius set precisely to 8)
 	local StatsFrameOuter = Instance.new("Frame")
 	StatsFrameOuter.Name = "StatsFrameOuter"
 	StatsFrameOuter.Size = UDim2.new(0, 246, 0, 32)
@@ -214,7 +213,7 @@ function Library.CreateWindow(config)
 	StatsFrameInner.Parent = StatsFrameOuter
 
 	local StatsInnerCorner = Instance.new("UICorner")
-	StatsInnerCorner.CornerRadius = UDim.new(0, 7)
+	StatsInnerCorner.CornerRadius = UDim.new(0, 8)
 	StatsInnerCorner.Parent = StatsFrameInner
 
 	local StatsFrame = Instance.new("Frame")
@@ -225,7 +224,7 @@ function Library.CreateWindow(config)
 	StatsFrame.Parent = StatsFrameOuter
 
 	local StatsCorner = Instance.new("UICorner")
-	StatsCorner.CornerRadius = UDim.new(0, 6)
+	StatsCorner.CornerRadius = UDim.new(0, 8)
 	StatsCorner.Parent = StatsFrame
 
 	local HeadshotImg = Instance.new("ImageLabel")
@@ -292,7 +291,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(StatsFrameOuter, StatsFrameOuter)
 
-	-- Loading Screen (Fixed rendering and visibility)
+	-- Loading Screen
 	pcall(function()
 		local LoadGui = Instance.new("ScreenGui")
 		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
@@ -409,7 +408,7 @@ function Library.CreateWindow(config)
 	makeDraggable(ToggleBtn, ToggleBtnOuter)
 
 	ToggleBtn.MouseButton1Click:Connect(function()
-		playSound("rbxassetid://122966251252708", soundEnabled)
+		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 		MainOuter.Visible = true
 		StatsFrameOuter.Visible = true
 		ToggleBtnOuter.Visible = false
@@ -449,7 +448,7 @@ function Library.CreateWindow(config)
 	MinCorner.Parent = MinBtn
 
 	MinBtn.MouseButton1Click:Connect(function()
-		playSound("rbxassetid://122966251252708", soundEnabled)
+		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 		MainOuter.Visible = false
 		StatsFrameOuter.Visible = false
 		ToggleBtnOuter.Visible = true
@@ -544,7 +543,7 @@ function Library.CreateWindow(config)
 		ArrowIcon.Parent = ProfileCard
 
 		ProfileCard.MouseButton1Click:Connect(function()
-			playSound("rbxassetid://122966251252708", soundEnabled)
+			playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 			if userConfig.Callback then
 				pcall(userConfig.Callback)
 			end
@@ -591,10 +590,29 @@ function Library.CreateWindow(config)
 				TIcon.Parent = TabBtn
 			end
 
-			-- Bright Glowing Line on Left Side
+			-- Flashlight Beam Light Effect (Wide range white light emitting across the tab)
+			local FlashlightBeam = Instance.new("Frame")
+			FlashlightBeam.Name = "FlashlightBeam"
+			FlashlightBeam.Size = UDim2.new(1, 0, 1, 0)
+			FlashlightBeam.Position = UDim2.new(0, 0, 0, 0)
+			FlashlightBeam.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			FlashlightBeam.BackgroundTransparency = 1
+			FlashlightBeam.BorderSizePixel = 0
+			FlashlightBeam.ZIndex = 2
+			FlashlightBeam.Parent = TabBtn
+
+			local BeamGrad = Instance.new("UIGradient")
+			BeamGrad.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.55),  -- Bright wide white light source on the left
+				NumberSequenceKeypoint.new(0.4, 0.85),
+				NumberSequenceKeypoint.new(1, 1)      -- Fades out smoothly towards the right side
+			})
+			BeamGrad.Parent = FlashlightBeam
+
+			-- Bright Glowing Line on Left Edge
 			local GlowLine = Instance.new("Frame")
 			GlowLine.Name = "GlowLine"
-			GlowLine.Size = UDim2.new(0, 2, 1, 0)
+			GlowLine.Size = UDim2.new(0, 3, 1, 0)
 			GlowLine.Position = UDim2.new(0, 0, 0, 0)
 			GlowLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			GlowLine.BackgroundTransparency = 1
@@ -602,15 +620,7 @@ function Library.CreateWindow(config)
 			GlowLine.ZIndex = 3
 			GlowLine.Parent = TabBtn
 
-			local GlowGrad = Instance.new("UIGradient")
-			GlowGrad.Rotation = 270
-			GlowGrad.Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 0.1),
-				NumberSequenceKeypoint.new(1, 1)
-			})
-			GlowGrad.Parent = GlowLine
-
-			-- Container for continuous particle stream moving right
+			-- Container for slow moving bright scattered dots
 			local DotContainer = Instance.new("Frame")
 			DotContainer.Name = "DotContainer"
 			DotContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -661,24 +671,28 @@ function Library.CreateWindow(config)
 				RightCol.Size = UDim2.new(0.5, -5, 0, RightLayout.AbsoluteContentSize.Y)
 			end)
 
-			local tabObj = {Button = TabBtn, Page = Page, Glow = GlowLine, Dots = DotContainer, Active = false}
+			local tabObj = {Button = TabBtn, Page = Page, Beam = FlashlightBeam, Glow = GlowLine, Dots = DotContainer, Active = false}
 
 			if not activeTabObject then
 				Page.Visible = true
 				TabBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
 				TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+				FlashlightBeam.BackgroundTransparency = 0.2
 				GlowLine.BackgroundTransparency = 0.1
 				tabObj.Active = true
 				activeTabObject = tabObj
 			end
 
 			TabBtn.MouseButton1Click:Connect(function()
-				playSound("rbxassetid://122966251252708", soundEnabled)
+				playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 				for _, t in pairs(tabs) do
 					pcall(function()
 						t.Page.Visible = false
 						t.Active = false
 						TweenService:Create(t.Button, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(22, 22, 26), TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
+						if t.Beam then
+							TweenService:Create(t.Beam, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+						end
 						if t.Glow then
 							TweenService:Create(t.Glow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
 						end
@@ -688,19 +702,20 @@ function Library.CreateWindow(config)
 				tabObj.Active = true
 				activeTabObject = tabObj
 				TweenService:Create(TabBtn, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(28, 28, 34), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-				GlowLine.BackgroundTransparency = 0.1
+				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
+				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
 			end)
 
-			-- Continuous background thread streaming scattered bright dots while this tab remains active
+			-- Continuous background thread streaming slow, bright scattered dots across the flashlight beam
 			task.spawn(function()
 				while TabBtn and TabBtn.Parent do
 					if tabObj.Active then
 						pcall(function()
 							local dot = Instance.new("Frame")
-							dot.Size = UDim2.new(0, 3 + math.random(0,2), 0, 3 + math.random(0,2))
-							dot.Position = UDim2.new(0, 0, 0, math.random(4, 28))
+							dot.Size = UDim2.new(0, 3 + math.random(0, 2), 0, 3 + math.random(0, 2))
+							dot.Position = UDim2.new(0, math.random(0, 15), 0, math.random(4, 26))
 							dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-							dot.BackgroundTransparency = 0.1
+							dot.BackgroundTransparency = 0.15
 							dot.BorderSizePixel = 0
 							dot.ZIndex = 5
 							dot.Parent = DotContainer
@@ -709,19 +724,19 @@ function Library.CreateWindow(config)
 							dotCorner.CornerRadius = UDim.new(1, 0)
 							dotCorner.Parent = dot
 
-							local travelTime = 0.5 + (math.random() * 0.3)
-							TweenService:Create(dot, TweenInfo.new(travelTime, Enum.EasingStyle.Linear), {
-								Position = UDim2.new(0.88, 0, dot.Position.Y.Scale, dot.Position.Y.Offset),
-								BackgroundTransparency = 1
+							local slowTravelTime = 1.2 + (math.random() * 0.6) -- Much slower moving
+							TweenService:Create(dot, TweenInfo.new(slowTravelTime, Enum.EasingStyle.Linear), {
+								Position = UDim2.new(0.85, 0, dot.Position.Y.Scale, dot.Position.Y.Offset),
+								BackgroundTransparency = 1 -- Slowly disappearing near the right side
 							}):Play()
 
-							task.delay(travelTime, function()
+							task.delay(slowTravelTime, function()
 								pcall(function() dot:Destroy() end)
 							end)
 						end)
-						task.wait(0.12)
+						task.wait(0.35)
 					else
-						task.wait(0.3)
+						task.wait(0.4)
 					end
 				end
 			end)
@@ -818,7 +833,7 @@ function Library.CreateWindow(config)
 							CircleCorner.Parent = Circle
 
 							ToggleBtn.MouseButton1Click:Connect(function()
-								playSound("rbxassetid://75698187458888", soundEnabled)
+								playSound("rbxassetid://75698187458888", soundEnabled, 2.0) -- Volume set to 2.0
 								state = not state
 								local targetPos = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
 								local targetColor = state and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(45, 45, 52)
@@ -848,7 +863,7 @@ function Library.CreateWindow(config)
 							BtnCorner.Parent = Btn
 
 							Btn.MouseButton1Click:Connect(function()
-								playSound("rbxassetid://122966251252708", soundEnabled)
+								playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 								TweenService:Create(Btn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(40, 40, 48)}):Play()
 								task.delay(0.1, function()
 									TweenService:Create(Btn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(28, 28, 34)}):Play()
