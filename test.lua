@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Anonymous Profile, Sliders & Scrolling Fixes)
+-- SpawnRealm / Moondiety UI Library Module (Tab Glowing Line & Particle Animation)
 local Library = {}
 Library.__index = Library
 
@@ -29,12 +29,12 @@ local LucideIcons = {
 }
 
 local function getLucideIcon(iconName)
-	if not iconName then return "rbxassetid://12787168883" end
+	if not iconName then return nil end
 	if type(iconName) == "string" and iconName:match("^rbxassetid://") then
 		return iconName
 	end
 	local formatted = tostring(iconName):lower():gsub("[^a-z]", "")
-	return LucideIcons[formatted] or "rbxassetid://12787168883"
+	return LucideIcons[formatted] or iconName
 end
 
 local function getProtectedParent()
@@ -106,7 +106,7 @@ function Library.CreateWindow(config)
 	config = config or {}
 	local titleText = config.name or config.Name or "MOONDIETY"
 	local subText = config.subtitle or config.Subtitle or "Universal"
-	local iconId = getLucideIcon(config.UIicon or config.UiIcon or "shield")
+	local iconId = getLucideIcon(config.UIicon or config.UiIcon or "shield") or "rbxassetid://12787168883"
 	local soundEnabled = (config.SoundButtons ~= false)
 	local userConfig = config.User or nil
 
@@ -224,28 +224,6 @@ function Library.CreateWindow(config)
 		IconImg.Image = iconId
 		IconImg.Parent = LoadFrame
 
-		local LoadTitle = Instance.new("TextLabel")
-		LoadTitle.Size = UDim2.new(1, 0, 0, 22)
-		LoadTitle.Position = UDim2.new(0, 0, 0, 96)
-		LoadTitle.BackgroundTransparency = 1
-		LoadTitle.Text = string.upper(titleText)
-		LoadTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-		LoadTitle.TextSize = 16
-		LoadTitle.Font = Enum.Font.GothamBold
-		LoadTitle.TextXAlignment = Enum.TextXAlignment.Center
-		LoadTitle.Parent = LoadFrame
-
-		local SubLoadTitle = Instance.new("TextLabel")
-		SubLoadTitle.Size = UDim2.new(1, 0, 0, 14)
-		SubLoadTitle.Position = UDim2.new(0, 0, 0, 116)
-		SubLoadTitle.BackgroundTransparency = 1
-		SubLoadTitle.Text = "LOADING INTERFACE"
-		SubLoadTitle.TextColor3 = Color3.fromRGB(220, 60, 80)
-		SubLoadTitle.TextSize = 10
-		SubLoadTitle.Font = Enum.Font.GothamBold
-		SubLoadTitle.TextXAlignment = Enum.TextXAlignment.Center
-		SubLoadTitle.Parent = LoadFrame
-
 		task.spawn(function()
 			task.wait(0.6)
 			TweenService:Create(LoadFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
@@ -309,20 +287,12 @@ function Library.CreateWindow(config)
 	StatsFrameInner.BorderSizePixel = 0
 	StatsFrameInner.Parent = StatsFrameOuter
 
-	local InnerCorner = Instance.new("UICorner")
-	InnerCorner.CornerRadius = UDim.new(0, 7)
-	InnerCorner.Parent = StatsFrameInner
-
 	local StatsFrame = Instance.new("Frame")
 	StatsFrame.Size = UDim2.new(1, -4, 1, -4)
 	StatsFrame.Position = UDim2.new(0, 2, 0, 2)
 	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 	StatsFrame.BorderSizePixel = 0
 	StatsFrame.Parent = StatsFrameOuter
-
-	local StatsCorner = Instance.new("UICorner")
-	StatsCorner.CornerRadius = UDim.new(0, 6)
-	StatsCorner.Parent = StatsFrame
 
 	local HeadshotImg = Instance.new("ImageLabel")
 	HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
@@ -399,18 +369,6 @@ function Library.CreateWindow(config)
 	ToggleBtnOuter.Visible = false
 	ToggleBtnOuter.Parent = ScreenGui
 
-	local TBtnOuterCorner = Instance.new("UICorner")
-	TBtnOuterCorner.CornerRadius = UDim.new(0, 10)
-	TBtnOuterCorner.Parent = ToggleBtnOuter
-
-	local ToggleBtnInner = Instance.new("Frame")
-	ToggleBtnInner.Size = UDim2.new(1, -2, 1, -2)
-	ToggleBtnInner.Position = UDim2.new(0, 1, 0, 1)
-	ToggleBtnInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	ToggleBtnInner.BackgroundTransparency = 0.35
-	ToggleBtnInner.BorderSizePixel = 0
-	ToggleBtnInner.Parent = ToggleBtnOuter
-
 	local ToggleBtn = Instance.new("ImageButton")
 	ToggleBtn.Size = UDim2.new(1, -4, 1, -4)
 	ToggleBtn.Position = UDim2.new(0, 2, 0, 2)
@@ -486,7 +444,7 @@ function Library.CreateWindow(config)
 	TabList.Padding = UDim.new(0, 5)
 	TabList.Parent = TabContainer
 
-	-- User Profile Card (Handles Anonymous true/false toggle for mugshot, name, & subtitle)
+	-- User Profile Card
 	if userConfig and userConfig.Enabled ~= false then
 		local isAnonymous = (userConfig.Anonymous == true)
 
@@ -504,8 +462,8 @@ function Library.CreateWindow(config)
 		PCardCorner.Parent = ProfileCard
 
 		local AvatarImg = Instance.new("ImageLabel")
-		AvatarImg.Size = UDim2.new(0, 36, 0, 36)
-		AvatarImg.Position = UDim2.new(0, 8, 0.5, -18)
+		AvatarImg.Size = UDim2.new(0, 34, 0, 34)
+		AvatarImg.Position = UDim2.new(0, 8, 0.5, -17)
 		AvatarImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
 		AvatarImg.BorderSizePixel = 0
 		AvatarImg.Parent = ProfileCard
@@ -515,7 +473,6 @@ function Library.CreateWindow(config)
 		AvatarCorner.Parent = AvatarImg
 
 		if isAnonymous then
-			-- Hide mugshot or show secure generic icon
 			AvatarImg.Image = getLucideIcon("user")
 		else
 			task.spawn(function()
@@ -530,30 +487,32 @@ function Library.CreateWindow(config)
 		local handleName = isAnonymous and "Hidden User" or ("@" .. LocalPlayer.Name)
 
 		local NameLbl = Instance.new("TextLabel")
-		NameLbl.Size = UDim2.new(1, -54, 0, 16)
-		NameLbl.Position = UDim2.new(0, 50, 0, 10)
+		NameLbl.Size = UDim2.new(1, -52, 0, 16)
+		NameLbl.Position = UDim2.new(0, 48, 0, 10)
 		NameLbl.BackgroundTransparency = 1
 		NameLbl.Text = displayName
 		NameLbl.TextColor3 = Color3.fromRGB(240, 240, 245)
 		NameLbl.TextSize = 11
 		NameLbl.Font = Enum.Font.GothamBold
 		NameLbl.TextXAlignment = Enum.TextXAlignment.Left
+		NameLbl.TextTruncate = Enum.TextTruncate.AtEnd
 		NameLbl.Parent = ProfileCard
 
 		local HandleLbl = Instance.new("TextLabel")
-		HandleLbl.Size = UDim2.new(1, -54, 0, 14)
-		HandleLbl.Position = UDim2.new(0, 50, 0, 26)
+		HandleLbl.Size = UDim2.new(1, -52, 0, 14)
+		HandleLbl.Position = UDim2.new(0, 48, 0, 26)
 		HandleLbl.BackgroundTransparency = 1
 		HandleLbl.Text = handleName
 		HandleLbl.TextColor3 = Color3.fromRGB(130, 130, 140)
 		HandleLbl.TextSize = 9
 		HandleLbl.Font = Enum.Font.GothamMedium
 		HandleLbl.TextXAlignment = Enum.TextXAlignment.Left
+		HandleLbl.TextTruncate = Enum.TextTruncate.AtEnd
 		HandleLbl.Parent = ProfileCard
 
 		local ArrowIcon = Instance.new("ImageLabel")
 		ArrowIcon.Size = UDim2.new(0, 12, 0, 12)
-		ArrowIcon.Position = UDim2.new(1, -16, 0.5, -6)
+		ArrowIcon.Position = UDim2.new(1, -14, 0.5, -6)
 		ArrowIcon.BackgroundTransparency = 1
 		ArrowIcon.Image = getLucideIcon("chevronright")
 		ArrowIcon.ImageColor3 = Color3.fromRGB(150, 150, 160)
@@ -577,34 +536,77 @@ function Library.CreateWindow(config)
 	local tabs = {}
 	local firstTab = true
 
-	function window:CreateTab(tabName, tabIcon)
+	function window:CreateTab(tabConfig)
 		local tab = {}
 		pcall(function()
+			if type(tabConfig) == "string" then
+				tabConfig = { name = tabConfig }
+			end
+			local tabName = tabConfig.name or tabConfig.Name or "Tab"
+			local tabIconId = getLucideIcon(tabConfig.icon or tabConfig.Icon)
+
 			local TabBtn = Instance.new("TextButton")
 			TabBtn.Size = UDim2.new(1, 0, 0, 32)
 			TabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
-			TabBtn.Text = "   " .. tostring(tabName)
+			TabBtn.Text = tabIconId and "        " .. tostring(tabName) or "   " .. tostring(tabName)
 			TabBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
 			TabBtn.Font = Enum.Font.GothamMedium
 			TabBtn.TextSize = 12
 			TabBtn.TextXAlignment = Enum.TextXAlignment.Left
+			TabBtn.TextTruncate = Enum.TextTruncate.AtEnd
+			TabBtn.ClipsDescendants = true
 			TabBtn.Parent = TabContainer
 
-			if tabIcon then
+			if tabIconId then
 				local TIcon = Instance.new("ImageLabel")
 				TIcon.Size = UDim2.new(0, 16, 0, 16)
 				TIcon.Position = UDim2.new(0, 10, 0.5, -8)
 				TIcon.BackgroundTransparency = 1
-				TIcon.Image = getLucideIcon(tabIcon)
+				TIcon.Image = tabIconId
 				TIcon.Parent = TabBtn
-				TabBtn.Text = "      " .. tostring(tabName)
 			end
+
+			-- Left side glowing line (Bottom-left to Top-left)
+			local GlowLine = Instance.new("Frame")
+			GlowLine.Name = "GlowLine"
+			GlowLine.Size = UDim2.new(0, 3, 1, 0)
+			GlowLine.Position = UDim2.new(0, 0, 0, 0)
+			GlowLine.BackgroundColor3 = Color3.fromRGB(220, 30, 60)
+			GlowLine.BackgroundTransparency = 1
+			GlowLine.BorderSizePixel = 0
+			GlowLine.ZIndex = 3
+			GlowLine.Parent = TabBtn
+
+			local GlowGrad = Instance.new("UIGradient")
+			GlowGrad.Rotation = 270
+			GlowGrad.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0),   -- Bright at bottom-left
+				GlowGrad.Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 0.2),
+					NumberSequenceKeypoint.new(1, 1)
+				})
+			})
+			GlowGrad.Parent = GlowLine
+
+			-- Exiting Light Dot Particle
+			local LightDot = Instance.new("Frame")
+			LightDot.Name = "LightDot"
+			LightDot.Size = UDim2.new(0, 5, 0, 5)
+			LightDot.Position = UDim2.new(0, 0, 0.5, -2)
+			LightDot.BackgroundColor3 = Color3.fromRGB(255, 120, 140)
+			LightDot.BackgroundTransparency = 1
+			LightDot.BorderSizePixel = 0
+			LightDot.ZIndex = 4
+			LightDot.Parent = TabBtn
+
+			local DotCorner = Instance.new("UICorner")
+			DotCorner.CornerRadius = UDim.new(1, 0)
+			DotCorner.Parent = LightDot
 
 			local TabCorner = Instance.new("UICorner")
 			TabCorner.CornerRadius = UDim.new(0, 7)
 			TabCorner.Parent = TabBtn
 
-			-- Main Page Scrolling Frame (Supports full vertical scrolling with custom scrollbar)
 			local Page = Instance.new("ScrollingFrame")
 			Page.Name = tostring(tabName) .. "Page"
 			Page.Size = UDim2.new(1, 0, 1, 0)
@@ -647,6 +649,7 @@ function Library.CreateWindow(config)
 				Page.Visible = true
 				TabBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
 				TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+				GlowLine.BackgroundTransparency = 0.1
 				firstTab = false
 			end
 
@@ -656,10 +659,26 @@ function Library.CreateWindow(config)
 					pcall(function()
 						t.Page.Visible = false
 						TweenService:Create(t.Button, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(22, 22, 26), TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
+						local otherGlow = t.Button:FindFirstChild("GlowLine")
+						if otherGlow then
+							TweenService:Create(otherGlow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+						end
 					end)
 				end
 				Page.Visible = true
 				TweenService:Create(TabBtn, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(28, 28, 34), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+				
+				-- Animate Glowing Line
+				GlowLine.BackgroundTransparency = 0.2
+				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
+
+				-- Animate Exiting Dot Particle drifting right and fading out smoothly
+				LightDot.Position = UDim2.new(0, 0, 0.5, -2)
+				LightDot.BackgroundTransparency = 0.2
+				local tweenDotPos = TweenService:Create(LightDot, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.85, 0, 0.5, -2)})
+				local tweenDotFade = TweenService:Create(LightDot, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {BackgroundTransparency = 1})
+				tweenDotPos:Play()
+				tweenDotFade:Play()
 			end)
 
 			table.insert(tabs, {Button = TabBtn, Page = Page})
