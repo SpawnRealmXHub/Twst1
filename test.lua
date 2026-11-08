@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Fixed Tab Gradient & Animation)
+-- SpawnRealm / Moondiety UI Library Module (Clean White Theme, Tab Animation Stream & Mugshot Fix)
 local Library = {}
 Library.__index = Library
 
@@ -191,7 +191,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Loading Screen
+	-- Loading Screen (White Theme)
 	pcall(function()
 		local LoadGui = Instance.new("ScreenGui")
 		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
@@ -213,7 +213,7 @@ function Library.CreateWindow(config)
 		GlowImg.Position = UDim2.new(0.5, -60, 0, 15)
 		GlowImg.BackgroundTransparency = 1
 		GlowImg.Image = iconId
-		GlowImg.ImageColor3 = Color3.fromRGB(220, 30, 60)
+		GlowImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
 		GlowImg.ImageTransparency = 0.6
 		GlowImg.Parent = LoadFrame
 
@@ -225,7 +225,7 @@ function Library.CreateWindow(config)
 		IconImg.Parent = LoadFrame
 
 		task.spawn(function()
-			task.wait(0.6)
+			task.wait(0.8)
 			TweenService:Create(LoadFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
 			task.wait(0.3)
 			LoadGui:Destroy()
@@ -305,11 +305,11 @@ function Library.CreateWindow(config)
 	HeadCorner.CornerRadius = UDim.new(1, 0)
 	HeadCorner.Parent = HeadshotImg
 
+	-- Robust Mugshot URL Fetcher
 	task.spawn(function()
 		while not LocalPlayer do task.wait(0.1) end
 		pcall(function()
-			local content = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
-			if content then HeadshotImg.Image = content end
+			HeadshotImg.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", LocalPlayer.UserId)
 		end)
 	end)
 
@@ -477,8 +477,7 @@ function Library.CreateWindow(config)
 		else
 			task.spawn(function()
 				pcall(function()
-					local content = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size42x42)
-					if content then AvatarImg.Image = content end
+					AvatarImg.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", LocalPlayer.UserId)
 				end)
 			end)
 		end
@@ -548,6 +547,7 @@ function Library.CreateWindow(config)
 			local TabBtn = Instance.new("TextButton")
 			TabBtn.Size = UDim2.new(1, 0, 0, 32)
 			TabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
+			-- Fixed Spacing & Offset for Icon vs Text
 			TabBtn.Text = tabIconId and "        " .. tostring(tabName) or "   " .. tostring(tabName)
 			TabBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
 			TabBtn.Font = Enum.Font.GothamMedium
@@ -566,12 +566,12 @@ function Library.CreateWindow(config)
 				TIcon.Parent = TabBtn
 			end
 
-			-- Left side glowing line (Bottom-left to Top-left)
+			-- Left side glowing line (Neon White)
 			local GlowLine = Instance.new("Frame")
 			GlowLine.Name = "GlowLine"
-			GlowLine.Size = UDim2.new(0, 3, 1, 0)
+			GlowLine.Size = UDim2.new(0, 2, 1, 0)
 			GlowLine.Position = UDim2.new(0, 0, 0, 0)
-			GlowLine.BackgroundColor3 = Color3.fromRGB(220, 30, 60)
+			GlowLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			GlowLine.BackgroundTransparency = 1
 			GlowLine.BorderSizePixel = 0
 			GlowLine.ZIndex = 3
@@ -580,25 +580,19 @@ function Library.CreateWindow(config)
 			local GlowGrad = Instance.new("UIGradient")
 			GlowGrad.Rotation = 270
 			GlowGrad.Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 0.2),
+				NumberSequenceKeypoint.new(0, 0.4),
 				NumberSequenceKeypoint.new(1, 1)
 			})
 			GlowGrad.Parent = GlowLine
 
-			-- Exiting Light Dot Particle
-			local LightDot = Instance.new("Frame")
-			LightDot.Name = "LightDot"
-			LightDot.Size = UDim2.new(0, 5, 0, 5)
-			LightDot.Position = UDim2.new(0, 0, 0.5, -2)
-			LightDot.BackgroundColor3 = Color3.fromRGB(255, 120, 140)
-			LightDot.BackgroundTransparency = 1
-			LightDot.BorderSizePixel = 0
-			LightDot.ZIndex = 4
-			LightDot.Parent = TabBtn
-
-			local DotCorner = Instance.new("UICorner")
-			DotCorner.CornerRadius = UDim.new(1, 0)
-			DotCorner.Parent = LightDot
+			-- Container for Multiple Fading Dots streaming to the right
+			local DotContainer = Instance.new("Frame")
+			DotContainer.Name = "DotContainer"
+			DotContainer.Size = UDim2.new(1, 0, 1, 0)
+			DotContainer.BackgroundTransparency = 1
+			DotContainer.ClipsDescendants = true
+			DotContainer.ZIndex = 4
+			DotContainer.Parent = TabBtn
 
 			local TabCorner = Instance.new("UICorner")
 			TabCorner.CornerRadius = UDim.new(0, 7)
@@ -665,15 +659,37 @@ function Library.CreateWindow(config)
 				Page.Visible = true
 				TweenService:Create(TabBtn, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(28, 28, 34), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 				
-				GlowLine.BackgroundTransparency = 0.3
+				GlowLine.BackgroundTransparency = 0.4
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
 
-				LightDot.Position = UDim2.new(0, 0, 0.5, -2)
-				LightDot.BackgroundTransparency = 0.2
-				local tweenDotPos = TweenService:Create(LightDot, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.85, 0, 0.5, -2)})
-				local tweenDotFade = TweenService:Create(LightDot, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {BackgroundTransparency = 1})
-				tweenDotPos:Play()
-				tweenDotFade:Play()
+				-- Spawn multiple glowing dots streaming smoothly to the right, slowly disappearing
+				task.spawn(function()
+					for i = 1, 3 do
+						local dot = Instance.new("Frame")
+						dot.Size = UDim2.new(0, 4, 0, 4)
+						dot.Position = UDim2.new(0, 0, 0.5, -2)
+						dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+						dot.BackgroundTransparency = 0.2
+						dot.BorderSizePixel = 0
+						dot.ZIndex = 5
+						dot.Parent = DotContainer
+
+						local dotCorner = Instance.new("UICorner")
+						dotCorner.CornerRadius = UDim.new(1, 0)
+						dotCorner.Parent = dot
+
+						local speed = 0.35 + (i * 0.08)
+						TweenService:Create(dot, TweenInfo.new(speed, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+							Position = UDim2.new(0.9, 0, 0.5, -2),
+							BackgroundTransparency = 1
+						}):Play()
+
+						task.delay(speed, function()
+							pcall(function() dot:Destroy() end)
+						end)
+						task.wait(0.05)
+					end
+				end)
 			end)
 
 			table.insert(tabs, {Button = TabBtn, Page = Page})
@@ -749,7 +765,7 @@ function Library.CreateWindow(config)
 							local ToggleBtn = Instance.new("TextButton")
 							ToggleBtn.Size = UDim2.new(0, 32, 0, 18)
 							ToggleBtn.Position = UDim2.new(1, -36, 0.5, -9)
-							ToggleBtn.BackgroundColor3 = state and Color3.fromRGB(220, 30, 60) or Color3.fromRGB(45, 45, 52)
+							ToggleBtn.BackgroundColor3 = state and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(45, 45, 52)
 							ToggleBtn.Text = ""
 							ToggleBtn.Parent = ToggleItem
 
@@ -760,7 +776,7 @@ function Library.CreateWindow(config)
 							local Circle = Instance.new("Frame")
 							Circle.Size = UDim2.new(0, 12, 0, 12)
 							Circle.Position = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
-							Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+							Circle.BackgroundColor3 = state and Color3.fromRGB(15, 15, 18) or Color3.fromRGB(255, 255, 255)
 							Circle.Parent = ToggleBtn
 
 							local CircleCorner = Instance.new("UICorner")
@@ -771,9 +787,10 @@ function Library.CreateWindow(config)
 								playSound("rbxassetid://75698187458888", soundEnabled)
 								state = not state
 								local targetPos = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
-								local targetColor = state and Color3.fromRGB(220, 30, 60) or Color3.fromRGB(45, 45, 52)
+								local targetColor = state and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(45, 45, 52)
+								local circleColor = state and Color3.fromRGB(15, 15, 18) or Color3.fromRGB(255, 255, 255)
 
-								TweenService:Create(Circle, TWEEN_INFO, {Position = targetPos}):Play()
+								TweenService:Create(Circle, TWEEN_INFO, {Position = targetPos, BackgroundColor3 = circleColor}):Play()
 								TweenService:Create(ToggleBtn, TWEEN_INFO, {BackgroundColor3 = targetColor}):Play()
 								if callback then pcall(callback, state) end
 							end)
@@ -835,7 +852,7 @@ function Library.CreateWindow(config)
 							ValLabel.Position = UDim2.new(1, -56, 0, 2)
 							ValLabel.BackgroundTransparency = 1
 							ValLabel.Text = tostring(default)
-							ValLabel.TextColor3 = Color3.fromRGB(220, 30, 60)
+							ValLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 							ValLabel.TextSize = 11
 							ValLabel.Font = Enum.Font.GothamBold
 							ValLabel.TextXAlignment = Enum.TextXAlignment.Right
@@ -854,7 +871,7 @@ function Library.CreateWindow(config)
 
 							local SliderFill = Instance.new("Frame")
 							SliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-							SliderFill.BackgroundColor3 = Color3.fromRGB(220, 30, 60)
+							SliderFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 							SliderFill.BorderSizePixel = 0
 							SliderFill.Parent = SliderBar
 
