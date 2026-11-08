@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Green Toggles, Search Highlight, Shorter Searchbar & Icon Padding)
+-- SpawnRealm / Moondiety UI Library Module (Tab Scrolling, Spacing, Asset Icons & Minimize Image)
 local Library = {}
 Library.__index = Library
 
@@ -11,7 +11,6 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local TWEEN_INFO = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
--- Expanded Latte-Soft Lucide Roblox Compiled Icon Registry
 local LucideIcons = {
 	["home"] = "rbxassetid://10734949856",
 	["settings"] = "rbxassetid://10734950309",
@@ -46,13 +45,14 @@ local LucideIcons = {
 	["chevronright"] = "rbxassetid://10734886616"
 }
 
-local function getLucideIcon(iconName)
-	if not iconName then return nil end
-	if type(iconName) == "string" and iconName:match("^rbxassetid://") then
-		return iconName
+local function getIconAsset(input)
+	if not input then return "" end
+	local str = tostring(input)
+	if str:match("^rbxassetid://") or str:match("^http") then
+		return str
 	end
-	local formatted = tostring(iconName):lower():gsub("[^a-z]", "")
-	return LucideIcons[formatted] or iconName
+	local formatted = str:lower():gsub("[^a-z]", "")
+	return LucideIcons[formatted] or str
 end
 
 local function getProtectedParent()
@@ -124,7 +124,7 @@ function Library.CreateWindow(config)
 	config = config or {}
 	local titleText = config.name or config.Name or "MOONDIETY"
 	local subText = config.subtitle or config.Subtitle or "Universal"
-	local iconId = getLucideIcon(config.UIicon or config.UiIcon or "shield") or "rbxassetid://10709791437"
+	local iconId = getIconAsset(config.UIicon or config.UiIcon or "shield")
 	local soundEnabled = (config.SoundButtons ~= false)
 	local userConfig = config.User or nil
 	local searchBarEnabled = (config.UiSearchBar == true)
@@ -132,7 +132,7 @@ function Library.CreateWindow(config)
 	-- Loading Screen Configs
 	local loadingXUIEnabled = (config.LoadingXUI == true)
 	local loadingTitleText = config.LoadingTitle or titleText
-	local loadingIconId = getLucideIcon(config.LoadingIcon) or iconId
+	local loadingIconId = getIconAsset(config.LoadingIcon or iconId)
 
 	-- Anti-Dupe / Toggle Execution Guard
 	local parentBase = gethui() or CoreGui
@@ -326,7 +326,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(StatsFrame, StatsFrame)
 
-	-- Loading Screen Animation (Only if LoadingXUI = true)
+	-- Loading Screen Animation
 	if loadingXUIEnabled then
 		pcall(function()
 			local LoadGui = Instance.new("ScreenGui")
@@ -385,7 +385,6 @@ function Library.CreateWindow(config)
 			SubLoadTitle.TextXAlignment = Enum.TextXAlignment.Center
 			SubLoadTitle.Parent = LoadFrame
 
-			-- White Loading Bar
 			local BarBg = Instance.new("Frame")
 			BarBg.Size = UDim2.new(0, 380, 0, 6)
 			BarBg.Position = UDim2.new(0.5, -190, 0, 150)
@@ -418,7 +417,6 @@ function Library.CreateWindow(config)
 			PctLabel.TextXAlignment = Enum.TextXAlignment.Center
 			PctLabel.Parent = LoadFrame
 
-			-- Secure System Footer Text
 			local SecureLbl = Instance.new("TextLabel")
 			SecureLbl.Size = UDim2.new(1, 0, 0, 16)
 			SecureLbl.Position = UDim2.new(0, 0, 0, 204)
@@ -487,7 +485,7 @@ function Library.CreateWindow(config)
 	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	SubTitleLabel.Parent = Topbar
 
-	-- Floating Toggle Button
+	-- Floating Toggle Button (Minimized Restore Button using asset ID 12787168883)
 	local ToggleBtnOuter = Instance.new("Frame")
 	ToggleBtnOuter.Name = "ToggleBtnOuter"
 	ToggleBtnOuter.Size = UDim2.new(0, 42, 0, 42)
@@ -501,7 +499,7 @@ function Library.CreateWindow(config)
 	ToggleBtn.Size = UDim2.new(1, -4, 1, -4)
 	ToggleBtn.Position = UDim2.new(0, 2, 0, 2)
 	ToggleBtn.BackgroundColor3 = Color3.fromRGB(18, 16, 20)
-	ToggleBtn.Image = iconId
+	ToggleBtn.Image = "rbxassetid://12787168883"
 	ToggleBtn.ScaleType = Enum.ScaleType.Fit
 	ToggleBtn.Parent = ToggleBtnOuter
 
@@ -570,12 +568,12 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- Search Bar Logic: Shortened width, non-clickable icon on left, typing padding protection
+	-- Search Bar Logic
 	local SearchBox = nil
 	if searchBarEnabled then
 		SearchBox = Instance.new("TextBox")
 		SearchBox.Name = "SearchBox"
-		SearchBox.Size = UDim2.new(0, 126, 0, 28) -- Slightly shorter width
+		SearchBox.Size = UDim2.new(0, 126, 0, 28)
 		SearchBox.Position = UDim2.new(0, 12, 0, 52)
 		SearchBox.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
 		SearchBox.BorderSizePixel = 0
@@ -594,23 +592,22 @@ function Library.CreateWindow(config)
 		SearchCorner.CornerRadius = UDim.new(0, 30)
 		SearchCorner.Parent = SearchBox
 
-		-- Magnifying Glass Icon on Left (Unclickable / Background decorative element)
 		local SearchIcon = Instance.new("ImageLabel")
 		SearchIcon.Size = UDim2.new(0, 14, 0, 14)
 		SearchIcon.Position = UDim2.new(0, 8, 0.5, -7)
 		SearchIcon.BackgroundTransparency = 1
-		SearchIcon.Image = getLucideIcon("search")
+		SearchIcon.Image = getIconAsset("search")
 		SearchIcon.ImageColor3 = Color3.fromRGB(130, 130, 140)
 		SearchIcon.Active = false
 		SearchIcon.Selectable = false
 		SearchIcon.Parent = SearchBox
 
 		local SearchPadding = Instance.new("UIPadding")
-		SearchPadding.PaddingLeft = UDim.new(0, 28) -- Keeps typing safely away from the icon
+		SearchPadding.PaddingLeft = UDim.new(0, 28)
 		SearchPadding.Parent = SearchBox
 	end
 	
-	-- Sidebar Tab Container
+	-- Sidebar Scrolling Tab Container with Scrolling & Automatic Canvas Sizing
 	local tabYOffset = searchBarEnabled and 84 or 52
 	local tabBottomOffset = (userConfig and userConfig.Enabled ~= false) and (searchBarEnabled and -146 or -112) or (searchBarEnabled and -88 or -55)
 
@@ -619,11 +616,15 @@ function Library.CreateWindow(config)
 	TabContainer.Size = UDim2.new(0, 140, 1, tabBottomOffset)
 	TabContainer.Position = UDim2.new(0, 12, 0, tabYOffset)
 	TabContainer.BackgroundTransparency = 1
-	TabContainer.ScrollBarThickness = 0
+	TabContainer.ScrollBarThickness = 4
+	TabContainer.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 95)
+	TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+	TabContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	TabContainer.Parent = Main
 
 	local TabList = Instance.new("UIListLayout")
-	TabList.Padding = UDim.new(0, 5)
+	TabList.Padding = UDim.new(0, 6)
+	TabList.SortOrder = Enum.SortOrder.LayoutOrder
 	TabList.Parent = TabContainer
 
 	-- User Profile Card
@@ -655,7 +656,7 @@ function Library.CreateWindow(config)
 		AvatarCorner.Parent = AvatarImg
 
 		if isAnonymous then
-			AvatarImg.Image = getLucideIcon("user")
+			AvatarImg.Image = getIconAsset("user")
 		else
 			task.spawn(function()
 				pcall(function()
@@ -695,7 +696,7 @@ function Library.CreateWindow(config)
 		ArrowIcon.Size = UDim2.new(0, 12, 0, 12)
 		ArrowIcon.Position = UDim2.new(1, -14, 0.5, -6)
 		ArrowIcon.BackgroundTransparency = 1
-		ArrowIcon.Image = getLucideIcon("chevronright")
+		ArrowIcon.Image = getIconAsset("chevronright")
 		ArrowIcon.ImageColor3 = Color3.fromRGB(150, 150, 160)
 		ArrowIcon.Parent = ProfileCard
 
@@ -727,12 +728,12 @@ function Library.CreateWindow(config)
 				tabConfig = { name = tabConfig }
 			end
 			local tabName = tabConfig.name or tabConfig.Name or "Tab"
-			local tabIconId = getLucideIcon(tabConfig.icon or tabConfig.Icon)
+			local tabIconId = getIconAsset(tabConfig.icon or tabConfig.Icon)
 
 			TabBtn = Instance.new("TextButton")
 			TabBtn.Size = UDim2.new(1, 0, 0, 32)
 			TabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
-			TabBtn.Text = tabIconId and "        " .. tostring(tabName) or "   " .. tostring(tabName)
+			TabBtn.Text = tostring(tabName)
 			TabBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
 			TabBtn.Font = Enum.Font.GothamMedium
 			TabBtn.TextSize = 12
@@ -741,7 +742,13 @@ function Library.CreateWindow(config)
 			TabBtn.ClipsDescendants = true
 			TabBtn.Parent = TabContainer
 
-			if tabIconId then
+			-- Fixed padding and spacing to prevent icon & text overlapping
+			local TabPadding = Instance.new("UIPadding")
+			TabPadding.PaddingLeft = UDim.new(0, tabIconId ~= "" and 32 or 12)
+			TabPadding.PaddingRight = UDim.new(0, 8)
+			TabPadding.Parent = TabBtn
+
+			if tabIconId ~= "" then
 				local TIcon = Instance.new("ImageLabel")
 				TIcon.Size = UDim2.new(0, 16, 0, 16)
 				TIcon.Position = UDim2.new(0, 10, 0.5, -8)
@@ -854,7 +861,6 @@ function Library.CreateWindow(config)
 				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
 
-				-- Looping Dot Animation
 				if loopConnection then task.cancel(loopConnection) end
 				loopConnection = task.spawn(function()
 					while tabObj.Active and DotContainer and DotContainer.Parent do
@@ -1019,7 +1025,6 @@ function Library.CreateWindow(config)
 							local ToggleBtn = Instance.new("TextButton")
 							ToggleBtn.Size = UDim2.new(0, 32, 0, 18)
 							ToggleBtn.Position = UDim2.new(1, -36, 0.5, -9)
-							-- Smooth green color when enabled, normal dark gray when disabled
 							ToggleBtn.BackgroundColor3 = state and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(45, 45, 52)
 							ToggleBtn.Text = ""
 							ToggleBtn.Parent = ToggleItem
@@ -1058,7 +1063,6 @@ function Library.CreateWindow(config)
 							local Btn = Instance.new("TextButton")
 							Btn.Size = UDim2.new(1, -18, 0, 28)
 							Btn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
-							Btn.Text = "  " + tostring(name) -- safely handled below
 							Btn.Text = "  " .. tostring(name)
 							Btn.TextColor3 = Color3.fromRGB(210, 210, 220)
 							Btn.Font = Enum.Font.GothamMedium
@@ -1189,7 +1193,7 @@ function Library.CreateWindow(config)
 		return tabObj
 	end
 
-	-- Search Functionality Logic with Clear Highlight Animation
+	-- Search Functionality Logic with Highlight Animation
 	if searchBarEnabled and SearchBox then
 		SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
 			local query = SearchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
