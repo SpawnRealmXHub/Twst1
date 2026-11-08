@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Formatted Mini Stats: Icon Name Numbers)
+-- SpawnRealm / Moondiety UI Library Module (Animated Minimize Outline & Top-Middle Restore Banner)
 local Library = {}
 Library.__index = Library
 
@@ -229,11 +229,11 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Mini Stats Widget with Lucide Icon -> Name -> Value format
+	-- Mini Stats Widget
 	local StatsFrame = Instance.new("Frame")
 	StatsFrame.Name = "StatsFrame"
-	StatsFrame.Size = UDim2.new(0, 310, 0, 32)
-	StatsFrame.Position = UDim2.new(0.5, 58, 0.45, -175)
+	StatsFrame.Size = UDim2.new(0, 240, 0, 32)
+	StatsFrame.Position = UDim2.new(0.5, 101, 0.45, -175)
 	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 	StatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 	StatsFrame.BorderSizePixel = 0
@@ -286,8 +286,8 @@ function Library.CreateWindow(config)
 	end)
 
 	local StatsContainer = Instance.new("Frame")
-	StatsContainer.Size = UDim2.new(1, -34, 1, 0)
-	StatsContainer.Position = UDim2.new(0, 34, 0, 0)
+	StatsContainer.Size = UDim2.new(1, -30, 1, 0)
+	StatsContainer.Position = UDim2.new(0, 30, 0, 0)
 	StatsContainer.BackgroundTransparency = 1
 	StatsContainer.Parent = StatsFrame
 
@@ -295,30 +295,30 @@ function Library.CreateWindow(config)
 	StatsLayout.FillDirection = Enum.FillDirection.Horizontal
 	StatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	StatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	StatsLayout.Padding = UDim.new(0, 10)
+	StatsLayout.Padding = UDim.new(0, 6)
 	StatsLayout.Parent = StatsContainer
 
 	local function createStatBadge(iconId, labelName, defaultVal)
 		local holder = Instance.new("Frame")
-		holder.Size = UDim2.new(0, 84, 1, 0)
+		holder.Size = UDim2.new(0, 66, 1, 0)
 		holder.BackgroundTransparency = 1
 		holder.Parent = StatsContainer
 
 		local icon = Instance.new("ImageLabel")
-		icon.Size = UDim2.new(0, 13, 0, 13)
-		icon.Position = UDim2.new(0, 0, 0.5, -6.5)
+		icon.Size = UDim2.new(0, 12, 0, 12)
+		icon.Position = UDim2.new(0, 0, 0.5, -6)
 		icon.BackgroundTransparency = 1
 		icon.Image = getIconAsset(iconId)
 		icon.ImageColor3 = Color3.fromRGB(160, 160, 175)
 		icon.Parent = holder
 
 		local lbl = Instance.new("TextLabel")
-		lbl.Size = UDim2.new(1, -15, 1, 0)
-		lbl.Position = UDim2.new(0, 15, 0, 0)
+		lbl.Size = UDim2.new(1, -14, 1, 0)
+		lbl.Position = UDim2.new(0, 14, 0, 0)
 		lbl.BackgroundTransparency = 1
 		lbl.Text = defaultVal .. " " .. labelName
 		lbl.TextColor3 = Color3.fromRGB(180, 180, 190)
-		lbl.TextSize = 10
+		lbl.TextSize = 9
 		lbl.Font = Enum.Font.GothamMedium
 		lbl.TextXAlignment = Enum.TextXAlignment.Left
 		lbl.Parent = holder
@@ -326,8 +326,8 @@ function Library.CreateWindow(config)
 	end
 
 	local PingLabel = createStatBadge("zap", "ms", "32")
-	local FpsLabel = createStatBadge("cpu", "FPS", "60")
-	local PlayersLabel = createStatBadge("users", "Players", "12")
+	local FpsLabel = createStatBadge("cpu", "fps", "60")
+	local PlayersLabel = createStatBadge("users", "plrs", "12")
 
 	task.spawn(function()
 		local lastUpdate = 0
@@ -338,8 +338,8 @@ function Library.CreateWindow(config)
 				local ping = 0
 				pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
 				PingLabel.Text = ping .. " ms"
-				FpsLabel.Text = math.floor(1 / dt) .. " FPS"
-				PlayersLabel.Text = #Players:GetPlayers() .. " Players"
+				FpsLabel.Text = math.floor(1 / dt) .. " fps"
+				PlayersLabel.Text = #Players:GetPlayers() .. " plrs"
 			end
 		end)
 	end)
@@ -467,7 +467,6 @@ function Library.CreateWindow(config)
 				Main.BackgroundTransparency = 1
 				StatsFrame.BackgroundTransparency = 1
 
-				-- Smooth Zoom-In Animation upon load completion
 				Main.Size = UDim2.new(0, 0, 0, 0)
 				Main.Position = UDim2.new(0.5, 0, 0.45, 0)
 				StatsFrame.Size = UDim2.new(0, 0, 0, 0)
@@ -480,8 +479,8 @@ function Library.CreateWindow(config)
 				}):Play()
 
 				TweenService:Create(StatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-					Size = UDim2.new(0, 310, 0, 32),
-					Position = UDim2.new(0.5, 58, 0.45, -175),
+					Size = UDim2.new(0, 240, 0, 32),
+					Position = UDim2.new(0.5, 101, 0.45, -175),
 					BackgroundTransparency = 0
 				}):Play()
 			end)
@@ -523,32 +522,210 @@ function Library.CreateWindow(config)
 	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	SubTitleLabel.Parent = Topbar
 
-	-- Floating Toggle Button (Minimized Restore Button using asset ID 12787168883)
+	-- Minimized Restore UI (Top-Middle Banner + Floating Button with Animated Outline & Corner Radius 20)
 	local ToggleBtnOuter = Instance.new("Frame")
 	ToggleBtnOuter.Name = "ToggleBtnOuter"
-	ToggleBtnOuter.Size = UDim2.new(0, 42, 0, 42)
+	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
 	ToggleBtnOuter.Position = UDim2.new(0, 40, 0, 200)
-	ToggleBtnOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	ToggleBtnOuter.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 	ToggleBtnOuter.BorderSizePixel = 0
 	ToggleBtnOuter.Visible = false
 	ToggleBtnOuter.Parent = ScreenGui
 
+	local TBtnOuterCorner = Instance.new("UICorner")
+	TBtnOuterCorner.CornerRadius = UDim.new(0, 20)
+	TBtnOuterCorner.Parent = ToggleBtnOuter
+
+	-- Animated Rotating Outline on Minimized Button
+	local ToggleBtnStroke = Instance.new("UIStroke")
+	ToggleBtnStroke.Thickness = 2.2
+	ToggleBtnStroke.Parent = ToggleBtnOuter
+
+	local ToggleBtnStrokeGrad = Instance.new("UIGradient")
+	ToggleBtnStrokeGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.15, 0.1),
+		NumberSequenceKeypoint.new(0.35, 0.9),
+		NumberSequenceKeypoint.new(0.5, 0),
+		NumberSequenceKeypoint.new(0.65, 0.9),
+		NumberSequenceKeypoint.new(0.85, 0.1),
+		NumberSequenceKeypoint.new(1, 0)
+	})
+	ToggleBtnStrokeGrad.Parent = ToggleBtnStroke
+
+	task.spawn(function()
+		while ToggleBtnStrokeGrad and ToggleBtnStrokeGrad.Parent do
+			TweenService:Create(ToggleBtnStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = ToggleBtnStrokeGrad.Rotation + 360}):Play()
+			task.wait(2.8)
+		end
+	end)
+
 	local ToggleBtn = Instance.new("ImageButton")
-	ToggleBtn.Size = UDim2.new(1, -4, 1, -4)
-	ToggleBtn.Position = UDim2.new(0, 2, 0, 2)
-	ToggleBtn.BackgroundColor3 = Color3.fromRGB(18, 16, 20)
+	ToggleBtn.Size = UDim2.new(1, -8, 1, -8)
+	ToggleBtn.Position = UDim2.new(0, 4, 0, 4)
+	ToggleBtn.BackgroundTransparency = 1
 	ToggleBtn.Image = "rbxassetid://12787168883"
 	ToggleBtn.ScaleType = Enum.ScaleType.Fit
 	ToggleBtn.Parent = ToggleBtnOuter
 
-	local TBtnCorner = Instance.new("UICorner")
-	TBtnCorner.CornerRadius = UDim.new(0, 21)
-	TBtnCorner.Parent = ToggleBtn
-
 	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
 	makeDraggable(ToggleBtn, ToggleBtnOuter)
 
-	ToggleBtn.MouseButton1Click:Connect(function()
+	-- Top-Middle Restore Banner (positioned at top middle, slightly lower)
+	local RestoreBanner = Instance.new("Frame")
+	RestoreBanner.Name = "RestoreBanner"
+	RestoreBanner.Size = UDim2.new(0, 360, 0, 110)
+	RestoreBanner.Position = UDim2.new(0.5, -180, 0, 45)
+	RestoreBanner.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+	RestoreBanner.BorderSizePixel = 0
+	RestoreBanner.Visible = false
+	RestoreBanner.Parent = ScreenGui
+
+	local RBannerCorner = Instance.new("UICorner")
+	RBannerCorner.CornerRadius = UDim.new(0, 24)
+	RBannerCorner.Parent = RestoreBanner
+
+	local RBannerStroke = Instance.new("UIStroke")
+	RBannerStroke.Thickness = 2.5
+	RBannerStroke.Parent = RestoreBanner
+
+	local RBannerStrokeGrad = Instance.new("UIGradient")
+	RBannerStrokeGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.15, 0.1),
+		NumberSequenceKeypoint.new(0.35, 0.9),
+		NumberSequenceKeypoint.new(0.5, 0),
+		NumberSequenceKeypoint.new(0.65, 0.9),
+		NumberSequenceKeypoint.new(0.85, 0.1),
+		NumberSequenceKeypoint.new(1, 0)
+	})
+	RBannerStrokeGrad.Parent = RBannerStroke
+
+	task.spawn(function()
+		while RBannerStrokeGrad and RBannerStrokeGrad.Parent do
+			TweenService:Create(RBannerStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = RBannerStrokeGrad.Rotation + 360}):Play()
+			task.wait(2.8)
+		end
+	end)
+
+	local RHeadshot = Instance.new("ImageLabel")
+	RHeadshot.Size = UDim2.new(0, 36, 0, 36)
+	RHeadshot.Position = UDim2.new(0, 14, 0, 14)
+	RHeadshot.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
+	RHeadshot.BorderSizePixel = 0
+	RHeadshot.Parent = RestoreBanner
+
+	local RHeadCorner = Instance.new("UICorner")
+	RHeadCorner.CornerRadius = UDim.new(1, 0)
+	RHeadCorner.Parent = RHeadshot
+
+	task.spawn(function()
+		while not LocalPlayer do task.wait(0.1) end
+		pcall(function()
+			RHeadshot.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", LocalPlayer.UserId)
+		end)
+	end)
+
+	local RNameLbl = Instance.new("TextLabel")
+	RNameLbl.Size = UDim2.new(1, -120, 0, 18)
+	RNameLbl.Position = UDim2.new(0, 58, 0, 12)
+	RNameLbl.BackgroundTransparency = 1
+	RNameLbl.Text = LocalPlayer and LocalPlayer.Name or "Player"
+	RNameLbl.TextColor3 = Color3.fromRGB(240, 240, 245)
+	RNameLbl.TextSize = 13
+	RNameLbl.Font = Enum.Font.GothamBold
+	RNameLbl.TextXAlignment = Enum.TextXAlignment.Left
+	RNameLbl.Parent = RestoreBanner
+
+	local RSubLbl = Instance.new("TextLabel")
+	RSubLbl.Size = UDim2.new(1, -120, 0, 14)
+	RSubLbl.Position = UDim2.new(0, 58, 0, 30)
+	RSubLbl.BackgroundTransparency = 1
+	RSubLbl.Text = string.upper(tostring(titleText)) .. " | MINIMIZED"
+	RSubLbl.TextColor3 = Color3.fromRGB(130, 130, 145)
+	RSubLbl.TextSize = 10
+	RSubLbl.Font = Enum.Font.GothamMedium
+	RSubLbl.TextXAlignment = Enum.TextXAlignment.Left
+	RSubLbl.Parent = RestoreBanner
+
+	-- Mini Stats inside Restore Banner
+	local RStatsRow = Instance.new("Frame")
+	RStatsRow.Size = UDim2.new(1, -28, 0, 20)
+	RStatsRow.Position = UDim2.new(0, 14, 0, 54)
+	RStatsRow.BackgroundTransparency = 1
+	RStatsRow.Parent = RestoreBanner
+
+	local RStatsLayout = Instance.new("UIListLayout")
+	RStatsLayout.FillDirection = Enum.FillDirection.Horizontal
+	RStatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	RStatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	RStatsLayout.Padding = UDim.new(0, 16)
+	RStatsLayout.Parent = RStatsRow
+
+	local function createBannerStat(iconId, defaultVal, labelName)
+		local h = Instance.new("Frame")
+		h.Size = UDim2.new(0, 90, 1, 0)
+		h.BackgroundTransparency = 1
+		h.Parent = RStatsRow
+
+		local ico = Instance.new("ImageLabel")
+		ico.Size = UDim2.new(0, 12, 0, 12)
+		ico.Position = UDim2.new(0, 0, 0.5, -6)
+		ico.BackgroundTransparency = 1
+		ico.Image = getIconAsset(iconId)
+		ico.ImageColor3 = Color3.fromRGB(160, 160, 175)
+		ico.Parent = h
+
+		local t = Instance.new("TextLabel")
+		t.Size = UDim2.new(1, -16, 1, 0)
+		t.Position = UDim2.new(0, 16, 0, 0)
+		t.BackgroundTransparency = 1
+		t.Text = defaultVal .. " " .. labelName
+		t.TextColor3 = Color3.fromRGB(190, 190, 200)
+		t.TextSize = 10
+		t.Font = Enum.Font.GothamMedium
+		t.TextXAlignment = Enum.TextXAlignment.Left
+		t.Parent = h
+		return t
+	end
+
+	local RBannerPing = createBannerStat("zap", "32", "ms")
+	local RBannerFps = createBannerStat("cpu", "60", "fps")
+	local RBannerPlrs = createBannerStat("users", "12", "plrs")
+
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			pcall(function()
+				local ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
+				RBannerPing.Text = ping .. " ms"
+				RBannerPlrs.Text = #Players:GetPlayers() .. " plrs"
+			end)
+		end
+	end)
+
+	RunService.RenderStepped:Connect(function(dt)
+		pcall(function()
+			RBannerFps.Text = math.floor(1 / dt) .. " fps"
+		end)
+	end)
+
+	-- Restore Window Button
+	local RestoreBtn = Instance.new("TextButton")
+	RestoreBtn.Size = UDim2.new(1, -28, 0, 24)
+	RestoreBtn.Position = UDim2.new(0, 14, 0, 78)
+	RestoreBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+	RestoreBtn.Text = "Restore Window"
+	RestoreBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	RestoreBtn.TextSize = 11
+	RestoreBtn.Font = Enum.Font.GothamBold
+	RestoreBtn.Parent = RestoreBanner
+
+	local RBtnCorner = Instance.new("UICorner")
+	RBtnCorner.CornerRadius = UDim.new(0, 30)
+	RBtnCorner.Parent = RestoreBtn
+
+	local function restoreWindowAction()
 		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 		Main.Visible = true
 		StatsFrame.Visible = true
@@ -566,13 +743,17 @@ function Library.CreateWindow(config)
 		}):Play()
 
 		TweenService:Create(StatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0, 310, 0, 32),
-			Position = UDim2.new(0.5, 58, 0.45, -175),
+			Size = UDim2.new(0, 240, 0, 32),
+			Position = UDim2.new(0.5, 101, 0.45, -175),
 			BackgroundTransparency = 0
 		}):Play()
 
 		ToggleBtnOuter.Visible = false
-	end)
+		RestoreBanner.Visible = false
+	end
+
+	ToggleBtn.MouseButton1Click:Connect(restoreWindowAction)
+	RestoreBtn.MouseButton1Click:Connect(restoreWindowAction)
 
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 22, 0, 22)
@@ -633,6 +814,7 @@ function Library.CreateWindow(config)
 		Main.Visible = false
 		StatsFrame.Visible = false
 		ToggleBtnOuter.Visible = true
+		RestoreBanner.Visible = true
 	end)
 
 	makeDraggable(Topbar, Main)
