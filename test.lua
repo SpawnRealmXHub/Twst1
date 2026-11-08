@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Tab Scrolling, Spacing, Asset Icons & Minimize Image)
+-- SpawnRealm / Moondiety UI Library Module (Fixed Tab Icon/Text Layout & Scrolling)
 local Library = {}
 Library.__index = Library
 
@@ -607,7 +607,7 @@ function Library.CreateWindow(config)
 		SearchPadding.Parent = SearchBox
 	end
 	
-	-- Sidebar Scrolling Tab Container with Scrolling & Automatic Canvas Sizing
+	-- Sidebar Scrolling Tab Container
 	local tabYOffset = searchBarEnabled and 84 or 52
 	local tabBottomOffset = (userConfig and userConfig.Enabled ~= false) and (searchBarEnabled and -146 or -112) or (searchBarEnabled and -88 or -55)
 
@@ -733,29 +733,9 @@ function Library.CreateWindow(config)
 			TabBtn = Instance.new("TextButton")
 			TabBtn.Size = UDim2.new(1, 0, 0, 32)
 			TabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
-			TabBtn.Text = tostring(tabName)
-			TabBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
-			TabBtn.Font = Enum.Font.GothamMedium
-			TabBtn.TextSize = 12
-			TabBtn.TextXAlignment = Enum.TextXAlignment.Left
-			TabBtn.TextTruncate = Enum.TextTruncate.AtEnd
+			TabBtn.Text = ""
 			TabBtn.ClipsDescendants = true
 			TabBtn.Parent = TabContainer
-
-			-- Fixed padding and spacing to prevent icon & text overlapping
-			local TabPadding = Instance.new("UIPadding")
-			TabPadding.PaddingLeft = UDim.new(0, tabIconId ~= "" and 32 or 12)
-			TabPadding.PaddingRight = UDim.new(0, 8)
-			TabPadding.Parent = TabBtn
-
-			if tabIconId ~= "" then
-				local TIcon = Instance.new("ImageLabel")
-				TIcon.Size = UDim2.new(0, 16, 0, 16)
-				TIcon.Position = UDim2.new(0, 10, 0.5, -8)
-				TIcon.BackgroundTransparency = 1
-				TIcon.Image = tabIconId
-				TIcon.Parent = TabBtn
-			end
 
 			FlashlightBeam = Instance.new("Frame")
 			FlashlightBeam.Name = "FlashlightBeam"
@@ -796,6 +776,30 @@ function Library.CreateWindow(config)
 			local TabCorner = Instance.new("UICorner")
 			TabCorner.CornerRadius = UDim.new(0, 30)
 			TabCorner.Parent = TabBtn
+
+			-- Non-overlapping structured content inside the tab button
+			if tabIconId ~= "" then
+				local TIcon = Instance.new("ImageLabel")
+				TIcon.Size = UDim2.new(0, 16, 0, 16)
+				TIcon.Position = UDim2.new(0, 10, 0.5, -8)
+				TIcon.BackgroundTransparency = 1
+				TIcon.Image = tabIconId
+				TIcon.ZIndex = 5
+				TIcon.Parent = TabBtn
+			end
+
+			local TabText = Instance.new("TextLabel")
+			TabText.Size = UDim2.new(1, tabIconId ~= "" and -34 or -16, 1, 0)
+			TabText.Position = UDim2.new(0, tabIconId ~= "" and 30 or 12, 0, 0)
+			TabText.BackgroundTransparency = 1
+			TabText.Text = tostring(tabName)
+			TabText.TextColor3 = Color3.fromRGB(150, 150, 160)
+			TabText.Font = Enum.Font.GothamMedium
+			TabText.TextSize = 12
+			TabText.TextXAlignment = Enum.TextXAlignment.Left
+			TabText.TextTruncate = Enum.TextTruncate.AtEnd
+			TabText.ZIndex = 5
+			TabText.Parent = TabBtn
 
 			Page = Instance.new("ScrollingFrame")
 			Page.Name = tostring(tabName) .. "Page"
@@ -849,7 +853,8 @@ function Library.CreateWindow(config)
 						t.Page.Visible = false
 						t.Active = false
 						if t.StopLoop then t.StopLoop() end
-						TweenService:Create(t.Button, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(22, 22, 26), TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
+						TweenService:Create(t.Button, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(22, 22, 26)}):Play()
+						TweenService:Create(t.Label, TWEEN_INFO, {TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
 						if t.Beam then TweenService:Create(t.Beam, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end
 						if t.Glow then TweenService:Create(t.Glow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end
 					end)
@@ -857,7 +862,8 @@ function Library.CreateWindow(config)
 				Page.Visible = true
 				tabObj.Active = true
 				activeTabObject = tabObj
-				TweenService:Create(TabBtn, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(28, 28, 34), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+				TweenService:Create(TabBtn, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(28, 28, 34)}):Play()
+				TweenService:Create(TabText, TWEEN_INFO, {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
 
@@ -872,7 +878,7 @@ function Library.CreateWindow(config)
 								dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 								dot.BackgroundTransparency = 0.3
 								dot.BorderSizePixel = 0
-								dot.ZIndex = 5
+								dot.ZIndex = 6
 								dot.Parent = DotContainer
 
 								local dCorner = Instance.new("UICorner")
@@ -896,6 +902,7 @@ function Library.CreateWindow(config)
 			TabBtn.MouseButton1Click:Connect(switchToThisTab)
 
 			tabObj.Button = TabBtn
+			tabObj.Label = TabText
 			tabObj.Page = Page
 			tabObj.Beam = FlashlightBeam
 			tabObj.Glow = GlowLine
@@ -911,7 +918,7 @@ function Library.CreateWindow(config)
 			if not activeTabObject then
 				Page.Visible = true
 				TabBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
-				TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+				TabText.TextColor3 = Color3.fromRGB(255, 255, 255)
 				FlashlightBeam.BackgroundTransparency = 0.2
 				GlowLine.BackgroundTransparency = 0.1
 				tabObj.Active = true
@@ -927,7 +934,7 @@ function Library.CreateWindow(config)
 								dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 								dot.BackgroundTransparency = 0.3
 								dot.BorderSizePixel = 0
-								dot.ZIndex = 5
+								dot.ZIndex = 6
 								dot.Parent = DotContainer
 
 								local dCorner = Instance.new("UICorner")
