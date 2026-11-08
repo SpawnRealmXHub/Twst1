@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module
+-- SpawnRealm / Moondiety UI Library Module (Cross-Device Responsive Top Pills)
 local Library = {}
 Library.__index = Library
 
@@ -229,13 +229,13 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- 1. Top-Middle Radar & Wave Performance Pill
+	-- 1. Top-Middle Radar & Wave Performance Pill (Universal Responsive Pos)
 	local WavesStatsFrame = nil
 	if pillUIWavesEnabled then
 		WavesStatsFrame = Instance.new("Frame")
 		WavesStatsFrame.Name = "WavesStatsFrame"
 		WavesStatsFrame.Size = UDim2.new(0, 185, 0, 34)
-		WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 12)
+		WavesStatsFrame.Position = UDim2.new(0.44, -92, 0, 12)
 		WavesStatsFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
 		WavesStatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 		WavesStatsFrame.BorderSizePixel = 0
@@ -419,13 +419,13 @@ function Library.CreateWindow(config)
 		makeDraggable(WavesStatsFrame, WavesStatsFrame)
 	end
 
-	-- 2. Top-Right Mini Stats Pill
+	-- 2. Top-Right Mini Stats Pill (Universal Responsive Pos)
 	local StatsFrame = nil
 	if pillUIFPSEnabled then
 		StatsFrame = Instance.new("Frame")
 		StatsFrame.Name = "StatsFrame"
 		StatsFrame.Size = UDim2.new(0, 220, 0, 32)
-		StatsFrame.Position = UDim2.new(1, -232, 0, 12)
+		StatsFrame.Position = UDim2.new(1, -235, 0, 12)
 		StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 		StatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 		StatsFrame.BorderSizePixel = 0
@@ -597,11 +597,11 @@ function Library.CreateWindow(config)
 		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
 		if WavesStatsFrame then
 			WavesStatsFrame.Size = UDim2.new(0, 0, 0, 0)
-			WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 12)
+			WavesStatsFrame.Position = UDim2.new(0.44, -92, 0, 12)
 		end
 		if StatsFrame then
 			StatsFrame.Size = UDim2.new(0, 0, 0, 0)
-			StatsFrame.Position = UDim2.new(1, -232, 0, 12)
+			StatsFrame.Position = UDim2.new(1, -235, 0, 12)
 		end
 
 		Main.BackgroundTransparency = 1
@@ -617,7 +617,7 @@ function Library.CreateWindow(config)
 		if WavesStatsFrame then
 			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 				Size = UDim2.new(0, 185, 0, 34),
-				Position = UDim2.new(0.5, -92, 0, 12),
+				Position = UDim2.new(0.44, -92, 0, 12),
 				BackgroundTransparency = 0
 			}):Play()
 		end
@@ -625,7 +625,7 @@ function Library.CreateWindow(config)
 		if StatsFrame then
 			TweenService:Create(StatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 				Size = UDim2.new(0, 220, 0, 32),
-				Position = UDim2.new(1, -232, 0, 12),
+				Position = UDim2.new(1, -235, 0, 12),
 				BackgroundTransparency = 0
 			}):Play()
 		end
@@ -693,14 +693,14 @@ function Library.CreateWindow(config)
 		if WavesStatsFrame then
 			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(0.5, -92, 0, 12),
+				Position = UDim2.new(0.44, -92, 0, 12),
 				BackgroundTransparency = 1
 			}):Play()
 		end
 		if StatsFrame then
 			TweenService:Create(StatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(1, -232, 0, 12),
+				Position = UDim2.new(1, -235, 0, 12),
 				BackgroundTransparency = 1
 			}):Play()
 		end
@@ -732,14 +732,14 @@ function Library.CreateWindow(config)
 		if WavesStatsFrame then
 			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(0.5, -92, 0, 12),
+				Position = UDim2.new(0.44, -92, 0, 12),
 				BackgroundTransparency = 1
 			}):Play()
 		end
 		if StatsFrame then
 			TweenService:Create(StatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(1, -232, 0, 12),
+				Position = UDim2.new(1, -235, 0, 12),
 				BackgroundTransparency = 1
 			}):Play()
 		end
