@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Loading Screen, Magnifying Glass Search, Fixed Tab Beams & Animations)
+-- SpawnRealm / Moondiety UI Library Module (Configurable Loading Screen, Magnifying Glass Search, Fixed Tab Beams)
 local Library = {}
 Library.__index = Library
 
@@ -128,6 +128,11 @@ function Library.CreateWindow(config)
 	local soundEnabled = (config.SoundButtons ~= false)
 	local userConfig = config.User or nil
 	local searchBarEnabled = (config.UiSearchBar == true)
+	
+	-- Loading Screen Configs
+	local loadingXUIEnabled = (config.LoadingXUI == true)
+	local loadingTitleText = config.LoadingTitle or titleText
+	local loadingIconId = getLucideIcon(config.LoadingIcon) or iconId
 
 	-- Anti-Dupe / Toggle Execution Guard
 	local parentBase = gethui() or CoreGui
@@ -152,9 +157,9 @@ function Library.CreateWindow(config)
 	Main.Size = UDim2.new(0, targetWidth, 0, targetHeight)
 	Main.Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2)
 	Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
-	Main.BackgroundTransparency = 1
+	Main.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 	Main.BorderSizePixel = 0
-	Main.Visible = false
+	Main.Visible = not loadingXUIEnabled
 	Main.Parent = ScreenGui
 
 	local MainCorner = Instance.new("UICorner")
@@ -225,9 +230,9 @@ function Library.CreateWindow(config)
 	StatsFrame.Size = UDim2.new(0, 246, 0, 32)
 	StatsFrame.Position = UDim2.new(0.5, 90, 0.45, -175)
 	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
-	StatsFrame.BackgroundTransparency = 1
+	StatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 	StatsFrame.BorderSizePixel = 0
-	StatsFrame.Visible = false
+	StatsFrame.Visible = not loadingXUIEnabled
 	StatsFrame.Parent = ScreenGui
 
 	local StatsCorner = Instance.new("UICorner")
@@ -321,129 +326,131 @@ function Library.CreateWindow(config)
 
 	makeDraggable(StatsFrame, StatsFrame)
 
-	-- White Loading Screen Intro Animation matching your video
-	pcall(function()
-		local LoadGui = Instance.new("ScreenGui")
-		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
-		LoadGui.Parent = getProtectedParent()
+	-- Loading Screen Animation (Only if LoadingXUI = true)
+	if loadingXUIEnabled then
+		pcall(function()
+			local LoadGui = Instance.new("ScreenGui")
+			LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
+			LoadGui.Parent = getProtectedParent()
 
-		local LoadOverlay = Instance.new("Frame")
-		LoadOverlay.Size = UDim2.new(1, 0, 1, 0)
-		LoadOverlay.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
-		LoadOverlay.BackgroundTransparency = 0
-		LoadOverlay.BorderSizePixel = 0
-		LoadOverlay.Parent = LoadGui
+			local LoadOverlay = Instance.new("Frame")
+			LoadOverlay.Size = UDim2.new(1, 0, 1, 0)
+			LoadOverlay.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+			LoadOverlay.BackgroundTransparency = 0
+			LoadOverlay.BorderSizePixel = 0
+			LoadOverlay.Parent = LoadGui
 
-		local LoadFrame = Instance.new("Frame")
-		LoadFrame.Size = UDim2.new(0, 480, 0, 240)
-		LoadFrame.Position = UDim2.new(0.5, -240, 0.5, -120)
-		LoadFrame.BackgroundColor3 = Color3.fromRGB(18, 17, 24)
-		LoadFrame.BorderSizePixel = 0
-		LoadFrame.Parent = LoadOverlay
+			local LoadFrame = Instance.new("Frame")
+			LoadFrame.Size = UDim2.new(0, 480, 0, 240)
+			LoadFrame.Position = UDim2.new(0.5, -240, 0.5, -120)
+			LoadFrame.BackgroundColor3 = Color3.fromRGB(18, 17, 24)
+			LoadFrame.BorderSizePixel = 0
+			LoadFrame.Parent = LoadOverlay
 
-		local LoadCorner = Instance.new("UICorner")
-		LoadCorner.CornerRadius = UDim.new(0, 30)
-		LoadCorner.Parent = LoadFrame
+			local LoadCorner = Instance.new("UICorner")
+			LoadCorner.CornerRadius = UDim.new(0, 30)
+			LoadCorner.Parent = LoadFrame
 
-		local LoadStroke = Instance.new("UIStroke")
-		LoadStroke.Thickness = 2.5
-		LoadStroke.Color = Color3.fromRGB(255, 60, 90)
-		LoadStroke.Parent = LoadFrame
+			local LoadStroke = Instance.new("UIStroke")
+			LoadStroke.Thickness = 2.5
+			LoadStroke.Color = Color3.fromRGB(255, 60, 90)
+			LoadStroke.Parent = LoadFrame
 
-		local IconImg = Instance.new("ImageLabel")
-		IconImg.Size = UDim2.new(0, 56, 0, 56)
-		IconImg.Position = UDim2.new(0.5, -28, 0, 24)
-		IconImg.BackgroundTransparency = 1
-		IconImg.Image = iconId
-		IconImg.Parent = LoadFrame
+			local IconImg = Instance.new("ImageLabel")
+			IconImg.Size = UDim2.new(0, 56, 0, 56)
+			IconImg.Position = UDim2.new(0.5, -28, 0, 24)
+			IconImg.BackgroundTransparency = 1
+			IconImg.Image = loadingIconId
+			IconImg.Parent = LoadFrame
 
-		local LoadTitle = Instance.new("TextLabel")
-		LoadTitle.Size = UDim2.new(1, 0, 0, 24)
-		LoadTitle.Position = UDim2.new(0, 0, 0, 88)
-		LoadTitle.BackgroundTransparency = 1
-		LoadTitle.Text = string.upper(titleText)
-		LoadTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-		LoadTitle.TextSize = 18
-		LoadTitle.Font = Enum.Font.GothamBold
-		LoadTitle.TextXAlignment = Enum.TextXAlignment.Center
-		LoadTitle.Parent = LoadFrame
+			local LoadTitle = Instance.new("TextLabel")
+			LoadTitle.Size = UDim2.new(1, 0, 0, 24)
+			LoadTitle.Position = UDim2.new(0, 0, 0, 88)
+			LoadTitle.BackgroundTransparency = 1
+			LoadTitle.Text = string.upper(tostring(loadingTitleText))
+			LoadTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+			LoadTitle.TextSize = 18
+			LoadTitle.Font = Enum.Font.GothamBold
+			LoadTitle.TextXAlignment = Enum.TextXAlignment.Center
+			LoadTitle.Parent = LoadFrame
 
-		local SubLoadTitle = Instance.new("TextLabel")
-		SubLoadTitle.Size = UDim2.new(1, 0, 0, 16)
-		SubLoadTitle.Position = UDim2.new(0, 0, 0, 114)
-		SubLoadTitle.BackgroundTransparency = 1
-		SubLoadTitle.Text = "LOADING INTERFACE..."
-		SubLoadTitle.TextColor3 = Color3.fromRGB(255, 100, 120)
-		SubLoadTitle.TextSize = 10
-		SubLoadTitle.Font = Enum.Font.GothamBold
-		SubLoadTitle.TextXAlignment = Enum.TextXAlignment.Center
-		SubLoadTitle.Parent = LoadFrame
+			local SubLoadTitle = Instance.new("TextLabel")
+			SubLoadTitle.Size = UDim2.new(1, 0, 0, 16)
+			SubLoadTitle.Position = UDim2.new(0, 0, 0, 114)
+			SubLoadTitle.BackgroundTransparency = 1
+			SubLoadTitle.Text = "LOADING INTERFACE..."
+			SubLoadTitle.TextColor3 = Color3.fromRGB(255, 100, 120)
+			SubLoadTitle.TextSize = 10
+			SubLoadTitle.Font = Enum.Font.GothamBold
+			SubLoadTitle.TextXAlignment = Enum.TextXAlignment.Center
+			SubLoadTitle.Parent = LoadFrame
 
-		-- White Loading Bar
-		local BarBg = Instance.new("Frame")
-		BarBg.Size = UDim2.new(0, 380, 0, 6)
-		BarBg.Position = UDim2.new(0.5, -190, 0, 150)
-		BarBg.BackgroundColor3 = Color3.fromRGB(40, 35, 45)
-		BarBg.BorderSizePixel = 0
-		BarBg.Parent = LoadFrame
+			-- White Loading Bar
+			local BarBg = Instance.new("Frame")
+			BarBg.Size = UDim2.new(0, 380, 0, 6)
+			BarBg.Position = UDim2.new(0.5, -190, 0, 150)
+			BarBg.BackgroundColor3 = Color3.fromRGB(40, 35, 45)
+			BarBg.BorderSizePixel = 0
+			BarBg.Parent = LoadFrame
 
-		local BarBgCorner = Instance.new("UICorner")
-		BarBgCorner.CornerRadius = UDim.new(1, 0)
-		BarBgCorner.Parent = BarBg
+			local BarBgCorner = Instance.new("UICorner")
+			BarBgCorner.CornerRadius = UDim.new(1, 0)
+			BarBgCorner.Parent = BarBg
 
-		local BarFill = Instance.new("Frame")
-		BarFill.Size = UDim2.new(0, 0, 1, 0)
-		BarFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White loading fill
-		BarFill.BorderSizePixel = 0
-		BarFill.Parent = BarBg
+			local BarFill = Instance.new("Frame")
+			BarFill.Size = UDim2.new(0, 0, 1, 0)
+			BarFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			BarFill.BorderSizePixel = 0
+			BarFill.Parent = BarBg
 
-		local BarFillCorner = Instance.new("UICorner")
-		BarFillCorner.CornerRadius = UDim.new(1, 0)
-		BarFillCorner.Parent = BarFill
+			local BarFillCorner = Instance.new("UICorner")
+			BarFillCorner.CornerRadius = UDim.new(1, 0)
+			BarFillCorner.Parent = BarFill
 
-		local PctLabel = Instance.new("TextLabel")
-		PctLabel.Size = UDim2.new(0, 100, 0, 16)
-		PctLabel.Position = UDim2.new(0.5, -50, 0, 164)
-		PctLabel.BackgroundTransparency = 1
-		PctLabel.Text = "0%"
-		PctLabel.TextColor3 = Color3.fromRGB(200, 200, 210)
-		PctLabel.TextSize = 11
-		PctLabel.Font = Enum.Font.GothamBold
-		PctLabel.TextXAlignment = Enum.TextXAlignment.Center
-		PctLabel.Parent = LoadFrame
+			local PctLabel = Instance.new("TextLabel")
+			PctLabel.Size = UDim2.new(0, 100, 0, 16)
+			PctLabel.Position = UDim2.new(0.5, -50, 0, 164)
+			PctLabel.BackgroundTransparency = 1
+			PctLabel.Text = "0%"
+			PctLabel.TextColor3 = Color3.fromRGB(200, 200, 210)
+			PctLabel.TextSize = 11
+			PctLabel.Font = Enum.Font.GothamBold
+			PctLabel.TextXAlignment = Enum.TextXAlignment.Center
+			PctLabel.Parent = LoadFrame
 
-		-- Secure System Footer Text
-		local SecureLbl = Instance.new("TextLabel")
-		SecureLbl.Size = UDim2.new(1, 0, 0, 16)
-		SecureLbl.Position = UDim2.new(0, 0, 0, 204)
-		SecureLbl.BackgroundTransparency = 1
-		local gameName = 1
-		pcall(function() gameName = game.Name end)
-		SecureLbl.Text = "SECURE SYSTEM | " .. string.upper(tostring(gameName))
-		SecureLbl.TextColor3 = Color3.fromRGB(130, 130, 145)
-		SecureLbl.TextSize = 9
-		SecureLbl.Font = Enum.Font.GothamBold
-		SecureLbl.TextXAlignment = Enum.TextXAlignment.Center
-		SecureLbl.Parent = LoadFrame
+			-- Secure System Footer Text
+			local SecureLbl = Instance.new("TextLabel")
+			SecureLbl.Size = UDim2.new(1, 0, 0, 16)
+			SecureLbl.Position = UDim2.new(0, 0, 0, 204)
+			SecureLbl.BackgroundTransparency = 1
+			local gameName = "Roblox"
+			pcall(function() gameName = game.Name end)
+			SecureLbl.Text = "SECURE SYSTEM | " .. string.upper(tostring(gameName))
+			SecureLbl.TextColor3 = Color3.fromRGB(130, 130, 145)
+			SecureLbl.TextSize = 9
+			SecureLbl.Font = Enum.Font.GothamBold
+			SecureLbl.TextXAlignment = Enum.TextXAlignment.Center
+			SecureLbl.Parent = LoadFrame
 
-		task.spawn(function()
-			for i = 1, 100 do
-				BarFill.Size = UDim2.new(i / 100, 0, 1, 0)
-				PctLabel.Text = i .. "%"
-				task.wait(0.015)
-			end
-			task.wait(0.2)
-			TweenService:Create(LoadOverlay, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-			TweenService:Create(LoadFrame, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-			task.wait(0.4)
-			LoadGui:Destroy()
-			
-			Main.Visible = true
-			StatsFrame.Visible = true
-			TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
-			TweenService:Create(StatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
+			task.spawn(function()
+				for i = 1, 100 do
+					BarFill.Size = UDim2.new(i / 100, 0, 1, 0)
+					PctLabel.Text = i .. "%"
+					task.wait(0.015)
+				end
+				task.wait(0.2)
+				TweenService:Create(LoadOverlay, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
+				TweenService:Create(LoadFrame, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
+				task.wait(0.4)
+				LoadGui:Destroy()
+				
+				Main.Visible = true
+				StatsFrame.Visible = true
+				TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
+				TweenService:Create(StatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
+			end)
 		end)
-	end)
+	end
 
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
@@ -596,7 +603,6 @@ function Library.CreateWindow(config)
 		SearchIcon.ImageColor3 = Color3.fromRGB(130, 130, 140)
 		SearchIcon.Parent = SearchBox
 
-		-- Padding to prevent text from overlapping the magnifying glass
 		local SearchPadding = Instance.new("UIPadding")
 		SearchPadding.PaddingLeft = UDim.new(0, 28)
 		SearchPadding.Parent = SearchBox
