@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Fixed Line 852/1104 Errors, Restored Tab Dot Animations & Loading Screen)
+-- SpawnRealm / Moondiety UI Library Module (Fixed Scope Errors on 889/1141, Restored Tab Animations)
 local Library = {}
 Library.__index = Library
 
@@ -773,7 +773,6 @@ function Library.CreateWindow(config)
 			GlowLine.ZIndex = 3
 			GlowLine.Parent = TabBtn
 
-			-- Restored Dot / Particle Animation Container
 			local DotContainer = Instance.new("Frame")
 			DotContainer.Name = "DotContainer"
 			DotContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -854,7 +853,6 @@ function Library.CreateWindow(config)
 				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
 
-				-- Spawn animated floating dots on click
 				pcall(function()
 					for i = 1, 5 do
 						task.spawn(function()
