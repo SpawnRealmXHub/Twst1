@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Smooth Rounded Corners & Moving Perimeter Beam Outline)
+-- SpawnRealm / Moondiety UI Library Module (Smooth Rounded Corners & Rotating UIStroke Border Beam)
 local Library = {}
 Library.__index = Library
 
@@ -22,7 +22,7 @@ local LucideIcons = {
 	["cpu"] = "rbxassetid://6023426810",
 	["search"] = "rbxassetid://6023426955",
 	["combat"] = "rbxassetid://6023426846",
-	["terminal"] = "rbxassetid://6023426980",
+	["terminal"] = "rbxassetid://602342680",
 	["globe"] = "rbxassetid://6023426871",
 	["folder"] = "rbxassetid://6023426863",
 	["chevronright"] = "rbxassetid://6034818372"
@@ -128,41 +128,30 @@ function Library.CreateWindow(config)
 	Main.Visible = false
 	Main.Parent = ScreenGui
 
-	-- Smooth corner radius (not blocky) set to 8
+	-- Smooth, elegant rounded corners (not blocky)
 	local MainCorner = Instance.new("UICorner")
-	MainCorner.CornerRadius = UDim.new(0, 8)
+	MainCorner.CornerRadius = UDim.new(0, 14)
 	MainCorner.Parent = Main
 
-	-- Moving Perimeter Outline Beam matching the video reference
-	local PerimeterGlow = Instance.new("Frame")
-	PerimeterGlow.Name = "PerimeterGlow"
-	PerimeterGlow.Size = UDim2.new(1, 4, 1, 4)
-	PerimeterGlow.Position = UDim2.new(0, -2, 0, -2)
-	PerimeterGlow.BackgroundTransparency = 1
-	PerimeterGlow.BorderSizePixel = 0
-	PerimeterGlow.ZIndex = 10
-	PerimeterGlow.Parent = Main
+	-- Proper UIStroke Border with rotating gradient for the moving line animation
+	local MainStroke = Instance.new("UIStroke")
+	MainStroke.Thickness = 1.8
+	MainStroke.Parent = Main
 
-	local PerimeterCorner = Instance.new("UICorner")
-	PerimeterCorner.CornerRadius = UDim.new(0, 9)
-	PerimeterCorner.Parent = PerimeterGlow
-
-	local PerimeterGrad = Instance.new("UIGradient")
-	PerimeterGrad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.2),
-		NumberSequenceKeypoint.new(0.15, 0),
-		NumberSequenceKeypoint.new(0.35, 0.5),
+	local MainStrokeGrad = Instance.new("UIGradient")
+	MainStrokeGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.25, 0.8),
 		NumberSequenceKeypoint.new(0.5, 0),
-		NumberSequenceKeypoint.new(0.75, 0.5),
-		NumberSequenceKeypoint.new(0.9, 0),
-		NumberSequenceKeypoint.new(1, 0.2)
+		NumberSequenceKeypoint.new(0.75, 0.8),
+		NumberSequenceKeypoint.new(1, 0)
 	})
-	PerimeterGrad.Parent = PerimeterGlow
+	MainStrokeGrad.Parent = MainStroke
 
 	task.spawn(function()
-		while PerimeterGrad and PerimeterGrad.Parent do
-			TweenService:Create(PerimeterGrad, TweenInfo.new(3.5, Enum.EasingStyle.Linear), {Rotation = PerimeterGrad.Rotation + 360}):Play()
-			task.wait(3.5)
+		while MainStrokeGrad and MainStrokeGrad.Parent do
+			TweenService:Create(MainStrokeGrad, TweenInfo.new(3, Enum.EasingStyle.Linear), {Rotation = MainStrokeGrad.Rotation + 360}):Play()
+			task.wait(3)
 		end
 	end)
 
@@ -173,7 +162,7 @@ function Library.CreateWindow(config)
 	ShinyClip.Parent = Main
 
 	local ShinyClipCorner = Instance.new("UICorner")
-	ShinyClipCorner.CornerRadius = UDim.new(0, 8)
+	ShinyClipCorner.CornerRadius = UDim.new(0, 14)
 	ShinyClipCorner.Parent = ShinyClip
 
 	local MainShiny = Instance.new("Frame")
@@ -201,7 +190,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Mini Stats Widget (Clean single border with moving outline beam, corner 8)
+	-- Mini Stats Widget (Smooth rounded corners with rotating moving border line)
 	local StatsFrame = Instance.new("Frame")
 	StatsFrame.Name = "StatsFrame"
 	StatsFrame.Size = UDim2.new(0, 246, 0, 32)
@@ -212,37 +201,27 @@ function Library.CreateWindow(config)
 	StatsFrame.Parent = ScreenGui
 
 	local StatsCorner = Instance.new("UICorner")
-	StatsCorner.CornerRadius = UDim.new(0, 8)
+	StatsCorner.CornerRadius = UDim.new(0, 12)
 	StatsCorner.Parent = StatsFrame
 
-	-- Moving outline for mini stats
-	local StatsPerimeterGlow = Instance.new("Frame")
-	StatsPerimeterGlow.Name = "StatsPerimeterGlow"
-	StatsPerimeterGlow.Size = UDim2.new(1, 4, 1, 4)
-	StatsPerimeterGlow.Position = UDim2.new(0, -2, 0, -2)
-	StatsPerimeterGlow.BackgroundTransparency = 1
-	StatsPerimeterGlow.BorderSizePixel = 0
-	StatsPerimeterGlow.ZIndex = 10
-	StatsPerimeterGlow.Parent = StatsFrame
+	local StatsStroke = Instance.new("UIStroke")
+	StatsStroke.Thickness = 1.5
+	StatsStroke.Parent = StatsFrame
 
-	local StatsPerimeterCorner = Instance.new("UICorner")
-	StatsPerimeterCorner.CornerRadius = UDim.new(0, 9)
-	StatsPerimeterCorner.Parent = StatsPerimeterGlow
-
-	local StatsPerimeterGrad = Instance.new("UIGradient")
-	StatsPerimeterGrad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.2),
-		NumberSequenceKeypoint.new(0.2, 0),
-		NumberSequenceKeypoint.new(0.5, 0.5),
-		NumberSequenceKeypoint.new(0.8, 0),
-		NumberSequenceKeypoint.new(1, 0.2)
+	local StatsStrokeGrad = Instance.new("UIGradient")
+	StatsStrokeGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.3, 0.8),
+		NumberSequenceKeypoint.new(0.5, 0),
+		NumberSequenceKeypoint.new(0.8, 0.8),
+		NumberSequenceKeypoint.new(1, 0)
 	})
-	StatsPerimeterGrad.Parent = StatsPerimeterGlow
+	StatsStrokeGrad.Parent = StatsStroke
 
 	task.spawn(function()
-		while StatsPerimeterGrad and StatsPerimeterGrad.Parent do
-			TweenService:Create(StatsPerimeterGrad, TweenInfo.new(3.5, Enum.EasingStyle.Linear), {Rotation = StatsPerimeterGrad.Rotation + 360}):Play()
-			task.wait(3.5)
+		while StatsStrokeGrad and StatsStrokeGrad.Parent do
+			TweenService:Create(StatsStrokeGrad, TweenInfo.new(3, Enum.EasingStyle.Linear), {Rotation = StatsStrokeGrad.Rotation + 360}):Play()
+			task.wait(3)
 		end
 	end)
 
@@ -324,7 +303,7 @@ function Library.CreateWindow(config)
 		LoadFrame.Parent = LoadGui
 
 		local LoadCorner = Instance.new("UICorner")
-		LoadCorner.CornerRadius = UDim.new(0, 8)
+		LoadCorner.CornerRadius = UDim.new(0, 12)
 		LoadCorner.Parent = LoadFrame
 
 		local IconImg = Instance.new("ImageLabel")
@@ -420,7 +399,7 @@ function Library.CreateWindow(config)
 	ToggleBtn.Parent = ToggleBtnOuter
 
 	local TBtnCorner = Instance.new("UICorner")
-	TBtnCorner.CornerRadius = UDim.new(0, 8)
+	TBtnCorner.CornerRadius = UDim.new(0, 10)
 	TBtnCorner.Parent = ToggleBtn
 
 	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
@@ -502,7 +481,7 @@ function Library.CreateWindow(config)
 		ProfileCard.Parent = Main
 
 		local PCardCorner = Instance.new("UICorner")
-		PCardCorner.CornerRadius = UDim.new(0, 8)
+		PCardCorner.CornerRadius = UDim.new(0, 10)
 		PCardCorner.Parent = ProfileCard
 
 		local AvatarImg = Instance.new("ImageLabel")
@@ -513,7 +492,7 @@ function Library.CreateWindow(config)
 		AvatarImg.Parent = ProfileCard
 
 		local AvatarCorner = Instance.new("UICorner")
-		AvatarCorner.CornerRadius = UDim.new(0, 6)
+		AvatarCorner.CornerRadius = UDim.new(0, 8)
 		AvatarCorner.Parent = AvatarImg
 
 		if isAnonymous then
@@ -649,7 +628,7 @@ function Library.CreateWindow(config)
 			DotContainer.Parent = TabBtn
 
 			local TabCorner = Instance.new("UICorner")
-			TabCorner.CornerRadius = UDim.new(0, 8)
+			TabCorner.CornerRadius = UDim.new(0, 10)
 			TabCorner.Parent = TabBtn
 
 			local Page = Instance.new("ScrollingFrame")
@@ -740,7 +719,7 @@ function Library.CreateWindow(config)
 							dot.Parent = DotContainer
 
 							local dotCorner = Instance.new("UICorner")
-							dotCorner.CornerRadius = UDim.new(0, 8)
+							dotCorner.CornerRadius = UDim.new(0, 10)
 							dotCorner.Parent = dot
 
 							local slowTravelTime = 1.2 + (math.random() * 0.6)
@@ -774,7 +753,7 @@ function Library.CreateWindow(config)
 					SectionFrame.Parent = targetCol
 
 					local SecCorner = Instance.new("UICorner")
-					SecCorner.CornerRadius = UDim.new(0, 8)
+					SecCorner.CornerRadius = UDim.new(0, 10)
 					SecCorner.Parent = SectionFrame
 
 					local SecTitle = Instance.new("TextLabel")
@@ -838,7 +817,7 @@ function Library.CreateWindow(config)
 							ToggleBtn.Parent = ToggleItem
 
 							local BtnCorner = Instance.new("UICorner")
-							BtnCorner.CornerRadius = UDim.new(0, 8)
+							BtnCorner.CornerRadius = UDim.new(0, 10)
 							BtnCorner.Parent = ToggleBtn
 
 							local Circle = Instance.new("Frame")
@@ -848,7 +827,7 @@ function Library.CreateWindow(config)
 							Circle.Parent = ToggleBtn
 
 							local CircleCorner = Instance.new("UICorner")
-							CircleCorner.CornerRadius = UDim.new(0, 8)
+							CircleCorner.CornerRadius = UDim.new(0, 10)
 							CircleCorner.Parent = Circle
 
 							ToggleBtn.MouseButton1Click:Connect(function()
@@ -878,7 +857,7 @@ function Library.CreateWindow(config)
 							Btn.Parent = SectionFrame
 
 							local BtnCorner = Instance.new("UICorner")
-							BtnCorner.CornerRadius = UDim.new(0, 8)
+							BtnCorner.CornerRadius = UDim.new(0, 10)
 							BtnCorner.Parent = Btn
 
 							Btn.MouseButton1Click:Connect(function()
@@ -934,7 +913,7 @@ function Library.CreateWindow(config)
 							SliderBar.Parent = SliderItem
 
 							local SBarCorner = Instance.new("UICorner")
-							SBarCorner.CornerRadius = UDim.new(0, 8)
+							SBarCorner.CornerRadius = UDim.new(0, 10)
 							SBarCorner.Parent = SliderBar
 
 							local SliderFill = Instance.new("Frame")
@@ -944,7 +923,7 @@ function Library.CreateWindow(config)
 							SliderFill.Parent = SliderBar
 
 							local SFillCorner = Instance.new("UICorner")
-							SFillCorner.CornerRadius = UDim.new(0, 8)
+							SFillCorner.CornerRadius = UDim.new(0, 10)
 							SFillCorner.Parent = SliderFill
 
 							local draggingSlider = false
@@ -971,7 +950,7 @@ function Library.CreateWindow(config)
 							end)
 
 							UserInputService.InputChanged:Connect(function(input)
-								if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+								if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType ==Enum.UserInputType.Touch) then
 									updateSlider(input)
 								end
 							end)
