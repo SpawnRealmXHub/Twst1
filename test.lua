@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Corner Radius 30, Rotating Neon Border & ~100 Latte-Soft Lucide Icons)
+-- SpawnRealm / Moondiety UI Library Module (Corner Radius 30, High-Visibility Border Beam & Fixed Tab Icon Spacing)
 local Library = {}
 Library.__index = Library
 
@@ -13,7 +13,6 @@ local TWEEN_INFO = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirectio
 
 -- Expanded Latte-Soft Lucide Roblox Compiled Icon Registry (~100 Icons, 256px Asset IDs)
 local LucideIcons = {
-	-- Navigation & General UI
 	["home"] = "rbxassetid://10734949856",
 	["settings"] = "rbxassetid://10734950309",
 	["user"] = "rbxassetid://10735031441",
@@ -38,8 +37,6 @@ local LucideIcons = {
 	["map"] = "rbxassetid://10734976451",
 	["compass"] = "rbxassetid://10734887754",
 	["navigation"] = "rbxassetid://10734981134",
-
-	-- Combat, Gaming & Utilities
 	["shield"] = "rbxassetid://10709791437",
 	["shieldalert"] = "rbxassetid://10709791689",
 	["shieldcheck"] = "rbxassetid://10709791881",
@@ -68,8 +65,6 @@ local LucideIcons = {
 	["volumex"] = "rbxassetid://10735032902",
 	["bell"] = "rbxassetid://10734875630",
 	["belloff"] = "rbxassetid://10734875953",
-
-	-- Media, Playback & Controls
 	["play"] = "rbxassetid://10734992435",
 	["pause"] = "rbxassetid://10734983059",
 	["stop"] = "rbxassetid://10735017281",
@@ -84,8 +79,6 @@ local LucideIcons = {
 	["camera"] = "rbxassetid://10734881373",
 	["video"] = "rbxassetid://10735031154",
 	["image"] = "rbxassetid://10734954778",
-
-	-- Actions, Editing & Tools
 	["refresh"] = "rbxassetid://10734998706",
 	["trash"] = "rbxassetid://10735026916",
 	["download"] = "rbxassetid://10734914175",
@@ -108,10 +101,7 @@ local LucideIcons = {
 	["arrowleft"] = "rbxassetid://10734872628",
 	["arrowup"] = "rbxassetid://10734873461",
 	["arrowdown"] = "rbxassetid://10734872081",
-
-	-- System, Power & Status
 	["power"] = "rbxassetid://10734995393",
-	["wifi"] = "rbxassetid://10735033722",
 	["battery"] = "rbxassetid://10734874945",
 	["harddrive"] = "rbxassetid://10734944365",
 	["server"] = "rbxassetid://10735010078",
@@ -138,8 +128,7 @@ local LucideIcons = {
 	["package"] = "rbxassetid://10734982638",
 	["box"] = "rbxassetid://10734877202",
 	["layers"] = "rbxassetid://10734969248",
-	["layout"] = "rbxassetid://10734969578",
-	["grid"] = "rbxassetid://10734941926"
+	["layout"] = "rbxassetid://10734969578"
 }
 
 local function getLucideIcon(iconName)
@@ -242,30 +231,31 @@ function Library.CreateWindow(config)
 	Main.Visible = false
 	Main.Parent = ScreenGui
 
-	-- Ultra-smooth corner radius set precisely to 30
 	local MainCorner = Instance.new("UICorner")
 	MainCorner.CornerRadius = UDim.new(0, 30)
 	MainCorner.Parent = Main
 
-	-- Rotating UIStroke Border Beam with Corner 30
+	-- High-Visibility, Thicker Rotating Neon Border Beam
 	local MainStroke = Instance.new("UIStroke")
-	MainStroke.Thickness = 2
+	MainStroke.Thickness = 2.8
 	MainStroke.Parent = Main
 
 	local MainStrokeGrad = Instance.new("UIGradient")
 	MainStrokeGrad.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(0.25, 0.7),
+		NumberSequenceKeypoint.new(0.15, 0.1),
+		NumberSequenceKeypoint.new(0.35, 0.9),
 		NumberSequenceKeypoint.new(0.5, 0),
-		NumberSequenceKeypoint.new(0.75, 0.7),
+		NumberSequenceKeypoint.new(0.65, 0.9),
+		NumberSequenceKeypoint.new(0.85, 0.1),
 		NumberSequenceKeypoint.new(1, 0)
 	})
 	MainStrokeGrad.Parent = MainStroke
 
 	task.spawn(function()
 		while MainStrokeGrad and MainStrokeGrad.Parent do
-			TweenService:Create(MainStrokeGrad, TweenInfo.new(3, Enum.EasingStyle.Linear), {Rotation = MainStrokeGrad.Rotation + 360}):Play()
-			task.wait(3)
+			TweenService:Create(MainStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = MainStrokeGrad.Rotation + 360}):Play()
+			task.wait(2.8)
 		end
 	end)
 
@@ -304,7 +294,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Mini Stats Widget (Corner Radius 30 with rotating neon beam)
+	-- Mini Stats Widget (Corner 30 with High-Visibility Neon Beam)
 	local StatsFrame = Instance.new("Frame")
 	StatsFrame.Name = "StatsFrame"
 	StatsFrame.Size = UDim2.new(0, 246, 0, 32)
@@ -319,23 +309,25 @@ function Library.CreateWindow(config)
 	StatsCorner.Parent = StatsFrame
 
 	local StatsStroke = Instance.new("UIStroke")
-	StatsStroke.Thickness = 1.8
+	StatsStroke.Thickness = 2.5
 	StatsStroke.Parent = StatsFrame
 
 	local StatsStrokeGrad = Instance.new("UIGradient")
 	StatsStrokeGrad.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(0.3, 0.7),
+		NumberSequenceKeypoint.new(0.2, 0.2),
+		NumberSequenceKeypoint.new(0.4, 0.9),
 		NumberSequenceKeypoint.new(0.5, 0),
-		NumberSequenceKeypoint.new(0.8, 0.7),
+		NumberSequenceKeypoint.new(0.7, 0.9),
+		NumberSequenceKeypoint.new(0.9, 0.2),
 		NumberSequenceKeypoint.new(1, 0)
 	})
 	StatsStrokeGrad.Parent = StatsStroke
 
 	task.spawn(function()
 		while StatsStrokeGrad and StatsStrokeGrad.Parent do
-			TweenService:Create(StatsStrokeGrad, TweenInfo.new(3, Enum.EasingStyle.Linear), {Rotation = StatsStrokeGrad.Rotation + 360}):Play()
-			task.wait(3)
+			TweenService:Create(StatsStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = StatsStrokeGrad.Rotation + 360}):Play()
+			task.wait(2.8)
 		end
 	end)
 
@@ -403,7 +395,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(StatsFrame, StatsFrame)
 
-	-- 10x Cooler Loading Screen
+	-- Loading Screen
 	pcall(function()
 		local LoadGui = Instance.new("ScreenGui")
 		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
@@ -421,13 +413,13 @@ function Library.CreateWindow(config)
 		LoadCorner.Parent = LoadFrame
 
 		local LoadStroke = Instance.new("UIStroke")
-		LoadStroke.Thickness = 2.5
+		LoadStroke.Thickness = 3
 		LoadStroke.Parent = LoadFrame
 
 		local LoadStrokeGrad = Instance.new("UIGradient")
 		LoadStrokeGrad.Transparency = NumberSequence.new({
 			NumberSequenceKeypoint.new(0, 0),
-			NumberSequenceKeypoint.new(0.5, 0.4),
+			NumberSequenceKeypoint.new(0.5, 0.2),
 			NumberSequenceKeypoint.new(1, 0)
 		})
 		LoadStrokeGrad.Parent = LoadStroke
@@ -600,7 +592,7 @@ function Library.CreateWindow(config)
 	TabList.Padding = UDim.new(0, 5)
 	TabList.Parent = TabContainer
 
-	-- User Profile Card (Corner Radius 30)
+	-- User Profile Card
 	if userConfig and userConfig.Enabled ~= false then
 		local isAnonymous = (userConfig.Anonymous == true)
 
@@ -703,6 +695,7 @@ function Library.CreateWindow(config)
 			local TabBtn = Instance.new("TextButton")
 			TabBtn.Size = UDim2.new(1, 0, 0, 32)
 			TabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
+			-- Fixed text padding offset so text never overlaps the icon
 			TabBtn.Text = tabIconId and "        " .. tostring(tabName) or "   " .. tostring(tabName)
 			TabBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
 			TabBtn.Font = Enum.Font.GothamMedium
@@ -751,7 +744,6 @@ function Library.CreateWindow(config)
 			GlowLine.ZIndex = 3
 			GlowLine.Parent = TabBtn
 
-			-- Container for slow moving bright scattered dots
 			local DotContainer = Instance.new("Frame")
 			DotContainer.Name = "DotContainer"
 			DotContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -837,7 +829,6 @@ function Library.CreateWindow(config)
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
 			end)
 
-			-- Continuous background thread streaming slow, bright scattered dots across the flashlight beam
 			task.spawn(function()
 				while TabBtn and TabBtn.Parent do
 					if tabObj.Active then
@@ -1058,6 +1049,19 @@ function Library.CreateWindow(config)
 							local SFillCorner = Instance.new("UICorner")
 							SFillCorner.CornerRadius = UDim.new(0, 30)
 							SFillCorner.Parent = SliderFill
+
+							-- Slider Progress Handle / Dot at the end of the line
+							local SliderKnob = Instance.new("Frame")
+							SliderKnob.Size = UDim2.new(0, 12, 0, 12)
+							SliderKnob.Position = UDim2.new(1, -6, 0.5, -6)
+							SliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+							SliderKnob.BorderSizePixel = 0
+							SliderKnob.ZIndex = 3
+							SliderKnob.Parent = SliderFill
+
+							local KnobCorner = Instance.new("UICorner")
+							KnobCorner.CornerRadius = UDim.new(1, 0)
+							KnobCorner.Parent = SliderKnob
 
 							local draggingSlider = false
 
