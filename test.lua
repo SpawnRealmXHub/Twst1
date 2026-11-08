@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Configurable Loading Screen, Magnifying Glass Search, Fixed Tab Beams)
+-- SpawnRealm / Moondiety UI Library Module (Fixed Line 852/1104 Errors, Restored Tab Dot Animations & Loading Screen)
 local Library = {}
 Library.__index = Library
 
@@ -773,6 +773,15 @@ function Library.CreateWindow(config)
 			GlowLine.ZIndex = 3
 			GlowLine.Parent = TabBtn
 
+			-- Restored Dot / Particle Animation Container
+			local DotContainer = Instance.new("Frame")
+			DotContainer.Name = "DotContainer"
+			DotContainer.Size = UDim2.new(1, 0, 1, 0)
+			DotContainer.BackgroundTransparency = 1
+			DotContainer.ClipsDescendants = true
+			DotContainer.ZIndex = 4
+			DotContainer.Parent = TabBtn
+
 			local TabCorner = Instance.new("UICorner")
 			TabCorner.CornerRadius = UDim.new(0, 30)
 			TabCorner.Parent = TabBtn
@@ -815,7 +824,7 @@ function Library.CreateWindow(config)
 				RightCol.Size = UDim2.new(0.5, -5, 0, RightLayout.AbsoluteContentSize.Y)
 			end)
 
-			local tabObj = {Button = TabBtn, Page = Page, Beam = FlashlightBeam, Glow = GlowLine, Active = false}
+			local tabObj = {Button = TabBtn, Page = Page, Beam = FlashlightBeam, Glow = GlowLine, Dots = DotContainer, Active = false}
 
 			if not activeTabObject then
 				Page.Visible = true
@@ -844,6 +853,34 @@ function Library.CreateWindow(config)
 				TweenService:Create(TabBtn, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(28, 28, 34), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
+
+				-- Spawn animated floating dots on click
+				pcall(function()
+					for i = 1, 5 do
+						task.spawn(function()
+							local dot = Instance.new("Frame")
+							dot.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
+							dot.Position = UDim2.new(0, math.random(10, 120), 1, 5)
+							dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+							dot.BackgroundTransparency = 0.3
+							dot.BorderSizePixel = 0
+							dot.ZIndex = 5
+							dot.Parent = DotContainer
+
+							local dCorner = Instance.new("UICorner")
+							dCorner.CornerRadius = UDim.new(1, 0)
+							dCorner.Parent = dot
+
+							local randX = math.random(-20, 20)
+							TweenService:Create(dot, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+								Position = UDim2.new(0, dot.Position.X.Offset + randX, 0, math.random(-5, 10)),
+								BackgroundTransparency = 1
+							}):Play()
+							task.wait(0.6)
+							dot:Destroy()
+						end)
+					end
+				end)
 			end)
 
 			table.insert(tabs, tabObj)
