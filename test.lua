@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Corner Radius 30, Toggleable Search Bar & Smooth Fade Animations)
+-- SpawnRealm / Moondiety UI Library Module (Anti-Dupe Toggle Guard, Corner Radius 30, Smooth Animations)
 local Library = {}
 Library.__index = Library
 
@@ -70,7 +70,7 @@ local function getProtectedParent()
 	local folder = base:FindFirstChild("SR_DedicatedFolder")
 	if not folder then
 		folder = Instance.new("Folder")
-		folder.Name = "SR_DedicatedFolder_" .. math.random(1000, 9999)
+		folder.Name = "SR_DedicatedFolder"
 		folder.Parent = base
 	end
 	return folder
@@ -127,13 +127,21 @@ function Library.CreateWindow(config)
 	local iconId = getLucideIcon(config.UIicon or config.UiIcon or "shield") or "rbxassetid://10709791437"
 	local soundEnabled = (config.SoundButtons ~= false)
 	local userConfig = config.User or nil
-	local searchBarEnabled = (config.UiSearchBar == true) -- Toggleable Search Bar Config
+	local searchBarEnabled = (config.UiSearchBar == true)
+
+	-- Anti-Dupe / Toggle Execution Guard
+	local parentBase = gethui() or CoreGui
+	local existingFolder = parentBase:FindFirstChild("SR_DedicatedFolder")
+	if existingFolder then
+		existingFolder:Destroy()
+		return -- If it already existed, it destroys it and stops further execution (toggles off)
+	end
 
 	local window = {}
 	local registeredElements = {}
 	
 	local ScreenGui = Instance.new("ScreenGui")
-	ScreenGui.Name = "SR_" .. math.random(100000, 999999)
+	ScreenGui.Name = "SR_MainGui"
 	ScreenGui.Parent = getProtectedParent()
 	ScreenGui.ResetOnSpawn = false
 
@@ -144,9 +152,10 @@ function Library.CreateWindow(config)
 	Main.Size = UDim2.new(0, targetWidth, 0, targetHeight)
 	Main.Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2)
 	Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+	Main.BackgroundTransparency = 0
 	Main.BorderSizePixel = 0
-	Main.Visible = false
-	Main.BackgroundTransparency = 1
+	Main.Visible = true
+	Main.Parent = ScreenGui
 
 	local MainCorner = Instance.new("UICorner")
 	MainCorner.CornerRadius = UDim.new(0, 30)
@@ -216,9 +225,9 @@ function Library.CreateWindow(config)
 	StatsFrame.Size = UDim2.new(0, 246, 0, 32)
 	StatsFrame.Position = UDim2.new(0.5, 90, 0.45, -175)
 	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
+	StatsFrame.BackgroundTransparency = 0
 	StatsFrame.BorderSizePixel = 0
-	StatsFrame.Visible = false
-	StatsFrame.BackgroundTransparency = 1
+	StatsFrame.Visible = true
 	StatsFrame.Parent = ScreenGui
 
 	local StatsCorner = Instance.new("UICorner")
@@ -312,7 +321,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(StatsFrame, StatsFrame)
 
-	-- Loading Screen
+	-- Loading Screen Intro Animation
 	pcall(function()
 		local LoadGui = Instance.new("ScreenGui")
 		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
@@ -382,11 +391,6 @@ function Library.CreateWindow(config)
 			TweenService:Create(LoadFrame, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
 			task.wait(0.4)
 			LoadGui:Destroy()
-			
-			Main.Visible = true
-			StatsFrame.Visible = true
-			TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
-			TweenService:Create(StatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
 		end)
 	end)
 
@@ -479,7 +483,7 @@ function Library.CreateWindow(config)
 		TweenService:Create(Main, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
 		TweenService:Create(StatsFrame, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
 		task.wait(0.25)
-		pcall(function() ScreenGui:Destroy() end)
+		pcall(function() getProtectedParent():Destroy() end)
 	end)
 
 	local MinBtn = Instance.new("TextButton")
@@ -508,7 +512,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- Search Bar Logic (Placed at top left underneath header when UiSearchBar = true)
+	-- Search Bar Logic
 	local SearchBox = nil
 	if searchBarEnabled then
 		SearchBox = Instance.new("TextBox")
@@ -541,7 +545,7 @@ function Library.CreateWindow(config)
 		SearchBox.TextXAlignment = Enum.TextXAlignment.Left
 	end
 	
-	-- Sidebar Tab Container (Dynamic sizing based on search bar & user profile state)
+	-- Sidebar Tab Container
 	local tabYOffset = searchBarEnabled and 84 or 52
 	local tabBottomOffset = (userConfig and userConfig.Enabled ~= false) and (searchBarEnabled and -146 or -112) or (searchBarEnabled and -88 or -55)
 
@@ -903,7 +907,6 @@ function Library.CreateWindow(config)
 							local Btn = Instance.new("TextButton")
 							Btn.Size = UDim2.new(1, -18, 0, 28)
 							Btn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
-							Btn.Text = "  " + tostring(name) -- fixed concats or direct string
 							Btn.Text = "  " .. tostring(name)
 							Btn.TextColor3 = Color3.fromRGB(210, 210, 220)
 							Btn.Font = Enum.Font.GothamMedium
