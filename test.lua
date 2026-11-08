@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Fixed Element Disappearance & Line 31/Column Sizing)
+-- SpawnRealm / Moondiety UI Library Module (Continuous Looping Tab Dot Animations)
 local Library = {}
 Library.__index = Library
 
@@ -716,8 +716,10 @@ function Library.CreateWindow(config)
 	local activeTabObject = nil
 
 	function window:CreateTab(tabConfig)
-		local tab = {}
 		local tabObj = {}
+		local TabBtn, Page, FlashlightBeam, GlowLine, DotContainer
+		local loopConnection = nil
+		
 		pcall(function()
 			if type(tabConfig) == "string" then
 				tabConfig = { name = tabConfig }
@@ -725,7 +727,7 @@ function Library.CreateWindow(config)
 			local tabName = tabConfig.name or tabConfig.Name or "Tab"
 			local tabIconId = getLucideIcon(tabConfig.icon or tabConfig.Icon)
 
-			local TabBtn = Instance.new("TextButton")
+			TabBtn = Instance.new("TextButton")
 			TabBtn.Size = UDim2.new(1, 0, 0, 32)
 			TabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 			TabBtn.Text = tabIconId and "        " .. tostring(tabName) or "   " .. tostring(tabName)
@@ -746,7 +748,7 @@ function Library.CreateWindow(config)
 				TIcon.Parent = TabBtn
 			end
 
-			local FlashlightBeam = Instance.new("Frame")
+			FlashlightBeam = Instance.new("Frame")
 			FlashlightBeam.Name = "FlashlightBeam"
 			FlashlightBeam.Size = UDim2.new(1, 0, 1, 0)
 			FlashlightBeam.Position = UDim2.new(0, 0, 0, 0)
@@ -764,7 +766,7 @@ function Library.CreateWindow(config)
 			})
 			BeamGrad.Parent = FlashlightBeam
 
-			local GlowLine = Instance.new("Frame")
+			GlowLine = Instance.new("Frame")
 			GlowLine.Name = "GlowLine"
 			GlowLine.Size = UDim2.new(0, 3, 1, 0)
 			GlowLine.Position = UDim2.new(0, 0, 0, 0)
@@ -774,7 +776,7 @@ function Library.CreateWindow(config)
 			GlowLine.ZIndex = 3
 			GlowLine.Parent = TabBtn
 
-			local DotContainer = Instance.new("Frame")
+			DotContainer = Instance.new("Frame")
 			DotContainer.Name = "DotContainer"
 			DotContainer.Size = UDim2.new(1, 0, 1, 0)
 			DotContainer.BackgroundTransparency = 1
@@ -786,7 +788,7 @@ function Library.CreateWindow(config)
 			TabCorner.CornerRadius = UDim.new(0, 30)
 			TabCorner.Parent = TabBtn
 
-			local Page = Instance.new("ScrollingFrame")
+			Page = Instance.new("ScrollingFrame")
 			Page.Name = tostring(tabName) .. "Page"
 			Page.Size = UDim2.new(1, 0, 1, 0)
 			Page.BackgroundTransparency = 1
@@ -809,11 +811,6 @@ function Library.CreateWindow(config)
 			LeftLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			LeftLayout.Parent = LeftCol
 
-			LeftLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-				LeftCol.Size = UDim2.new(0.5, -6, 0, LeftLayout.AbsoluteContentSize.Y)
-				Page.CanvasSize = UDim2.new(0, 0, 0, math.max(LeftLayout.AbsoluteContentSize.Y, RightLayout.AbsoluteContentSize.Y) + 16)
-			end)
-
 			local RightCol = Instance.new("Frame")
 			RightCol.Name = "RightCol"
 			RightCol.Size = UDim2.new(0.5, -6, 0, 0)
@@ -826,6 +823,11 @@ function Library.CreateWindow(config)
 			RightLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			RightLayout.Parent = RightCol
 
+			LeftLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				LeftCol.Size = UDim2.new(0.5, -6, 0, LeftLayout.AbsoluteContentSize.Y)
+				Page.CanvasSize = UDim2.new(0, 0, 0, math.max(LeftLayout.AbsoluteContentSize.Y, RightLayout.AbsoluteContentSize.Y) + 16)
+			end)
+
 			RightLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 				RightCol.Size = UDim2.new(0.5, -6, 0, RightLayout.AbsoluteContentSize.Y)
 				Page.CanvasSize = UDim2.new(0, 0, 0, math.max(LeftLayout.AbsoluteContentSize.Y, RightLayout.AbsoluteContentSize.Y) + 16)
@@ -837,6 +839,7 @@ function Library.CreateWindow(config)
 					pcall(function()
 						t.Page.Visible = false
 						t.Active = false
+						if t.StopLoop then t.StopLoop() end
 						TweenService:Create(t.Button, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(22, 22, 26), TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
 						if t.Beam then TweenService:Create(t.Beam, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end
 						if t.Glow then TweenService:Create(t.Glow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end
@@ -849,30 +852,35 @@ function Library.CreateWindow(config)
 				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
 
-				pcall(function()
-					for i = 1, 5 do
+				-- Start Continuous Looping Dot Animation
+				if loopConnection then task.cancel(loopConnection) end
+				loopConnection = task.spawn(function()
+					while tabObj.Active and DotContainer and DotContainer.Parent do
 						task.spawn(function()
-							local dot = Instance.new("Frame")
-							dot.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
-							dot.Position = UDim2.new(0, math.random(10, 120), 1, 5)
-							dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-							dot.BackgroundTransparency = 0.3
-							dot.BorderSizePixel = 0
-							dot.ZIndex = 5
-							dot.Parent = DotContainer
+							pcall(function()
+								local dot = Instance.new("Frame")
+								dot.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
+								dot.Position = UDim2.new(0, math.random(10, 120), 1, 5)
+								dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+								dot.BackgroundTransparency = 0.3
+								dot.BorderSizePixel = 0
+								dot.ZIndex = 5
+								dot.Parent = DotContainer
 
-							local dCorner = Instance.new("UICorner")
-							dCorner.CornerRadius = UDim.new(1, 0)
-							dCorner.Parent = dot
+								local dCorner = Instance.new("UICorner")
+								dCorner.CornerRadius = UDim.new(1, 0)
+								dCorner.Parent = dot
 
-							local randX = math.random(-20, 20)
-							TweenService:Create(dot, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-								Position = UDim2.new(0, dot.Position.X.Offset + randX, 0, math.random(-5, 10)),
-								BackgroundTransparency = 1
-							}):Play()
-							task.wait(0.6)
-							dot:Destroy()
+								local randX = math.random(-25, 25)
+								TweenService:Create(dot, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+									Position = UDim2.new(0, dot.Position.X.Offset + randX, 0, math.random(-6, 10)),
+									BackgroundTransparency = 1
+								}):Play()
+								task.wait(0.7)
+								dot:Destroy()
+							end)
 						end)
+						task.wait(0.18) -- Spawns new looping dots continuously
 					end
 				end)
 			end
@@ -885,6 +893,12 @@ function Library.CreateWindow(config)
 			tabObj.Glow = GlowLine
 			tabObj.Dots = DotContainer
 			tabObj.Active = false
+			tabObj.StopLoop = function()
+				if loopConnection then
+					task.cancel(loopConnection)
+					loopConnection = nil
+				end
+			end
 
 			if not activeTabObject then
 				Page.Visible = true
@@ -894,6 +908,37 @@ function Library.CreateWindow(config)
 				GlowLine.BackgroundTransparency = 0.1
 				tabObj.Active = true
 				activeTabObject = tabObj
+				
+				-- Trigger initial loop for default tab
+				loopConnection = task.spawn(function()
+					while tabObj.Active and DotContainer and DotContainer.Parent do
+						task.spawn(function()
+							pcall(function()
+								local dot = Instance.new("Frame")
+								dot.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
+								dot.Position = UDim2.new(0, math.random(10, 120), 1, 5)
+								dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+								dot.BackgroundTransparency = 0.3
+								dot.BorderSizePixel = 0
+								dot.ZIndex = 5
+								dot.Parent = DotContainer
+
+								local dCorner = Instance.new("UICorner")
+								dCorner.CornerRadius = UDim.new(1, 0)
+								dCorner.Parent = dot
+
+								local randX = math.random(-25, 25)
+								TweenService:Create(dot, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+									Position = UDim2.new(0, dot.Position.X.Offset + randX, 0, math.random(-6, 10)),
+									BackgroundTransparency = 1
+								}):Play()
+								task.wait(0.7)
+								dot:Destroy()
+							end)
+						end)
+						task.wait(0.18)
+					end
+				end)
 			end
 
 			table.insert(tabs, tabObj)
@@ -902,7 +947,7 @@ function Library.CreateWindow(config)
 				switchToThisTab()
 			end
 
-			function tab:CreateSection(columnSide, sectionTitle)
+			function tabObj:CreateSection(columnSide, sectionTitle)
 				local section = {}
 				pcall(function()
 					local targetCol = (tostring(columnSide):lower() == "right") and RightCol or LeftCol
