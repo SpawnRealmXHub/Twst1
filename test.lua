@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Compacted Performance Pill & Dual Configurable Pills)
+-- SpawnRealm / Moondiety UI Library Module (Fixed Independent Draggables, Top Pills, & Circular Toggle Button)
 local Library = {}
 Library.__index = Library
 
@@ -129,16 +129,13 @@ function Library.CreateWindow(config)
 	local userConfig = config.User or nil
 	local searchBarEnabled = (config.UiSearchBar == true)
 	
-	-- Pill UI Toggles Config
 	local pillUIWavesEnabled = (config.PillUIWaves == true)
 	local pillUIFPSEnabled = (config.PillUIFPS == true)
 	
-	-- Loading Screen Configs
 	local loadingXUIEnabled = (config.LoadingXUI == true)
 	local loadingTitleText = config.LoadingTitle or titleText
 	local loadingIconId = getIconAsset(config.LoadingIcon or iconId)
 
-	-- Anti-Dupe / Toggle Execution Guard
 	local parentBase = gethui() or CoreGui
 	local existingFolder = parentBase:FindFirstChild("SR_DedicatedFolder")
 	if existingFolder then
@@ -233,7 +230,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- 1. Top-Middle Radar & Wave Performance Pill (Compacted Width)
+	-- 1. Top-Middle Radar & Wave Performance Pill
 	local WavesStatsFrame = nil
 	if pillUIWavesEnabled then
 		WavesStatsFrame = Instance.new("Frame")
@@ -423,13 +420,13 @@ function Library.CreateWindow(config)
 		makeDraggable(WavesStatsFrame, WavesStatsFrame)
 	end
 
-	-- 2. Top-Right Mini Stats Pill (Profile picture, ms, fps, players) (Controlled by PillUIFPS)
+	-- 2. Top-Right Mini Stats Pill (Positioned at Top Right)
 	local StatsFrame = nil
 	if pillUIFPSEnabled then
 		StatsFrame = Instance.new("Frame")
 		StatsFrame.Name = "StatsFrame"
-		StatsFrame.Size = UDim2.new(0, 240, 0, 32)
-		StatsFrame.Position = UDim2.new(0.5, 101, 0, 12)
+		StatsFrame.Size = UDim2.new(0, 220, 0, 32)
+		StatsFrame.Position = UDim2.new(1, -232, 0, 12)
 		StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 		StatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 		StatsFrame.BorderSizePixel = 0
@@ -491,30 +488,30 @@ function Library.CreateWindow(config)
 		StatsLayout.FillDirection = Enum.FillDirection.Horizontal
 		StatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		StatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-		StatsLayout.Padding = UDim.new(0, 6)
+		StatsLayout.Padding = UDim.new(0, 4)
 		StatsLayout.Parent = StatsContainer
 
 		local function createStatBadge(iconId, labelName, defaultVal)
 			local holder = Instance.new("Frame")
-			holder.Size = UDim2.new(0, 66, 1, 0)
+			holder.Size = UDim2.new(0, 58, 1, 0)
 			holder.BackgroundTransparency = 1
 			holder.Parent = StatsContainer
 
 			local icon = Instance.new("ImageLabel")
-			icon.Size = UDim2.new(0, 12, 0, 12)
-			icon.Position = UDim2.new(0, 0, 0.5, -6)
+			icon.Size = UDim2.new(0, 11, 0, 11)
+			icon.Position = UDim2.new(0, 0, 0.5, -5.5)
 			icon.BackgroundTransparency = 1
 			icon.Image = getIconAsset(iconId)
 			icon.ImageColor3 = Color3.fromRGB(160, 160, 175)
 			icon.Parent = holder
 
 			local lbl = Instance.new("TextLabel")
-			lbl.Size = UDim2.new(1, -14, 1, 0)
-			lbl.Position = UDim2.new(0, 14, 0, 0)
+			lbl.Size = UDim2.new(1, -13, 1, 0)
+			lbl.Position = UDim2.new(0, 13, 0, 0)
 			lbl.BackgroundTransparency = 1
 			lbl.Text = defaultVal .. " " .. labelName
 			lbl.TextColor3 = Color3.fromRGB(180, 180, 190)
-			lbl.TextSize = 9
+			lbl.TextSize = 8.5
 			lbl.Font = Enum.Font.GothamMedium
 			lbl.TextXAlignment = Enum.TextXAlignment.Left
 			lbl.Parent = holder
@@ -543,166 +540,101 @@ function Library.CreateWindow(config)
 		makeDraggable(StatsFrame, StatsFrame)
 	end
 
-	-- Loading Screen Animation
-	if loadingXUIEnabled then
-		pcall(function()
-			local LoadGui = Instance.new("ScreenGui")
-			LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
-			LoadGui.Parent = getProtectedParent()
+	-- 3. Minimized Floating Circle Toggle Button
+	local ToggleBtnOuter = Instance.new("Frame")
+	ToggleBtnOuter.Name = "ToggleBtnOuter"
+	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
+	ToggleBtnOuter.Position = UDim2.new(0, 40, 0, 200)
+	ToggleBtnOuter.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+	ToggleBtnOuter.BorderSizePixel = 0
+	ToggleBtnOuter.Visible = false
+	ToggleBtnOuter.Parent = ScreenGui
 
-			local LoadOverlay = Instance.new("Frame")
-			LoadOverlay.Size = UDim2.new(1, 0, 1, 0)
-			LoadOverlay.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
-			LoadOverlay.BackgroundTransparency = 0
-			LoadOverlay.BorderSizePixel = 0
-			LoadOverlay.Parent = LoadGui
+	local TBtnOuterCorner = Instance.new("UICorner")
+	TBtnOuterCorner.CornerRadius = UDim.new(1, 0) -- Perfect Circle
+	TBtnOuterCorner.Parent = ToggleBtnOuter
 
-			local LoadFrame = Instance.new("Frame")
-			LoadFrame.Size = UDim2.new(0, 480, 0, 240)
-			LoadFrame.Position = UDim2.new(0.5, -240, 0.5, -120)
-			LoadFrame.BackgroundColor3 = Color3.fromRGB(18, 17, 24)
-			LoadFrame.BorderSizePixel = 0
-			LoadFrame.Parent = LoadOverlay
+	local ToggleBtnStroke = Instance.new("UIStroke")
+	ToggleBtnStroke.Thickness = 2.2
+	ToggleBtnStroke.Parent = ToggleBtnOuter
 
-			local LoadCorner = Instance.new("UICorner")
-			LoadCorner.CornerRadius = UDim.new(0, 30)
-			LoadCorner.Parent = LoadFrame
+	local ToggleBtnStrokeGrad = Instance.new("UIGradient")
+	ToggleBtnStrokeGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.15, 0.1),
+		NumberSequenceKeypoint.new(0.35, 0.9),
+		NumberSequenceKeypoint.new(0.5, 0),
+		NumberSequenceKeypoint.new(0.65, 0.9),
+		NumberSequenceKeypoint.new(0.85, 0.1),
+		NumberSequenceKeypoint.new(1, 0)
+	})
+	ToggleBtnStrokeGrad.Parent = ToggleBtnStroke
 
-			local LoadStroke = Instance.new("UIStroke")
-			LoadStroke.Thickness = 2.5
-			LoadStroke.Color = Color3.fromRGB(255, 60, 90)
-			LoadStroke.Parent = LoadFrame
+	task.spawn(function()
+		while ToggleBtnStrokeGrad and ToggleBtnStrokeGrad.Parent do
+			TweenService:Create(ToggleBtnStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = ToggleBtnStrokeGrad.Rotation + 360}):Play()
+			task.wait(2.8)
+		end
+	end)
 
-			local IconImg = Instance.new("ImageLabel")
-			IconImg.Size = UDim2.new(0, 56, 0, 56)
-			IconImg.Position = UDim2.new(0.5, -28, 0, 24)
-			IconImg.BackgroundTransparency = 1
-			IconImg.Image = loadingIconId
-			IconImg.Parent = LoadFrame
+	local ToggleBtn = Instance.new("ImageButton")
+	ToggleBtn.Size = UDim2.new(0, 24, 0, 24)
+	ToggleBtn.Position = UDim2.new(0.5, -12, 0.5, -12)
+	ToggleBtn.BackgroundTransparency = 1
+	ToggleBtn.Image = iconId
+	ToggleBtn.ScaleType = Enum.ScaleType.Fit
+	ToggleBtn.Parent = ToggleBtnOuter
 
-			local LoadTitle = Instance.new("TextLabel")
-			LoadTitle.Size = UDim2.new(1, 0, 0, 24)
-			LoadTitle.Position = UDim2.new(0, 0, 0, 88)
-			LoadTitle.BackgroundTransparency = 1
-			LoadTitle.Text = string.upper(tostring(loadingTitleText))
-			LoadTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-			LoadTitle.TextSize = 18
-			LoadTitle.Font = Enum.Font.GothamBold
-			LoadTitle.TextXAlignment = Enum.TextXAlignment.Center
-			LoadTitle.Parent = LoadFrame
+	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
+	makeDraggable(ToggleBtn, ToggleBtnOuter)
 
-			local SubLoadTitle = Instance.new("TextLabel")
-			SubLoadTitle.Size = UDim2.new(1, 0, 0, 16)
-			SubLoadTitle.Position = UDim2.new(0, 0, 0, 114)
-			SubLoadTitle.BackgroundTransparency = 1
-			SubLoadTitle.Text = "LOADING INTERFACE..."
-			SubLoadTitle.TextColor3 = Color3.fromRGB(255, 100, 120)
-			SubLoadTitle.TextSize = 10
-			SubLoadTitle.Font = Enum.Font.GothamBold
-			SubLoadTitle.TextXAlignment = Enum.TextXAlignment.Center
-			SubLoadTitle.Parent = LoadFrame
+	local function restoreWindowAction()
+		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
+		Main.Visible = true
+		if WavesStatsFrame then WavesStatsFrame.Visible = true end
+		if StatsFrame then StatsFrame.Visible = true end
 
-			local BarBg = Instance.new("Frame")
-			BarBg.Size = UDim2.new(0, 380, 0, 6)
-			BarBg.Position = UDim2.new(0.5, -190, 0, 150)
-			BarBg.BackgroundColor3 = Color3.fromRGB(40, 35, 45)
-			BarBg.BorderSizePixel = 0
-			BarBg.Parent = LoadFrame
+		Main.Size = UDim2.new(0, 0, 0, 0)
+		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
+		if WavesStatsFrame then
+			WavesStatsFrame.Size = UDim2.new(0, 0, 0, 0)
+			WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 12)
+		end
+		if StatsFrame then
+			StatsFrame.Size = UDim2.new(0, 0, 0, 0)
+			StatsFrame.Position = UDim2.new(1, -232, 0, 12)
+		end
 
-			local BarBgCorner = Instance.new("UICorner")
-			BarBgCorner.CornerRadius = UDim.new(1, 0)
-			BarBgCorner.Parent = BarBg
+		Main.BackgroundTransparency = 1
+		if WavesStatsFrame then WavesStatsFrame.BackgroundTransparency = 1 end
+		if StatsFrame then StatsFrame.BackgroundTransparency = 1 end
 
-			local BarFill = Instance.new("Frame")
-			BarFill.Size = UDim2.new(0, 0, 1, 0)
-			BarFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			BarFill.BorderSizePixel = 0
-			BarFill.Parent = BarBg
+		TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, targetWidth, 0, targetHeight),
+			Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
+			BackgroundTransparency = 0
+		}):Play()
 
-			local BarFillCorner = Instance.new("UICorner")
-			BarFillCorner.CornerRadius = UDim.new(1, 0)
-			BarFillCorner.Parent = BarFill
+		if WavesStatsFrame then
+			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, 185, 0, 34),
+				Position = UDim2.new(0.5, -92, 0, 12),
+				BackgroundTransparency = 0
+			}):Play()
+		end
 
-			local PctLabel = Instance.new("TextLabel")
-			PctLabel.Size = UDim2.new(0, 100, 0, 16)
-			PctLabel.Position = UDim2.new(0.5, -50, 0, 164)
-			PctLabel.BackgroundTransparency = 1
-			PctLabel.Text = "0%"
-			PctLabel.TextColor3 = Color3.fromRGB(200, 200, 210)
-			PctLabel.TextSize = 11
-			PctLabel.Font = Enum.Font.GothamBold
-			PctLabel.TextXAlignment = Enum.TextXAlignment.Center
-			PctLabel.Parent = LoadFrame
+		if StatsFrame then
+			TweenService:Create(StatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, 220, 0, 32),
+				Position = UDim2.new(1, -232, 0, 12),
+				BackgroundTransparency = 0
+			}):Play()
+		end
 
-			local SecureLbl = Instance.new("TextLabel")
-			SecureLbl.Size = UDim2.new(1, 0, 0, 16)
-			SecureLbl.Position = UDim2.new(0, 0, 0, 204)
-			SecureLbl.BackgroundTransparency = 1
-			local gameName = "Roblox"
-			pcall(function() gameName = game.Name end)
-			SecureLbl.Text = "SECURE SYSTEM | " .. string.upper(tostring(gameName))
-			SecureLbl.TextColor3 = Color3.fromRGB(130, 130, 145)
-			SecureLbl.TextSize = 9
-			SecureLbl.Font = Enum.Font.GothamBold
-			SecureLbl.TextXAlignment = Enum.TextXAlignment.Center
-			SecureLbl.Parent = LoadFrame
-
-			task.spawn(function()
-				for i = 1, 100 do
-					BarFill.Size = UDim2.new(i / 100, 0, 1, 0)
-					PctLabel.Text = i .. "%"
-					task.wait(0.015)
-				end
-				task.wait(0.2)
-				TweenService:Create(LoadOverlay, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-				TweenService:Create(LoadFrame, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-				task.wait(0.4)
-				LoadGui:Destroy()
-				
-				Main.Visible = true
-				if WavesStatsFrame then WavesStatsFrame.Visible = true end
-				if StatsFrame then StatsFrame.Visible = true end
-
-				Main.BackgroundTransparency = 1
-				if WavesStatsFrame then WavesStatsFrame.BackgroundTransparency = 1 end
-				if StatsFrame then StatsFrame.BackgroundTransparency = 1 end
-
-				Main.Size = UDim2.new(0, 0, 0, 0)
-				Main.Position = UDim2.new(0.5, 0, 0.45, 0)
-
-				if WavesStatsFrame then
-					WavesStatsFrame.Size = UDim2.new(0, 0, 0, 0)
-					WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 12)
-				end
-				if StatsFrame then
-					StatsFrame.Size = UDim2.new(0, 0, 0, 0)
-					StatsFrame.Position = UDim2.new(0.5, 101, 0, 12)
-				end
-
-				TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-					Size = UDim2.new(0, targetWidth, 0, targetHeight),
-					Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
-					BackgroundTransparency = 0
-				}):Play()
-
-				if WavesStatsFrame then
-					TweenService:Create(WavesStatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 185, 0, 34),
-						Position = UDim2.new(0.5, -92, 0, 12),
-						BackgroundTransparency = 0
-					}):Play()
-				end
-
-				if StatsFrame then
-					TweenService:Create(StatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 240, 0, 32),
-						Position = UDim2.new(0.5, 101, 0, 12),
-						BackgroundTransparency = 0
-					}):Play()
-				end
-			end)
-		end)
+		ToggleBtnOuter.Visible = false
 	end
+
+	ToggleBtn.MouseButton1Click:Connect(restoreWindowAction)
 
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
@@ -739,195 +671,6 @@ function Library.CreateWindow(config)
 	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	SubTitleLabel.Parent = Topbar
 
-	-- Minimized Restore UI
-	local ToggleBtnOuter = Instance.new("Frame")
-	ToggleBtnOuter.Name = "ToggleBtnOuter"
-	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
-	ToggleBtnOuter.Position = UDim2.new(0, 40, 0, 200)
-	ToggleBtnOuter.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-	ToggleBtnOuter.BorderSizePixel = 0
-	ToggleBtnOuter.Visible = false
-	ToggleBtnOuter.Parent = ScreenGui
-
-	local TBtnOuterCorner = Instance.new("UICorner")
-	TBtnOuterCorner.CornerRadius = UDim.new(0, 20)
-	TBtnOuterCorner.Parent = ToggleBtnOuter
-
-	local ToggleBtnStroke = Instance.new("UIStroke")
-	ToggleBtnStroke.Thickness = 2.2
-	ToggleBtnStroke.Parent = ToggleBtnOuter
-
-	local ToggleBtnStrokeGrad = Instance.new("UIGradient")
-	ToggleBtnStrokeGrad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(0.15, 0.1),
-		NumberSequenceKeypoint.new(0.35, 0.9),
-		NumberSequenceKeypoint.new(0.5, 0),
-		NumberSequenceKeypoint.new(0.65, 0.9),
-		NumberSequenceKeypoint.new(0.85, 0.1),
-		NumberSequenceKeypoint.new(1, 0)
-	})
-	ToggleBtnStrokeGrad.Parent = ToggleBtnStroke
-
-	task.spawn(function()
-		while ToggleBtnStrokeGrad and ToggleBtnStrokeGrad.Parent do
-			TweenService:Create(ToggleBtnStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = ToggleBtnStrokeGrad.Rotation + 360}):Play()
-			task.wait(2.8)
-		end
-	end)
-
-	local ToggleBtn = Instance.new("ImageButton")
-	ToggleBtn.Size = UDim2.new(1, -8, 1, -8)
-	ToggleBtn.Position = UDim2.new(0, 4, 0, 4)
-	ToggleBtn.BackgroundTransparency = 1
-	ToggleBtn.Image = "rbxassetid://12787168883"
-	ToggleBtn.ScaleType = Enum.ScaleType.Fit
-	ToggleBtn.Parent = ToggleBtnOuter
-
-	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
-	makeDraggable(ToggleBtn, ToggleBtnOuter)
-
-	-- Top-Middle Restore Banner
-	local RestoreBanner = Instance.new("Frame")
-	RestoreBanner.Name = "RestoreBanner"
-	RestoreBanner.Size = UDim2.new(0, 360, 0, 110)
-	RestoreBanner.Position = UDim2.new(0.5, -180, 0, 12)
-	RestoreBanner.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
-	RestoreBanner.BorderSizePixel = 0
-	RestoreBanner.Visible = false
-	RestoreBanner.Parent = ScreenGui
-
-	local RBannerCorner = Instance.new("UICorner")
-	RBannerCorner.CornerRadius = UDim.new(0, 24)
-	RBannerCorner.Parent = RestoreBanner
-
-	local RBannerStroke = Instance.new("UIStroke")
-	RBannerStroke.Thickness = 2.5
-	RBannerStroke.Parent = RestoreBanner
-
-	local RBannerStrokeGrad = Instance.new("UIGradient")
-	RBannerStrokeGrad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(0.15, 0.1),
-		NumberSequenceKeypoint.new(0.35, 0.9),
-		NumberSequenceKeypoint.new(0.5, 0),
-		NumberSequenceKeypoint.new(0.65, 0.9),
-		NumberSequenceKeypoint.new(0.85, 0.1),
-		NumberSequenceKeypoint.new(1, 0)
-	})
-	RBannerStrokeGrad.Parent = RBannerStroke
-
-	task.spawn(function()
-		while RBannerStrokeGrad and RBannerStrokeGrad.Parent do
-			TweenService:Create(RBannerStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = RBannerStrokeGrad.Rotation + 360}):Play()
-			task.wait(2.8)
-		end
-	end)
-
-	local RHeadshot = Instance.new("ImageLabel")
-	RHeadshot.Size = UDim2.new(0, 36, 0, 36)
-	RHeadshot.Position = UDim2.new(0, 14, 0, 14)
-	RHeadshot.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-	RHeadshot.BorderSizePixel = 0
-	RHeadshot.Parent = RestoreBanner
-
-	local RHeadCorner = Instance.new("UICorner")
-	RHeadCorner.CornerRadius = UDim.new(1, 0)
-	RHeadCorner.Parent = RHeadshot
-
-	task.spawn(function()
-		while not LocalPlayer do task.wait(0.1) end
-		pcall(function()
-			RHeadshot.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", LocalPlayer.UserId)
-		end)
-	end)
-
-	local RNameLbl = Instance.new("TextLabel")
-	RNameLbl.Size = UDim2.new(1, -120, 0, 18)
-	RNameLbl.Position = UDim2.new(0, 58, 0, 12)
-	RNameLbl.BackgroundTransparency = 1
-	RNameLbl.Text = LocalPlayer and LocalPlayer.Name or "Player"
-	RNameLbl.TextColor3 = Color3.fromRGB(240, 240, 245)
-	RNameLbl.TextSize = 13
-	RNameLbl.Font = Enum.Font.GothamBold
-	RNameLbl.TextXAlignment = Enum.TextXAlignment.Left
-	RNameLbl.Parent = RestoreBanner
-
-	local RSubLbl = Instance.new("TextLabel")
-	RSubLbl.Size = UDim2.new(1, -120, 0, 14)
-	RSubLbl.Position = UDim2.new(0, 58, 0, 30)
-	RSubLbl.BackgroundTransparency = 1
-	RSubLbl.Text = "SPAWNREALMXHUB | MINIMIZED"
-	RSubLbl.TextColor3 = Color3.fromRGB(130, 130, 145)
-	RSubLbl.TextSize = 10
-	RSubLbl.Font = Enum.Font.GothamMedium
-	RSubLbl.TextXAlignment = Enum.TextXAlignment.Left
-	RSubLbl.Parent = RestoreBanner
-
-	local RestoreBtn = Instance.new("TextButton")
-	RestoreBtn.Size = UDim2.new(1, -28, 0, 28)
-	RestoreBtn.Position = UDim2.new(0, 14, 0, 68)
-	RestoreBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-	RestoreBtn.Text = "Restore Window"
-	RestoreBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-	RestoreBtn.TextSize = 11
-	RestoreBtn.Font = Enum.Font.GothamBold
-	RestoreBtn.Parent = RestoreBanner
-
-	local RBtnCorner = Instance.new("UICorner")
-	RBtnCorner.CornerRadius = UDim.new(0, 30)
-	RBtnCorner.Parent = RestoreBtn
-
-	local function restoreWindowAction()
-		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
-		Main.Visible = true
-		if WavesStatsFrame then WavesStatsFrame.Visible = true end
-		if StatsFrame then StatsFrame.Visible = true end
-
-		Main.Size = UDim2.new(0, 0, 0, 0)
-		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
-		if WavesStatsFrame then
-			WavesStatsFrame.Size = UDim2.new(0, 0, 0, 0)
-			WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 12)
-		end
-		if StatsFrame then
-			StatsFrame.Size = UDim2.new(0, 0, 0, 0)
-			StatsFrame.Position = UDim2.new(0.5, 101, 0, 12)
-		end
-
-		Main.BackgroundTransparency = 1
-		if WavesStatsFrame then WavesStatsFrame.BackgroundTransparency = 1 end
-		if StatsFrame then StatsFrame.BackgroundTransparency = 1 end
-
-		TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0, targetWidth, 0, targetHeight),
-			Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
-			BackgroundTransparency = 0
-		}):Play()
-
-		if WavesStatsFrame then
-			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 185, 0, 34),
-				Position = UDim2.new(0.5, -92, 0, 12),
-				BackgroundTransparency = 0
-			}):Play()
-		end
-
-		if StatsFrame then
-			TweenService:Create(StatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 240, 0, 32),
-				Position = UDim2.new(0.5, 101, 0, 12),
-				BackgroundTransparency = 0
-			}):Play()
-		end
-
-		ToggleBtnOuter.Visible = false
-		RestoreBanner.Visible = false
-	end
-
-	ToggleBtn.MouseButton1Click:Connect(restoreWindowAction)
-	RestoreBtn.MouseButton1Click:Connect(restoreWindowAction)
-
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 22, 0, 22)
 	CloseBtn.Position = UDim2.new(1, -32, 0, 14)
@@ -958,7 +701,7 @@ function Library.CreateWindow(config)
 		if StatsFrame then
 			TweenService:Create(StatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(0.5, 101, 0, 12),
+				Position = UDim2.new(1, -232, 0, 12),
 				BackgroundTransparency = 1
 			}):Play()
 		end
@@ -997,7 +740,7 @@ function Library.CreateWindow(config)
 		if StatsFrame then
 			TweenService:Create(StatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(0.5, 101, 0, 12),
+				Position = UDim2.new(1, -232, 0, 12),
 				BackgroundTransparency = 1
 			}):Play()
 		end
@@ -1006,7 +749,6 @@ function Library.CreateWindow(config)
 		if WavesStatsFrame then WavesStatsFrame.Visible = false end
 		if StatsFrame then StatsFrame.Visible = false end
 		ToggleBtnOuter.Visible = true
-		RestoreBanner.Visible = true
 	end)
 
 	makeDraggable(Topbar, Main)
@@ -1050,7 +792,6 @@ function Library.CreateWindow(config)
 		SearchPadding.Parent = SearchBox
 	end
 	
-	-- Sidebar Scrolling Tab Container
 	local tabYOffset = searchBarEnabled and 84 or 52
 	local tabBottomOffset = (userConfig and userConfig.Enabled ~= false) and (searchBarEnabled and -146 or -112) or (searchBarEnabled and -88 or -55)
 
@@ -1070,7 +811,6 @@ function Library.CreateWindow(config)
 	TabList.SortOrder = Enum.SortOrder.LayoutOrder
 	TabList.Parent = TabContainer
 
-	-- User Profile Card
 	if userConfig and userConfig.Enabled ~= false then
 		local isAnonymous = (userConfig.Anonymous == true)
 
@@ -1642,7 +1382,6 @@ function Library.CreateWindow(config)
 		return tabObj
 	end
 
-	-- Search Functionality Logic with Highlight Animation
 	if searchBarEnabled and SearchBox then
 		SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
 			local query = SearchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
