@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Tab Glowing Line & Particle Animation)
+-- SpawnRealm / Moondiety UI Library Module (Fixed Tab Gradient & Animation)
 local Library = {}
 Library.__index = Library
 
@@ -580,11 +580,8 @@ function Library.CreateWindow(config)
 			local GlowGrad = Instance.new("UIGradient")
 			GlowGrad.Rotation = 270
 			GlowGrad.Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 0),   -- Bright at bottom-left
-				GlowGrad.Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0, 0.2),
-					NumberSequenceKeypoint.new(1, 1)
-				})
+				NumberSequenceKeypoint.new(0, 0.2),
+				NumberSequenceKeypoint.new(1, 1)
 			})
 			GlowGrad.Parent = GlowLine
 
@@ -649,7 +646,7 @@ function Library.CreateWindow(config)
 				Page.Visible = true
 				TabBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
 				TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-				GlowLine.BackgroundTransparency = 0.1
+				GlowLine.BackgroundTransparency = 0.2
 				firstTab = false
 			end
 
@@ -668,11 +665,9 @@ function Library.CreateWindow(config)
 				Page.Visible = true
 				TweenService:Create(TabBtn, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(28, 28, 34), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 				
-				-- Animate Glowing Line
-				GlowLine.BackgroundTransparency = 0.2
-				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
+				GlowLine.BackgroundTransparency = 0.3
+				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
 
-				-- Animate Exiting Dot Particle drifting right and fading out smoothly
 				LightDot.Position = UDim2.new(0, 0, 0.5, -2)
 				LightDot.BackgroundTransparency = 0.2
 				local tweenDotPos = TweenService:Create(LightDot, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.85, 0, 0.5, -2)})
