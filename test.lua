@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Fixed Tab Icon/Text Layout & Scrolling)
+-- SpawnRealm / Moondiety UI Library Module (Smooth Zoom In/Out, Lucide Icons for Stats, & Fixed Layouts)
 local Library = {}
 Library.__index = Library
 
@@ -150,16 +150,21 @@ function Library.CreateWindow(config)
 	ScreenGui.Parent = getProtectedParent()
 	ScreenGui.ResetOnSpawn = false
 
-	local Main = Instance.new("Frame")
-	Main.Name = "Main"
 	local targetWidth = 682
 	local targetHeight = 310
+
+	local Main = Instance.new("Frame")
+	Main.Name = "Main"
 	Main.Size = UDim2.new(0, targetWidth, 0, targetHeight)
 	Main.Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2)
 	Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 	Main.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 	Main.BorderSizePixel = 0
 	Main.Visible = not loadingXUIEnabled
+	if loadingXUIEnabled then
+		Main.Size = UDim2.new(0, 0, 0, 0)
+		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
+	end
 	Main.Parent = ScreenGui
 
 	local MainCorner = Instance.new("UICorner")
@@ -224,11 +229,11 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Mini Stats Widget
+	-- Mini Stats Widget with Lucide Icons
 	local StatsFrame = Instance.new("Frame")
 	StatsFrame.Name = "StatsFrame"
-	StatsFrame.Size = UDim2.new(0, 246, 0, 32)
-	StatsFrame.Position = UDim2.new(0.5, 90, 0.45, -175)
+	StatsFrame.Size = UDim2.new(0, 270, 0, 32)
+	StatsFrame.Position = UDim2.new(0.5, 78, 0.45, -175)
 	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 	StatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 	StatsFrame.BorderSizePixel = 0
@@ -290,24 +295,39 @@ function Library.CreateWindow(config)
 	StatsLayout.FillDirection = Enum.FillDirection.Horizontal
 	StatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	StatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	StatsLayout.Padding = UDim.new(0, 6)
+	StatsLayout.Padding = UDim.new(0, 8)
 	StatsLayout.Parent = StatsContainer
 
-	local function createStatLabel(text)
+	local function createStatBadge(iconId, defaultText)
+		local holder = Instance.new("Frame")
+		holder.Size = UDim2.new(0, 70, 1, 0)
+		holder.BackgroundTransparency = 1
+		holder.Parent = StatsContainer
+
+		local icon = Instance.new("ImageLabel")
+		icon.Size = UDim2.new(0, 14, 0, 14)
+		icon.Position = UDim2.new(0, 0, 0.5, -7)
+		icon.BackgroundTransparency = 1
+		icon.Image = getIconAsset(iconId)
+		icon.ImageColor3 = Color3.fromRGB(160, 160, 175)
+		icon.Parent = holder
+
 		local lbl = Instance.new("TextLabel")
-		lbl.Size = UDim2.new(0, 58, 1, 0)
+		lbl.Size = UDim2.new(1, -18, 1, 0)
+		lbl.Position = UDim2.new(0, 18, 0, 0)
 		lbl.BackgroundTransparency = 1
-		lbl.Text = text
+		lbl.Text = defaultText
 		lbl.TextColor3 = Color3.fromRGB(180, 180, 190)
 		lbl.TextSize = 10
 		lbl.Font = Enum.Font.GothamMedium
-		lbl.Parent = StatsContainer
+		lbl.TextXAlignment = Enum.TextXAlignment.Left
+		lbl.Parent = holder
 		return lbl
 	end
 
-	local PingLabel = createStatLabel("32 ms")
-	local FpsLabel = createStatLabel("60 fps")
-	local PlayersLabel = createStatLabel("12 players")
+	local PingLabel = createStatBadge("zap", "32 ms")
+	local FpsLabel = createStatBadge("cpu", "60 fps")
+	local PlayersLabel = createStatBadge("users", "12 plrs")
 
 	task.spawn(function()
 		local lastUpdate = 0
@@ -319,7 +339,7 @@ function Library.CreateWindow(config)
 				pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
 				PingLabel.Text = ping .. " ms"
 				FpsLabel.Text = math.floor(1 / dt) .. " fps"
-				PlayersLabel.Text = #Players:GetPlayers() .. " players"
+				PlayersLabel.Text = #Players:GetPlayers() .. " plrs"
 			end
 		end)
 	end)
@@ -444,8 +464,26 @@ function Library.CreateWindow(config)
 				
 				Main.Visible = true
 				StatsFrame.Visible = true
-				TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
-				TweenService:Create(StatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
+				Main.BackgroundTransparency = 1
+				StatsFrame.BackgroundTransparency = 1
+
+				-- Smooth Zoom-In Animation upon load completion
+				Main.Size = UDim2.new(0, 0, 0, 0)
+				Main.Position = UDim2.new(0.5, 0, 0.45, 0)
+				StatsFrame.Size = UDim2.new(0, 0, 0, 0)
+				StatsFrame.Position = UDim2.new(0.5, 0, 0.45, -175)
+
+				TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+					Size = UDim2.new(0, targetWidth, 0, targetHeight),
+					Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
+					BackgroundTransparency = 0
+				}):Play()
+
+				TweenService:Create(StatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+					Size = UDim2.new(0, 270, 0, 32),
+					Position = UDim2.new(0.5, 78, 0.45, -175),
+					BackgroundTransparency = 0
+				}):Play()
 			end)
 		end)
 	end
@@ -514,10 +552,25 @@ function Library.CreateWindow(config)
 		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 		Main.Visible = true
 		StatsFrame.Visible = true
+		Main.Size = UDim2.new(0, 0, 0, 0)
+		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
+		StatsFrame.Size = UDim2.new(0, 0, 0, 0)
+		StatsFrame.Position = UDim2.new(0.5, 0, 0.45, -175)
 		Main.BackgroundTransparency = 1
 		StatsFrame.BackgroundTransparency = 1
-		TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
-		TweenService:Create(StatsFrame, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+
+		TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, targetWidth, 0, targetHeight),
+			Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
+			BackgroundTransparency = 0
+		}):Play()
+
+		TweenService:Create(StatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, 270, 0, 32),
+			Position = UDim2.new(0.5, 78, 0.45, -175),
+			BackgroundTransparency = 0
+		}):Play()
+
 		ToggleBtnOuter.Visible = false
 	end)
 
@@ -536,8 +589,17 @@ function Library.CreateWindow(config)
 	CloseCorner.Parent = CloseBtn
 
 	CloseBtn.MouseButton1Click:Connect(function()
-		TweenService:Create(Main, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
-		TweenService:Create(StatsFrame, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+		-- Smooth Zoom-Out on Close
+		TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 0, 0, 0),
+			Position = UDim2.new(0.5, 0, 0.45, 0),
+			BackgroundTransparency = 1
+		}):Play()
+		TweenService:Create(StatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 0, 0, 0),
+			Position = UDim2.new(0.5, 0, 0.45, -175),
+			BackgroundTransparency = 1
+		}):Play()
 		task.wait(0.25)
 		pcall(function() getProtectedParent():Destroy() end)
 	end)
@@ -558,8 +620,17 @@ function Library.CreateWindow(config)
 
 	MinBtn.MouseButton1Click:Connect(function()
 		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
-		TweenService:Create(Main, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
-		TweenService:Create(StatsFrame, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+		-- Smooth Zoom-Out on Minimize
+		TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 0, 0, 0),
+			Position = UDim2.new(0.5, 0, 0.45, 0),
+			BackgroundTransparency = 1
+		}):Play()
+		TweenService:Create(StatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 0, 0, 0),
+			Position = UDim2.new(0.5, 0, 0.45, -175),
+			BackgroundTransparency = 1
+		}):Play()
 		task.wait(0.25)
 		Main.Visible = false
 		StatsFrame.Visible = false
@@ -777,7 +848,6 @@ function Library.CreateWindow(config)
 			TabCorner.CornerRadius = UDim.new(0, 30)
 			TabCorner.Parent = TabBtn
 
-			-- Non-overlapping structured content inside the tab button
 			if tabIconId ~= "" then
 				local TIcon = Instance.new("ImageLabel")
 				TIcon.Size = UDim2.new(0, 16, 0, 16)
