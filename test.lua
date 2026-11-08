@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Fixed JumpTo / TextButton Activate Error)
+-- SpawnRealm / Moondiety UI Library Module (Fixed Element Disappearance & Line 31/Column Sizing)
 local Library = {}
 Library.__index = Library
 
@@ -798,30 +798,37 @@ function Library.CreateWindow(config)
 			Page.Parent = PagesHolder
 
 			local LeftCol = Instance.new("Frame")
-			LeftCol.Size = UDim2.new(0.5, -5, 1, 0)
+			LeftCol.Name = "LeftCol"
+			LeftCol.Size = UDim2.new(0.5, -6, 0, 0)
+			LeftCol.Position = UDim2.new(0, 0, 0, 0)
 			LeftCol.BackgroundTransparency = 1
 			LeftCol.Parent = Page
 
 			local LeftLayout = Instance.new("UIListLayout")
 			LeftLayout.Padding = UDim.new(0, 8)
+			LeftLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			LeftLayout.Parent = LeftCol
 
 			LeftLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-				LeftCol.Size = UDim2.new(0.5, -5, 0, LeftLayout.AbsoluteContentSize.Y)
+				LeftCol.Size = UDim2.new(0.5, -6, 0, LeftLayout.AbsoluteContentSize.Y)
+				Page.CanvasSize = UDim2.new(0, 0, 0, math.max(LeftLayout.AbsoluteContentSize.Y, RightLayout.AbsoluteContentSize.Y) + 16)
 			end)
 
 			local RightCol = Instance.new("Frame")
-			RightCol.Size = UDim2.new(0.5, -5, 1, 0)
-			RightCol.Position = UDim2.new(0.5, 5, 0, 0)
+			RightCol.Name = "RightCol"
+			RightCol.Size = UDim2.new(0.5, -6, 0, 0)
+			RightCol.Position = UDim2.new(0.5, 6, 0, 0)
 			RightCol.BackgroundTransparency = 1
 			RightCol.Parent = Page
 
 			local RightLayout = Instance.new("UIListLayout")
 			RightLayout.Padding = UDim.new(0, 8)
+			RightLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			RightLayout.Parent = RightCol
 
 			RightLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-				RightCol.Size = UDim2.new(0.5, -5, 0, RightLayout.AbsoluteContentSize.Y)
+				RightCol.Size = UDim2.new(0.5, -6, 0, RightLayout.AbsoluteContentSize.Y)
+				Page.CanvasSize = UDim2.new(0, 0, 0, math.max(LeftLayout.AbsoluteContentSize.Y, RightLayout.AbsoluteContentSize.Y) + 16)
 			end)
 
 			local switchToThisTab = function()
