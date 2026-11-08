@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Smooth Zoom In/Out, Lucide Icons for Stats, & Fixed Layouts)
+-- SpawnRealm / Moondiety UI Library Module (Formatted Mini Stats: Icon Name Numbers)
 local Library = {}
 Library.__index = Library
 
@@ -229,11 +229,11 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Mini Stats Widget with Lucide Icons
+	-- Mini Stats Widget with Lucide Icon -> Name -> Value format
 	local StatsFrame = Instance.new("Frame")
 	StatsFrame.Name = "StatsFrame"
-	StatsFrame.Size = UDim2.new(0, 270, 0, 32)
-	StatsFrame.Position = UDim2.new(0.5, 78, 0.45, -175)
+	StatsFrame.Size = UDim2.new(0, 310, 0, 32)
+	StatsFrame.Position = UDim2.new(0.5, 58, 0.45, -175)
 	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 	StatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 	StatsFrame.BorderSizePixel = 0
@@ -286,8 +286,8 @@ function Library.CreateWindow(config)
 	end)
 
 	local StatsContainer = Instance.new("Frame")
-	StatsContainer.Size = UDim2.new(1, -32, 1, 0)
-	StatsContainer.Position = UDim2.new(0, 32, 0, 0)
+	StatsContainer.Size = UDim2.new(1, -34, 1, 0)
+	StatsContainer.Position = UDim2.new(0, 34, 0, 0)
 	StatsContainer.BackgroundTransparency = 1
 	StatsContainer.Parent = StatsFrame
 
@@ -295,28 +295,28 @@ function Library.CreateWindow(config)
 	StatsLayout.FillDirection = Enum.FillDirection.Horizontal
 	StatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	StatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	StatsLayout.Padding = UDim.new(0, 8)
+	StatsLayout.Padding = UDim.new(0, 10)
 	StatsLayout.Parent = StatsContainer
 
-	local function createStatBadge(iconId, defaultText)
+	local function createStatBadge(iconId, labelName, defaultVal)
 		local holder = Instance.new("Frame")
-		holder.Size = UDim2.new(0, 70, 1, 0)
+		holder.Size = UDim2.new(0, 84, 1, 0)
 		holder.BackgroundTransparency = 1
 		holder.Parent = StatsContainer
 
 		local icon = Instance.new("ImageLabel")
-		icon.Size = UDim2.new(0, 14, 0, 14)
-		icon.Position = UDim2.new(0, 0, 0.5, -7)
+		icon.Size = UDim2.new(0, 13, 0, 13)
+		icon.Position = UDim2.new(0, 0, 0.5, -6.5)
 		icon.BackgroundTransparency = 1
 		icon.Image = getIconAsset(iconId)
 		icon.ImageColor3 = Color3.fromRGB(160, 160, 175)
 		icon.Parent = holder
 
 		local lbl = Instance.new("TextLabel")
-		lbl.Size = UDim2.new(1, -18, 1, 0)
-		lbl.Position = UDim2.new(0, 18, 0, 0)
+		lbl.Size = UDim2.new(1, -15, 1, 0)
+		lbl.Position = UDim2.new(0, 15, 0, 0)
 		lbl.BackgroundTransparency = 1
-		lbl.Text = defaultText
+		lbl.Text = defaultVal .. " " .. labelName
 		lbl.TextColor3 = Color3.fromRGB(180, 180, 190)
 		lbl.TextSize = 10
 		lbl.Font = Enum.Font.GothamMedium
@@ -325,9 +325,9 @@ function Library.CreateWindow(config)
 		return lbl
 	end
 
-	local PingLabel = createStatBadge("zap", "32 ms")
-	local FpsLabel = createStatBadge("cpu", "60 fps")
-	local PlayersLabel = createStatBadge("users", "12 plrs")
+	local PingLabel = createStatBadge("zap", "ms", "32")
+	local FpsLabel = createStatBadge("cpu", "FPS", "60")
+	local PlayersLabel = createStatBadge("users", "Players", "12")
 
 	task.spawn(function()
 		local lastUpdate = 0
@@ -338,8 +338,8 @@ function Library.CreateWindow(config)
 				local ping = 0
 				pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
 				PingLabel.Text = ping .. " ms"
-				FpsLabel.Text = math.floor(1 / dt) .. " fps"
-				PlayersLabel.Text = #Players:GetPlayers() .. " plrs"
+				FpsLabel.Text = math.floor(1 / dt) .. " FPS"
+				PlayersLabel.Text = #Players:GetPlayers() .. " Players"
 			end
 		end)
 	end)
@@ -480,8 +480,8 @@ function Library.CreateWindow(config)
 				}):Play()
 
 				TweenService:Create(StatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-					Size = UDim2.new(0, 270, 0, 32),
-					Position = UDim2.new(0.5, 78, 0.45, -175),
+					Size = UDim2.new(0, 310, 0, 32),
+					Position = UDim2.new(0.5, 58, 0.45, -175),
 					BackgroundTransparency = 0
 				}):Play()
 			end)
@@ -566,8 +566,8 @@ function Library.CreateWindow(config)
 		}):Play()
 
 		TweenService:Create(StatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0, 270, 0, 32),
-			Position = UDim2.new(0.5, 78, 0.45, -175),
+			Size = UDim2.new(0, 310, 0, 32),
+			Position = UDim2.new(0.5, 58, 0.45, -175),
 			BackgroundTransparency = 0
 		}):Play()
 
@@ -589,7 +589,6 @@ function Library.CreateWindow(config)
 	CloseCorner.Parent = CloseBtn
 
 	CloseBtn.MouseButton1Click:Connect(function()
-		-- Smooth Zoom-Out on Close
 		TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 			Size = UDim2.new(0, 0, 0, 0),
 			Position = UDim2.new(0.5, 0, 0.45, 0),
@@ -620,7 +619,6 @@ function Library.CreateWindow(config)
 
 	MinBtn.MouseButton1Click:Connect(function()
 		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
-		-- Smooth Zoom-Out on Minimize
 		TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 			Size = UDim2.new(0, 0, 0, 0),
 			Position = UDim2.new(0.5, 0, 0.45, 0),
