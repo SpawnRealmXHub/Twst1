@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Corner Radius 30, Sidebar Search & Smooth Fade Animations)
+-- SpawnRealm / Moondiety UI Library Module (Corner Radius 30, Toggleable Search Bar & Smooth Fade Animations)
 local Library = {}
 Library.__index = Library
 
@@ -127,9 +127,10 @@ function Library.CreateWindow(config)
 	local iconId = getLucideIcon(config.UIicon or config.UiIcon or "shield") or "rbxassetid://10709791437"
 	local soundEnabled = (config.SoundButtons ~= false)
 	local userConfig = config.User or nil
+	local searchBarEnabled = (config.UiSearchBar == true) -- Toggleable Search Bar Config
 
 	local window = {}
-	local registeredElements = {} -- Stores searchable elements {Name = "...", TabObj = ..., ElementFrame = ...}
+	local registeredElements = {}
 	
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "SR_" .. math.random(100000, 999999)
@@ -145,7 +146,7 @@ function Library.CreateWindow(config)
 	Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 	Main.BorderSizePixel = 0
 	Main.Visible = false
-	Main.BackgroundTransparency = 1 -- Starts fully transparent for smooth opening fade-in
+	Main.BackgroundTransparency = 1
 
 	local MainCorner = Instance.new("UICorner")
 	MainCorner.CornerRadius = UDim.new(0, 30)
@@ -311,7 +312,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(StatsFrame, StatsFrame)
 
-	-- Loading Screen with smooth fade
+	-- Loading Screen
 	pcall(function()
 		local LoadGui = Instance.new("ScreenGui")
 		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
@@ -382,7 +383,6 @@ function Library.CreateWindow(config)
 			task.wait(0.4)
 			LoadGui:Destroy()
 			
-			-- Smooth Fade In Open
 			Main.Visible = true
 			StatsFrame.Visible = true
 			TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
@@ -461,7 +461,6 @@ function Library.CreateWindow(config)
 		ToggleBtnOuter.Visible = false
 	end)
 
-	-- Window Controls (Smooth Fade Out when closing/minimizing)
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 22, 0, 22)
 	CloseBtn.Position = UDim2.new(1, -32, 0, 14)
@@ -509,42 +508,47 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- Search Bar underneath Profile / Header
-	local SearchBox = Instance.new("TextBox")
-	SearchBox.Name = "SearchBox"
-	SearchBox.Size = UDim2.new(0, 140, 0, 28)
-	SearchBox.Position = UDim2.new(0, 12, 0, 52)
-	SearchBox.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
-	SearchBox.BorderSizePixel = 0
-	SearchBox.PlaceholderText = "Search feature..."
-	SearchBox.Text = ""
-	SearchBox.TextColor3 = Color3.fromRGB(240, 240, 245)
-	SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 130)
-	SearchBox.TextSize = 10
-	SearchBox.Font = Enum.Font.GothamMedium
-	SearchBox.ClearTextOnFocus = false
-	SearchBox.Parent = Main
+	-- Search Bar Logic (Placed at top left underneath header when UiSearchBar = true)
+	local SearchBox = nil
+	if searchBarEnabled then
+		SearchBox = Instance.new("TextBox")
+		SearchBox.Name = "SearchBox"
+		SearchBox.Size = UDim2.new(0, 140, 0, 28)
+		SearchBox.Position = UDim2.new(0, 12, 0, 52)
+		SearchBox.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+		SearchBox.BorderSizePixel = 0
+		SearchBox.PlaceholderText = "Search feature..."
+		SearchBox.Text = ""
+		SearchBox.TextColor3 = Color3.fromRGB(240, 240, 245)
+		SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 130)
+		SearchBox.TextSize = 10
+		SearchBox.Font = Enum.Font.GothamMedium
+		SearchBox.ClearTextOnFocus = false
+		SearchBox.Parent = Main
 
-	local SearchCorner = Instance.new("UICorner")
-	SearchCorner.CornerRadius = UDim.new(0, 30)
-	SearchCorner.Parent = SearchBox
+		local SearchCorner = Instance.new("UICorner")
+		SearchCorner.CornerRadius = UDim.new(0, 30)
+		SearchCorner.Parent = SearchBox
 
-	local SearchIcon = Instance.new("ImageLabel")
-	SearchIcon.Size = UDim2.new(0, 14, 0, 14)
-	SearchIcon.Position = UDim2.new(0, 8, 0.5, -7)
-	SearchIcon.BackgroundTransparency = 1
-	SearchIcon.Image = getLucideIcon("search")
-	SearchIcon.ImageColor3 = Color3.fromRGB(120, 120, 130)
-	SearchIcon.Parent = SearchBox
+		local SearchIcon = Instance.new("ImageLabel")
+		SearchIcon.Size = UDim2.new(0, 14, 0, 14)
+		SearchIcon.Position = UDim2.new(0, 8, 0.5, -7)
+		SearchIcon.BackgroundTransparency = 1
+		SearchIcon.Image = getLucideIcon("search")
+		SearchIcon.ImageColor3 = Color3.fromRGB(120, 120, 130)
+		SearchIcon.Parent = SearchBox
 
-	-- Shift search text right so it doesn't overlap the icon
-	SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+		SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+	end
 	
-	-- Sidebar Tab Container (adjusted position to account for search bar)
+	-- Sidebar Tab Container (Dynamic sizing based on search bar & user profile state)
+	local tabYOffset = searchBarEnabled and 84 or 52
+	local tabBottomOffset = (userConfig and userConfig.Enabled ~= false) and (searchBarEnabled and -146 or -112) or (searchBarEnabled and -88 or -55)
+
 	local TabContainer = Instance.new("ScrollingFrame")
 	TabContainer.Name = "TabContainer"
-	TabContainer.Size = UDim2.new(0, 140, 1, userConfig and userConfig.Enabled ~= false and -146 or -88)
-	TabContainer.Position = UDim2.new(0, 12, 0, 84)
+	TabContainer.Size = UDim2.new(0, 140, 1, tabBottomOffset)
+	TabContainer.Position = UDim2.new(0, 12, 0, tabYOffset)
 	TabContainer.BackgroundTransparency = 1
 	TabContainer.ScrollBarThickness = 0
 	TabContainer.Parent = Main
@@ -785,7 +789,6 @@ function Library.CreateWindow(config)
 
 			table.insert(tabs, tabObj)
 
-			-- Search hook function to switch to this tab and highlight element
 			function tabObj:JumpTo()
 				TabBtn:Activate()
 			end
@@ -900,6 +903,7 @@ function Library.CreateWindow(config)
 							local Btn = Instance.new("TextButton")
 							Btn.Size = UDim2.new(1, -18, 0, 28)
 							Btn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+							Btn.Text = "  " + tostring(name) -- fixed concats or direct string
 							Btn.Text = "  " .. tostring(name)
 							Btn.TextColor3 = Color3.fromRGB(210, 210, 220)
 							Btn.Font = Enum.Font.GothamMedium
@@ -1031,31 +1035,31 @@ function Library.CreateWindow(config)
 	end
 
 	-- Search Functionality Logic
-	SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
-		local query = SearchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
-		if query == "" then return end
+	if searchBarEnabled and SearchBox then
+		SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+			local query = SearchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
+			if query == "" then return end
 
-		for _, item in ipairs(registeredElements) do
-			if item.Name:find(query) then
-				-- Jump to tab
-				if item.Tab and item.Tab.JumpTo then
-					item.Tab:JumpTo()
-				end
-				-- Highlight element with quick flash
-				task.spawn(function()
-					pcall(function()
-						for i = 1, 2 do
-							TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 0.5}):Play()
-							task.wait(0.15)
-							TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 1}):Play()
-							task.wait(0.15)
-						end
+			for _, item in ipairs(registeredElements) do
+				if item.Name:find(query) then
+					if item.Tab and item.Tab.JumpTo then
+						item.Tab:JumpTo()
+					end
+					task.spawn(function()
+						pcall(function()
+							for i = 1, 2 do
+								TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 0.5}):Play()
+								task.wait(0.15)
+								TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 1}):Play()
+								task.wait(0.15)
+							end
+						end)
 					end)
-				end)
-				break
+					break
+				end
 			end
-		end
-	end)
+		end)
+	end
 
 	return window
 end
