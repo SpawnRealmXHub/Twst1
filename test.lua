@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Clean White Theme, Tab Animation Stream & Mugshot Fix)
+-- SpawnRealm / Moondiety UI Library Module (Continuous Tab Particles, Bright Glow & Loading Fix)
 local Library = {}
 Library.__index = Library
 
@@ -121,8 +121,9 @@ function Library.CreateWindow(config)
 	MainOuter.Name = "MainOuter"
 	local targetWidth = 682
 	local targetHeight = 350
+	-- Positioned slightly to the middle-top
 	MainOuter.Size = UDim2.new(0, targetWidth, 0, targetHeight)
-	MainOuter.Position = UDim2.new(0.5, -targetWidth/2, 0.5, -targetHeight/2)
+	MainOuter.Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2)
 	MainOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	MainOuter.BorderSizePixel = 0
 	MainOuter.Visible = false
@@ -191,89 +192,14 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Loading Screen (White Theme)
-	pcall(function()
-		local LoadGui = Instance.new("ScreenGui")
-		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
-		LoadGui.Parent = getProtectedParent()
-
-		local LoadFrame = Instance.new("Frame")
-		LoadFrame.Size = UDim2.new(0, 440, 0, 230)
-		LoadFrame.Position = UDim2.new(0.5, -220, 0.5, -115)
-		LoadFrame.BackgroundColor3 = Color3.fromRGB(16, 14, 18)
-		LoadFrame.BorderSizePixel = 0
-		LoadFrame.Parent = LoadGui
-
-		local LoadCorner = Instance.new("UICorner")
-		LoadCorner.CornerRadius = UDim.new(0, 12)
-		LoadCorner.Parent = LoadFrame
-
-		local GlowImg = Instance.new("ImageLabel")
-		GlowImg.Size = UDim2.new(0, 120, 0, 120)
-		GlowImg.Position = UDim2.new(0.5, -60, 0, 15)
-		GlowImg.BackgroundTransparency = 1
-		GlowImg.Image = iconId
-		GlowImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
-		GlowImg.ImageTransparency = 0.6
-		GlowImg.Parent = LoadFrame
-
-		local IconImg = Instance.new("ImageLabel")
-		IconImg.Size = UDim2.new(0, 56, 0, 56)
-		IconImg.Position = UDim2.new(0.5, -28, 0, 32)
-		IconImg.BackgroundTransparency = 1
-		IconImg.Image = iconId
-		IconImg.Parent = LoadFrame
-
-		task.spawn(function()
-			task.wait(0.8)
-			TweenService:Create(LoadFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-			task.wait(0.3)
-			LoadGui:Destroy()
-			MainOuter.Visible = true
-		end)
-	end)
-
-	local Topbar = Instance.new("Frame")
-	Topbar.Name = "Topbar"
-	Topbar.Size = UDim2.new(1, 0, 0, 50)
-	Topbar.BackgroundTransparency = 1
-	Topbar.Parent = Main
-
-	local WindowIcon = Instance.new("ImageLabel")
-	WindowIcon.Size = UDim2.new(0, 24, 0, 24)
-	WindowIcon.Position = UDim2.new(0, 16, 0, 13)
-	WindowIcon.BackgroundTransparency = 1
-	WindowIcon.Image = iconId
-	WindowIcon.Parent = Topbar
-
-	local TitleLabel = Instance.new("TextLabel")
-	TitleLabel.Size = UDim2.new(0, 200, 0, 20)
-	TitleLabel.Position = UDim2.new(0, 48, 0, 8)
-	TitleLabel.BackgroundTransparency = 1
-	TitleLabel.Text = titleText
-	TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	TitleLabel.TextSize = 16
-	TitleLabel.Font = Enum.Font.GothamBold
-	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	TitleLabel.Parent = Topbar
-
-	local SubTitleLabel = Instance.new("TextLabel")
-	SubTitleLabel.Size = UDim2.new(0, 200, 0, 14)
-	SubTitleLabel.Position = UDim2.new(0, 48, 0, 26)
-	SubTitleLabel.BackgroundTransparency = 1
-	SubTitleLabel.Text = subText
-	SubTitleLabel.TextColor3 = Color3.fromRGB(130, 130, 140)
-	SubTitleLabel.TextSize = 11
-	SubTitleLabel.Font = Enum.Font.GothamMedium
-	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	SubTitleLabel.Parent = Topbar
-
-	-- Mini Stats Widget
+	-- Mini Stats Widget (Positioned Top-Right, Hidden during loading)
 	local StatsFrameOuter = Instance.new("Frame")
+	StatsFrameOuter.Name = "StatsFrameOuter"
 	StatsFrameOuter.Size = UDim2.new(0, 246, 0, 32)
-	StatsFrameOuter.Position = UDim2.new(0.5, 40, 0.5, -175)
+	StatsFrameOuter.Position = UDim2.new(0.5, 90, 0.45, -195)
 	StatsFrameOuter.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	StatsFrameOuter.BorderSizePixel = 0
+	StatsFrameOuter.Visible = false
 	StatsFrameOuter.Parent = ScreenGui
 
 	local OuterCorner = Instance.new("UICorner")
@@ -287,12 +213,20 @@ function Library.CreateWindow(config)
 	StatsFrameInner.BorderSizePixel = 0
 	StatsFrameInner.Parent = StatsFrameOuter
 
+	local StatsInnerCorner = Instance.new("UICorner")
+	StatsInnerCorner.CornerRadius = UDim.new(0, 7)
+	StatsInnerCorner.Parent = StatsFrameInner
+
 	local StatsFrame = Instance.new("Frame")
 	StatsFrame.Size = UDim2.new(1, -4, 1, -4)
 	StatsFrame.Position = UDim2.new(0, 2, 0, 2)
 	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 	StatsFrame.BorderSizePixel = 0
 	StatsFrame.Parent = StatsFrameOuter
+
+	local StatsCorner = Instance.new("UICorner")
+	StatsCorner.CornerRadius = UDim.new(0, 6)
+	StatsCorner.Parent = StatsFrame
 
 	local HeadshotImg = Instance.new("ImageLabel")
 	HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
@@ -305,7 +239,6 @@ function Library.CreateWindow(config)
 	HeadCorner.CornerRadius = UDim.new(1, 0)
 	HeadCorner.Parent = HeadshotImg
 
-	-- Robust Mugshot URL Fetcher
 	task.spawn(function()
 		while not LocalPlayer do task.wait(0.1) end
 		pcall(function()
@@ -359,6 +292,97 @@ function Library.CreateWindow(config)
 
 	makeDraggable(StatsFrameOuter, StatsFrameOuter)
 
+	-- Loading Screen (Fixed rendering and visibility)
+	pcall(function()
+		local LoadGui = Instance.new("ScreenGui")
+		LoadGui.Name = "SR_Load_" .. math.random(1000,9999)
+		LoadGui.Parent = getProtectedParent()
+
+		local LoadFrame = Instance.new("Frame")
+		LoadFrame.Size = UDim2.new(0, 400, 0, 200)
+		LoadFrame.Position = UDim2.new(0.5, -200, 0.5, -100)
+		LoadFrame.BackgroundColor3 = Color3.fromRGB(18, 16, 22)
+		LoadFrame.BorderSizePixel = 0
+		LoadFrame.Parent = LoadGui
+
+		local LoadCorner = Instance.new("UICorner")
+		LoadCorner.CornerRadius = UDim.new(0, 12)
+		LoadCorner.Parent = LoadFrame
+
+		local IconImg = Instance.new("ImageLabel")
+		IconImg.Size = UDim2.new(0, 48, 0, 48)
+		IconImg.Position = UDim2.new(0.5, -24, 0, 30)
+		IconImg.BackgroundTransparency = 1
+		IconImg.Image = iconId
+		IconImg.Parent = LoadFrame
+
+		local LoadTitle = Instance.new("TextLabel")
+		LoadTitle.Size = UDim2.new(1, 0, 0, 24)
+		LoadTitle.Position = UDim2.new(0, 0, 0, 90)
+		LoadTitle.BackgroundTransparency = 1
+		LoadTitle.Text = string.upper(titleText)
+		LoadTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+		LoadTitle.TextSize = 16
+		LoadTitle.Font = Enum.Font.GothamBold
+		LoadTitle.TextXAlignment = Enum.TextXAlignment.Center
+		LoadTitle.Parent = LoadFrame
+
+		local SubLoadTitle = Instance.new("TextLabel")
+		SubLoadTitle.Size = UDim2.new(1, 0, 0, 16)
+		SubLoadTitle.Position = UDim2.new(0, 0, 0, 116)
+		SubLoadTitle.BackgroundTransparency = 1
+		SubLoadTitle.Text = "LOADING SECURE INTERFACE..."
+		SubLoadTitle.TextColor3 = Color3.fromRGB(180, 180, 190)
+		SubLoadTitle.TextSize = 10
+		SubLoadTitle.Font = Enum.Font.GothamBold
+		SubLoadTitle.TextXAlignment = Enum.TextXAlignment.Center
+		SubLoadTitle.Parent = LoadFrame
+
+		task.spawn(function()
+			task.wait(1.2)
+			TweenService:Create(LoadFrame, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
+			task.wait(0.4)
+			LoadGui:Destroy()
+			MainOuter.Visible = true
+			StatsFrameOuter.Visible = true
+		end)
+	end)
+
+	local Topbar = Instance.new("Frame")
+	Topbar.Name = "Topbar"
+	Topbar.Size = UDim2.new(1, 0, 0, 50)
+	Topbar.BackgroundTransparency = 1
+	Topbar.Parent = Main
+
+	local WindowIcon = Instance.new("ImageLabel")
+	WindowIcon.Size = UDim2.new(0, 24, 0, 24)
+	WindowIcon.Position = UDim2.new(0, 16, 0, 13)
+	WindowIcon.BackgroundTransparency = 1
+	WindowIcon.Image = iconId
+	WindowIcon.Parent = Topbar
+
+	local TitleLabel = Instance.new("TextLabel")
+	TitleLabel.Size = UDim2.new(0, 200, 0, 20)
+	TitleLabel.Position = UDim2.new(0, 48, 0, 8)
+	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.Text = titleText
+	TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TitleLabel.TextSize = 16
+	TitleLabel.Font = Enum.Font.GothamBold
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	TitleLabel.Parent = Topbar
+
+	local SubTitleLabel = Instance.new("TextLabel")
+	SubTitleLabel.Size = UDim2.new(0, 200, 0, 14)
+	SubTitleLabel.Position = UDim2.new(0, 48, 0, 26)
+	SubTitleLabel.BackgroundTransparency = 1
+	SubTitleLabel.Text = subText
+	SubTitleLabel.TextColor3 = Color3.fromRGB(130, 130, 140)
+	SubTitleLabel.TextSize = 11
+	SubTitleLabel.Font = Enum.Font.GothamMedium
+	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	SubTitleLabel.Parent = Topbar
+
 	-- Floating Toggle Button
 	local ToggleBtnOuter = Instance.new("Frame")
 	ToggleBtnOuter.Name = "ToggleBtnOuter"
@@ -387,6 +411,7 @@ function Library.CreateWindow(config)
 	ToggleBtn.MouseButton1Click:Connect(function()
 		playSound("rbxassetid://122966251252708", soundEnabled)
 		MainOuter.Visible = true
+		StatsFrameOuter.Visible = true
 		ToggleBtnOuter.Visible = false
 	end)
 
@@ -426,6 +451,7 @@ function Library.CreateWindow(config)
 	MinBtn.MouseButton1Click:Connect(function()
 		playSound("rbxassetid://122966251252708", soundEnabled)
 		MainOuter.Visible = false
+		StatsFrameOuter.Visible = false
 		ToggleBtnOuter.Visible = true
 	end)
 
@@ -533,7 +559,7 @@ function Library.CreateWindow(config)
 	PagesHolder.Parent = Main
 
 	local tabs = {}
-	local firstTab = true
+	local activeTabObject = nil
 
 	function window:CreateTab(tabConfig)
 		local tab = {}
@@ -547,7 +573,6 @@ function Library.CreateWindow(config)
 			local TabBtn = Instance.new("TextButton")
 			TabBtn.Size = UDim2.new(1, 0, 0, 32)
 			TabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
-			-- Fixed Spacing & Offset for Icon vs Text
 			TabBtn.Text = tabIconId and "        " .. tostring(tabName) or "   " .. tostring(tabName)
 			TabBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
 			TabBtn.Font = Enum.Font.GothamMedium
@@ -566,7 +591,7 @@ function Library.CreateWindow(config)
 				TIcon.Parent = TabBtn
 			end
 
-			-- Left side glowing line (Neon White)
+			-- Bright Glowing Line on Left Side
 			local GlowLine = Instance.new("Frame")
 			GlowLine.Name = "GlowLine"
 			GlowLine.Size = UDim2.new(0, 2, 1, 0)
@@ -580,12 +605,12 @@ function Library.CreateWindow(config)
 			local GlowGrad = Instance.new("UIGradient")
 			GlowGrad.Rotation = 270
 			GlowGrad.Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 0.4),
+				NumberSequenceKeypoint.new(0, 0.1),
 				NumberSequenceKeypoint.new(1, 1)
 			})
 			GlowGrad.Parent = GlowLine
 
-			-- Container for Multiple Fading Dots streaming to the right
+			-- Container for continuous particle stream moving right
 			local DotContainer = Instance.new("Frame")
 			DotContainer.Name = "DotContainer"
 			DotContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -636,12 +661,15 @@ function Library.CreateWindow(config)
 				RightCol.Size = UDim2.new(0.5, -5, 0, RightLayout.AbsoluteContentSize.Y)
 			end)
 
-			if firstTab then
+			local tabObj = {Button = TabBtn, Page = Page, Glow = GlowLine, Dots = DotContainer, Active = false}
+
+			if not activeTabObject then
 				Page.Visible = true
 				TabBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
 				TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-				GlowLine.BackgroundTransparency = 0.2
-				firstTab = false
+				GlowLine.BackgroundTransparency = 0.1
+				tabObj.Active = true
+				activeTabObject = tabObj
 			end
 
 			TabBtn.MouseButton1Click:Connect(function()
@@ -649,50 +677,56 @@ function Library.CreateWindow(config)
 				for _, t in pairs(tabs) do
 					pcall(function()
 						t.Page.Visible = false
+						t.Active = false
 						TweenService:Create(t.Button, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(22, 22, 26), TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
-						local otherGlow = t.Button:FindFirstChild("GlowLine")
-						if otherGlow then
-							TweenService:Create(otherGlow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+						if t.Glow then
+							TweenService:Create(t.Glow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
 						end
 					end)
 				end
 				Page.Visible = true
+				tabObj.Active = true
+				activeTabObject = tabObj
 				TweenService:Create(TabBtn, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(28, 28, 34), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-				
-				GlowLine.BackgroundTransparency = 0.4
-				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
-
-				-- Spawn multiple glowing dots streaming smoothly to the right, slowly disappearing
-				task.spawn(function()
-					for i = 1, 3 do
-						local dot = Instance.new("Frame")
-						dot.Size = UDim2.new(0, 4, 0, 4)
-						dot.Position = UDim2.new(0, 0, 0.5, -2)
-						dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-						dot.BackgroundTransparency = 0.2
-						dot.BorderSizePixel = 0
-						dot.ZIndex = 5
-						dot.Parent = DotContainer
-
-						local dotCorner = Instance.new("UICorner")
-						dotCorner.CornerRadius = UDim.new(1, 0)
-						dotCorner.Parent = dot
-
-						local speed = 0.35 + (i * 0.08)
-						TweenService:Create(dot, TweenInfo.new(speed, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							Position = UDim2.new(0.9, 0, 0.5, -2),
-							BackgroundTransparency = 1
-						}):Play()
-
-						task.delay(speed, function()
-							pcall(function() dot:Destroy() end)
-						end)
-						task.wait(0.05)
-					end
-				end)
+				GlowLine.BackgroundTransparency = 0.1
 			end)
 
-			table.insert(tabs, {Button = TabBtn, Page = Page})
+			-- Continuous background thread streaming scattered bright dots while this tab remains active
+			task.spawn(function()
+				while TabBtn and TabBtn.Parent do
+					if tabObj.Active then
+						pcall(function()
+							local dot = Instance.new("Frame")
+							dot.Size = UDim2.new(0, 3 + math.random(0,2), 0, 3 + math.random(0,2))
+							dot.Position = UDim2.new(0, 0, 0, math.random(4, 28))
+							dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+							dot.BackgroundTransparency = 0.1
+							dot.BorderSizePixel = 0
+							dot.ZIndex = 5
+							dot.Parent = DotContainer
+
+							local dotCorner = Instance.new("UICorner")
+							dotCorner.CornerRadius = UDim.new(1, 0)
+							dotCorner.Parent = dot
+
+							local travelTime = 0.5 + (math.random() * 0.3)
+							TweenService:Create(dot, TweenInfo.new(travelTime, Enum.EasingStyle.Linear), {
+								Position = UDim2.new(0.88, 0, dot.Position.Y.Scale, dot.Position.Y.Offset),
+								BackgroundTransparency = 1
+							}):Play()
+
+							task.delay(travelTime, function()
+								pcall(function() dot:Destroy() end)
+							end)
+						end)
+						task.wait(0.12)
+					else
+						task.wait(0.3)
+					end
+				end
+			end)
+
+			table.insert(tabs, tabObj)
 
 			function tab:CreateSection(columnSide, sectionTitle)
 				local section = {}
