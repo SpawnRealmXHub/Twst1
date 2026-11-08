@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Ping Radar, SpawnRealmXHub Center, FPS Wave Bars, & Movable)
+-- SpawnRealm / Moondiety UI Library Module (Higher Top-Middle Pill & Restored Mini Stats Bar)
 local Library = {}
 Library.__index = Library
 
@@ -229,12 +229,12 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Top-Middle Status Pill (SpawnRealmXHub, Ping Radar, and FPS Wave Bars)
+	-- Mini Stats Widget (Pill Positioned Higher at Y = 12)
 	local StatsFrame = Instance.new("Frame")
 	StatsFrame.Name = "StatsFrame"
-	StatsFrame.Size = UDim2.new(0, 220, 0, 38)
-	StatsFrame.Position = UDim2.new(0.5, -110, 0, 28)
-	StatsFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+	StatsFrame.Size = UDim2.new(0, 240, 0, 32)
+	StatsFrame.Position = UDim2.new(0.5, 101, 0, 12)
+	StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 	StatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 	StatsFrame.BorderSizePixel = 0
 	StatsFrame.Visible = not loadingXUIEnabled
@@ -245,7 +245,7 @@ function Library.CreateWindow(config)
 	StatsCorner.Parent = StatsFrame
 
 	local StatsStroke = Instance.new("UIStroke")
-	StatsStroke.Thickness = 2.2
+	StatsStroke.Thickness = 2.5
 	StatsStroke.Parent = StatsFrame
 
 	local StatsStrokeGrad = Instance.new("UIGradient")
@@ -267,156 +267,80 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Left Side: Ping Radar Dot & 1s Pulsing Sonar Ring
-	local RadarContainer = Instance.new("Frame")
-	RadarContainer.Size = UDim2.new(0, 24, 0, 24)
-	RadarContainer.Position = UDim2.new(0, 10, 0.5, -12)
-	RadarContainer.BackgroundTransparency = 1
-	RadarContainer.ClipsDescendants = false
-	RadarContainer.Parent = StatsFrame
+	local HeadshotImg = Instance.new("ImageLabel")
+	HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
+	HeadshotImg.Position = UDim2.new(0, 8, 0.5, -10)
+	HeadshotImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
+	HeadshotImg.BorderSizePixel = 0
+	HeadshotImg.Parent = StatsFrame
 
-	local PingDot = Instance.new("Frame")
-	PingDot.Size = UDim2.new(0, 10, 0, 10)
-	PingDot.Position = UDim2.new(0.5, -5, 0.5, -5)
-	PingDot.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-	PingDot.BorderSizePixel = 0
-	PingDot.ZIndex = 3
-	PingDot.Parent = RadarContainer
+	local HeadCorner = Instance.new("UICorner")
+	HeadCorner.CornerRadius = UDim.new(1, 0)
+	HeadCorner.Parent = HeadshotImg
 
-	local PingDotCorner = Instance.new("UICorner")
-	PingDotCorner.CornerRadius = UDim.new(1, 0)
-	PingDotCorner.Parent = PingDot
-
-	-- 1s Radar Pulsing Ring Loop
 	task.spawn(function()
-		while StatsFrame and StatsFrame.Parent do
-			pcall(function()
-				local ring = Instance.new("Frame")
-				ring.Size = UDim2.new(0, 10, 0, 10)
-				ring.Position = UDim2.new(0.5, -5, 0.5, -5)
-				ring.BackgroundColor3 = PingDot.BackgroundColor3
-				ring.BackgroundTransparency = 0.2
-				ring.BorderSizePixel = 0
-				ring.ZIndex = 2
-				ring.Parent = RadarContainer
-
-				local rCorner = Instance.new("UICorner")
-				rCorner.CornerRadius = UDim.new(1, 0)
-				rCorner.Parent = ring
-
-				TweenService:Create(ring, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					Size = UDim2.new(0, 32, 0, 32),
-					Position = UDim2.new(0.5, -16, 0.5, -16),
-					BackgroundTransparency = 1
-				}):Play()
-
-				task.delay(0.9, function()
-					if ring then ring:Destroy() end
-				end)
-			end)
-			task.wait(1.0)
-		end
+		while not LocalPlayer do task.wait(0.1) end
+		pcall(function()
+			HeadshotImg.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", LocalPlayer.UserId)
+		end)
 	end)
 
-	-- Center: SpawnRealmXHub Title & Icon
-	local CenterContent = Instance.new("Frame")
-	CenterContent.Size = UDim2.new(1, -70, 1, 0)
-	CenterContent.Position = UDim2.new(0, 35, 0, 0)
-	CenterContent.BackgroundTransparency = 1
-	CenterContent.Parent = StatsFrame
+	local StatsContainer = Instance.new("Frame")
+	StatsContainer.Size = UDim2.new(1, -30, 1, 0)
+	StatsContainer.Position = UDim2.new(0, 30, 0, 0)
+	StatsContainer.BackgroundTransparency = 1
+	StatsContainer.Parent = StatsFrame
 
-	local CenterIcon = Instance.new("ImageLabel")
-	CenterIcon.Size = UDim2.new(0, 16, 0, 16)
-	CenterIcon.Position = UDim2.new(0, 0, 0.5, -8)
-	CenterIcon.BackgroundTransparency = 1
-	CenterIcon.Image = iconId
-	CenterIcon.Parent = CenterContent
+	local StatsLayout = Instance.new("UIListLayout")
+	StatsLayout.FillDirection = Enum.FillDirection.Horizontal
+	StatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	StatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	StatsLayout.Padding = UDim.new(0, 6)
+	StatsLayout.Parent = StatsContainer
 
-	local CenterTitle = Instance.new("TextLabel")
-	CenterTitle.Size = UDim2.new(1, -20, 1, 0)
-	CenterTitle.Position = UDim2.new(0, 20, 0, 0)
-	CenterTitle.BackgroundTransparency = 1
-	CenterTitle.Text = "SpawnRealmXHub"
-	CenterTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-	CenterTitle.TextSize = 11
-	CenterTitle.Font = Enum.Font.GothamBold
-	CenterTitle.TextXAlignment = Enum.TextXAlignment.Left
-	CenterTitle.Parent = CenterContent
+	local function createStatBadge(iconId, labelName, defaultVal)
+		local holder = Instance.new("Frame")
+		holder.Size = UDim2.new(0, 66, 1, 0)
+		holder.BackgroundTransparency = 1
+		holder.Parent = StatsContainer
 
-	-- Right Side: FPS Wave Bars
-	local WaveContainer = Instance.new("Frame")
-	WaveContainer.Size = UDim2.new(0, 26, 0, 18)
-	WaveContainer.Position = UDim2.new(1, -34, 0.5, -9)
-	WaveContainer.BackgroundTransparency = 1
-	WaveContainer.Parent = StatsFrame
+		local icon = Instance.new("ImageLabel")
+		icon.Size = UDim2.new(0, 12, 0, 12)
+		icon.Position = UDim2.new(0, 0, 0.5, -6)
+		icon.BackgroundTransparency = 1
+		icon.Image = getIconAsset(iconId)
+		icon.ImageColor3 = Color3.fromRGB(160, 160, 175)
+		icon.Parent = holder
 
-	local WaveLayout = Instance.new("UIListLayout")
-	WaveLayout.FillDirection = Enum.FillDirection.Horizontal
-	WaveLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-	WaveLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-	WaveLayout.Padding = UDim.new(0, 3)
-	WaveLayout.Parent = WaveContainer
-
-	local function createWaveBar()
-		local bar = Instance.new("Frame")
-		bar.Size = UDim2.new(0, 5, 0, 10)
-		bar.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-		bar.BorderSizePixel = 0
-		bar.Parent = WaveContainer
-
-		local bCorner = Instance.new("UICorner")
-		bCorner.CornerRadius = UDim.new(1, 0)
-		bCorner.Parent = bar
-		return bar
+		local lbl = Instance.new("TextLabel")
+		lbl.Size = UDim2.new(1, -14, 1, 0)
+		lbl.Position = UDim2.new(0, 14, 0, 0)
+		lbl.BackgroundTransparency = 1
+		lbl.Text = defaultVal .. " " .. labelName
+		lbl.TextColor3 = Color3.fromRGB(180, 180, 190)
+		lbl.TextSize = 9
+		lbl.Font = Enum.Font.GothamMedium
+		lbl.TextXAlignment = Enum.TextXAlignment.Left
+		lbl.Parent = holder
+		return lbl
 	end
 
-	local bar1 = createWaveBar()
-	local bar2 = createWaveBar()
-	local bar3 = createWaveBar()
+	local PingLabel = createStatBadge("zap", "ms", "32")
+	local FpsLabel = createStatBadge("cpu", "fps", "60")
+	local PlayersLabel = createStatBadge("users", "plrs", "12")
 
-	-- Live Ping & FPS Monitoring Loop
 	task.spawn(function()
-		while true do
-			task.wait(1)
-			pcall(function()
+		local lastUpdate = 0
+		RunService.RenderStepped:Connect(function(dt)
+			lastUpdate += dt
+			if lastUpdate >= 1 then
+				lastUpdate = 0
 				local ping = 0
 				pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
-
-				if ping < 100 then
-					PingDot.BackgroundColor3 = Color3.fromRGB(46, 204, 113) -- Green
-				elseif ping <= 250 then
-					PingDot.BackgroundColor3 = Color3.fromRGB(241, 196, 15) -- Yellow
-				else
-					PingDot.BackgroundColor3 = Color3.fromRGB(231, 76, 60) -- Red
-				end
-			end)
-		end
-	end)
-
-	RunService.RenderStepped:Connect(function(dt)
-		pcall(function()
-			local fps = math.floor(1 / dt)
-			local h1, h2, h3, col
-
-
-			if fps >= 50 then
-				col = Color3.fromRGB(46, 204, 113) -- Green (Good)
-				h1, h2, h3 = 6, 12, 16
-			elseif fps >= 30 then
-				col = Color3.fromRGB(241, 196, 15) -- Yellow (Mid)
-				h1, h2, h3 = 10, 14, 12
-			else
-				col = Color3.fromRGB(231, 76, 60) -- Red (Low/High wave)
-				h1, h2, h3 = 16, 18, 14
+				PingLabel.Text = ping .. " ms"
+				FpsLabel.Text = math.floor(1 / dt) .. " fps"
+				PlayersLabel.Text = #Players:GetPlayers() .. " plrs"
 			end
-
-			bar1.BackgroundColor3 = col
-			bar2.BackgroundColor3 = col
-			bar3.BackgroundColor3 = col
-
-			bar1.Size = UDim2.new(0, 5, 0, h1)
-			bar2.Size = UDim2.new(0, 5, 0, h2)
-			bar3.Size = UDim2.new(0, 5, 0, h3)
 		end)
 	end)
 
@@ -546,7 +470,7 @@ function Library.CreateWindow(config)
 				Main.Size = UDim2.new(0, 0, 0, 0)
 				Main.Position = UDim2.new(0.5, 0, 0.45, 0)
 				StatsFrame.Size = UDim2.new(0, 0, 0, 0)
-				StatsFrame.Position = UDim2.new(0.5, 0, 0.45, -175)
+				StatsFrame.Position = UDim2.new(0.5, 101, 0, 12)
 
 				TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 					Size = UDim2.new(0, targetWidth, 0, targetHeight),
@@ -555,8 +479,8 @@ function Library.CreateWindow(config)
 				}):Play()
 
 				TweenService:Create(StatsFrame, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-					Size = UDim2.new(0, 220, 0, 38),
-					Position = UDim2.new(0.5, -110, 0, 28),
+					Size = UDim2.new(0, 240, 0, 32),
+					Position = UDim2.new(0.5, 101, 0, 12),
 					BackgroundTransparency = 0
 				}):Play()
 			end)
@@ -598,7 +522,7 @@ function Library.CreateWindow(config)
 	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	SubTitleLabel.Parent = Topbar
 
-	-- Minimized Restore UI
+	-- Minimized Restore UI (Floating Button with Animated Outline & Corner Radius 20)
 	local ToggleBtnOuter = Instance.new("Frame")
 	ToggleBtnOuter.Name = "ToggleBtnOuter"
 	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
@@ -646,11 +570,11 @@ function Library.CreateWindow(config)
 	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
 	makeDraggable(ToggleBtn, ToggleBtnOuter)
 
-	-- Top-Middle Restore Banner
+	-- Top-Middle Restore Banner (positioned at top middle, Y = 12)
 	local RestoreBanner = Instance.new("Frame")
 	RestoreBanner.Name = "RestoreBanner"
 	RestoreBanner.Size = UDim2.new(0, 360, 0, 110)
-	RestoreBanner.Position = UDim2.new(0.5, -180, 0, 45)
+	RestoreBanner.Position = UDim2.new(0.5, -180, 0, 12)
 	RestoreBanner.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 	RestoreBanner.BorderSizePixel = 0
 	RestoreBanner.Visible = false
@@ -744,7 +668,7 @@ function Library.CreateWindow(config)
 		Main.Size = UDim2.new(0, 0, 0, 0)
 		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
 		StatsFrame.Size = UDim2.new(0, 0, 0, 0)
-		StatsFrame.Position = UDim2.new(0.5, -110, 0, 28)
+		StatsFrame.Position = UDim2.new(0.5, 101, 0, 12)
 		Main.BackgroundTransparency = 1
 		StatsFrame.BackgroundTransparency = 1
 
@@ -755,8 +679,8 @@ function Library.CreateWindow(config)
 		}):Play()
 
 		TweenService:Create(StatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0, 220, 0, 38),
-			Position = UDim2.new(0.5, -110, 0, 28),
+			Size = UDim2.new(0, 240, 0, 32),
+			Position = UDim2.new(0.5, 101, 0, 12),
 			BackgroundTransparency = 0
 		}):Play()
 
@@ -789,7 +713,7 @@ function Library.CreateWindow(config)
 		}):Play()
 		TweenService:Create(StatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 			Size = UDim2.new(0, 0, 0, 0),
-			Position = UDim2.new(0.5, -110, 0, 28),
+			Position = UDim2.new(0.5, 101, 0, 12),
 			BackgroundTransparency = 1
 		}):Play()
 		task.wait(0.25)
@@ -819,7 +743,7 @@ function Library.CreateWindow(config)
 		}):Play()
 		TweenService:Create(StatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 			Size = UDim2.new(0, 0, 0, 0),
-			Position = UDim2.new(0.5, -110, 0, 28),
+			Position = UDim2.new(0.5, 101, 0, 12),
 			BackgroundTransparency = 1
 		}):Play()
 		task.wait(0.25)
