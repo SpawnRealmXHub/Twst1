@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Fixed Scope Errors on 889/1141, Restored Tab Animations)
+-- SpawnRealm / Moondiety UI Library Module (Fixed JumpTo / TextButton Activate Error)
 local Library = {}
 Library.__index = Library
 
@@ -717,6 +717,7 @@ function Library.CreateWindow(config)
 
 	function window:CreateTab(tabConfig)
 		local tab = {}
+		local tabObj = {}
 		pcall(function()
 			if type(tabConfig) == "string" then
 				tabConfig = { name = tabConfig }
@@ -823,19 +824,7 @@ function Library.CreateWindow(config)
 				RightCol.Size = UDim2.new(0.5, -5, 0, RightLayout.AbsoluteContentSize.Y)
 			end)
 
-			local tabObj = {Button = TabBtn, Page = Page, Beam = FlashlightBeam, Glow = GlowLine, Dots = DotContainer, Active = false}
-
-			if not activeTabObject then
-				Page.Visible = true
-				TabBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
-				TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-				FlashlightBeam.BackgroundTransparency = 0.2
-				GlowLine.BackgroundTransparency = 0.1
-				tabObj.Active = true
-				activeTabObject = tabObj
-			end
-
-			TabBtn.MouseButton1Click:Connect(function()
+			local switchToThisTab = function()
 				playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 				for _, t in pairs(tabs) do
 					pcall(function()
@@ -879,12 +868,31 @@ function Library.CreateWindow(config)
 						end)
 					end
 				end)
-			end)
+			end
+
+			TabBtn.MouseButton1Click:Connect(switchToThisTab)
+
+			tabObj.Button = TabBtn
+			tabObj.Page = Page
+			tabObj.Beam = FlashlightBeam
+			tabObj.Glow = GlowLine
+			tabObj.Dots = DotContainer
+			tabObj.Active = false
+
+			if not activeTabObject then
+				Page.Visible = true
+				TabBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+				TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+				FlashlightBeam.BackgroundTransparency = 0.2
+				GlowLine.BackgroundTransparency = 0.1
+				tabObj.Active = true
+				activeTabObject = tabObj
+			end
 
 			table.insert(tabs, tabObj)
 
 			function tabObj:JumpTo()
-				TabBtn:Activate()
+				switchToThisTab()
 			end
 
 			function tab:CreateSection(columnSide, sectionTitle)
@@ -1124,7 +1132,7 @@ function Library.CreateWindow(config)
 				return section
 			end
 		end)
-		return tab
+		return tabObj
 	end
 
 	-- Search Functionality Logic
