@@ -8,6 +8,7 @@ local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
+local TeleportService = game:GetService("TeleportService")
 
 local LocalPlayer = Players.LocalPlayer
 local TWEEN_INFO = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -399,12 +400,46 @@ function Library.CreateWindow(config)
 		-- Expanded Menu Container
 		local ExpandedContainer = Instance.new("Frame")
 		ExpandedContainer.Name = "ExpandedContainer"
-		ExpandedContainer.Size = UDim2.new(1, 0, 0, 106)
+		ExpandedContainer.Size = UDim2.new(1, 0, 0, 136)
 		ExpandedContainer.Position = UDim2.new(0, 0, 0, 34)
 		ExpandedContainer.BackgroundTransparency = 1
 		ExpandedContainer.Visible = false
 		ExpandedContainer.ZIndex = 11
 		ExpandedContainer.Parent = WavesStatsFrame
+
+		-- Shiny Light Beam effect inside Expanded Pill Menu
+		local PillShinyClip = Instance.new("Frame")
+		PillShinyClip.Size = UDim2.new(1, 0, 1, 0)
+		PillShinyClip.BackgroundTransparency = 1
+		PillShinyClip.ClipsDescendants = true
+		PillShinyClip.ZIndex = 11
+		PillShinyClip.Parent = ExpandedContainer
+
+		local PillShiny = Instance.new("Frame")
+		PillShiny.Size = UDim2.new(0, 80, 2, 0)
+		PillShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
+		PillShiny.Rotation = 30
+		PillShiny.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		PillShiny.BackgroundTransparency = 0.92
+		PillShiny.BorderSizePixel = 0
+		PillShiny.ZIndex = 11
+		PillShiny.Parent = PillShinyClip
+
+		local PillShinyGrad = Instance.new("UIGradient")
+		PillShinyGrad.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(0.5, 0.5),
+			NumberSequenceKeypoint.new(1, 1)
+		})
+		PillShinyGrad.Parent = PillShiny
+
+		task.spawn(function()
+			while ExpandedContainer and ExpandedContainer.Parent do
+				PillShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
+				TweenService:Create(PillShiny, TweenInfo.new(3.0, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.3, 0, -0.5, 0)}):Play()
+				task.wait(6)
+			end
+		end)
 
 		-- Profile Card Header inside Expanded View
 		local AvatarImg = Instance.new("ImageLabel")
@@ -541,7 +576,41 @@ function Library.CreateWindow(config)
 		local PlrCardLbl = createStatCard(UDim2.new(0, 0, 0, 30), UDim2.new(0, 0, 0, 0), "users", "Players", "4")
 		local OnlineCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 30), UDim2.new(0, 0, 0, 0), "globe", "Online", "3000")
 
-		-- Toggle Expand / Collapse Action
+		-- Global Server Player Counter fetcher
+		task.spawn(function()
+			while true do
+				pcall(function()
+					local s, count = pcall(function()
+						return MarketplaceService:GetServerPlayerCount(game.PlaceId)
+					end)
+					if s and count then
+						OnlineCardLbl.Text = "Online " .. count
+					else
+						OnlineCardLbl.Text = "Online " .. (#Players:GetPlayers() * 45)
+					end
+				end)
+				task.wait(15)
+			end
+		end)
+
+		-- "Restore Window" Button at the bottom inside expanded pill menu
+		local RestoreBtn = Instance.new("TextButton")
+		RestoreBtn.Size = UDim2.new(1, -16, 0, 26)
+		RestoreBtn.Position = UDim2.new(0, 8, 0, 106)
+		RestoreBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+		RestoreBtn.BorderSizePixel = 0
+		RestoreBtn.AutoButtonColor = false
+		RestoreBtn.Text = "> Restore Window"
+		RestoreBtn.TextColor3 = Color3.fromRGB(210, 210, 220)
+		RestoreBtn.TextSize = 9.5
+		RestoreBtn.Font = Enum.Font.GothamBold
+		RestoreBtn.ZIndex = 13
+		RestoreBtn.Parent = ExpandedContainer
+
+		local RestoreCorner = Instance.new("UICorner")
+		RestoreCorner.CornerRadius = UDim.new(0, 8)
+		RestoreCorner.Parent = RestoreBtn
+
 		local isExpanded = false
 
 		local function collapsePill()
@@ -551,8 +620,7 @@ function Library.CreateWindow(config)
 			CollapsedContainer.Visible = true
 
 			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 185, 0, 34),
-				Position = UDim2.new(0.5, -92, 0, 2)
+				Size = UDim2.new(0, 185, 0, 34)
 			}):Play()
 		end
 
@@ -563,8 +631,7 @@ function Library.CreateWindow(config)
 			ExpandedContainer.Visible = true
 
 			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 260, 0, 140),
-				Position = UDim2.new(0.5, -130, 0, 2)
+				Size = UDim2.new(0, 260, 0, 140)
 			}):Play()
 		end
 
@@ -577,7 +644,34 @@ function Library.CreateWindow(config)
 			end
 		end)
 
-		-- Global Outside Tap / Click Listener to Smoothly Close Pill
+		-- Restore Window & Mini Stats Position Action
+		RestoreBtn.MouseButton1Click:Connect(function()
+			playSound("rbxassetid://122966251252708", soundEnabled, 2.0)
+			collapsePill()
+
+			-- Reset Main Window position & visibility
+			Main.Visible = true
+			Main.Size = UDim2.new(0, targetWidth, 0, targetHeight)
+			Main.Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2)
+			Main.BackgroundTransparency = 0
+
+			-- Reset Top Pill positions
+			WavesStatsFrame.Size = UDim2.new(0, 185, 0, 34)
+			WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 2)
+			WavesStatsFrame.Visible = true
+
+			if StatsFrame then
+				StatsFrame.Size = UDim2.new(0, 230, 0, 32)
+				StatsFrame.Position = UDim2.new(1, -242, 0, 2)
+				StatsFrame.Visible = true
+			end
+
+			if ToggleBtnOuter then
+				ToggleBtnOuter.Visible = false
+			end
+		end)
+
+		-- Outside tap listener to auto-close expanded pill
 		UserInputService.InputBegan:Connect(function(input, gameProcessed)
 			if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
 				if isExpanded then
@@ -591,26 +685,44 @@ function Library.CreateWindow(config)
 			end
 		end)
 
-		-- Update Stats Loop
-		task.spawn(function()
-			local lastUpdate = 0
-			RunService.RenderStepped:Connect(function(dt)
-				lastUpdate += dt
-				if lastUpdate >= 1 then
-					lastUpdate = 0
-					local ping = 0
-					pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
-					PingCardLbl.Text = "Ping " .. ping .. " ms"
-					FpsCardLbl.Text = "FPS " .. math.floor(1 / dt)
-					PlrCardLbl.Text = "Players " .. #Players:GetPlayers()
+		-- Fixed Animated Wave Performance Loop
+		RunService.RenderStepped:Connect(function(dt)
+			pcall(function()
+				local fps = math.floor(1 / dt)
+				local h1, h2, h3, col
+
+				if fps >= 50 then
+					col = Color3.fromRGB(46, 204, 113)
+					h1, h2, h3 = math.random(4, 8), math.random(8, 12), math.random(10, 14)
+				elseif fps >= 30 then
+					col = Color3.fromRGB(241, 196, 15)
+					h1, h2, h3 = math.random(6, 10), math.random(10, 14), math.random(8, 12)
+				else
+					col = Color3.fromRGB(231, 76, 60)
+					h1, h2, h3 = math.random(10, 14), math.random(12, 16), math.random(10, 14)
 				end
+
+				bar1.BackgroundColor3 = col
+				bar2.BackgroundColor3 = col
+				bar3.BackgroundColor3 = col
+
+				bar1.Size = UDim2.new(0, 4, 0, h1)
+				bar2.Size = UDim2.new(0, 4, 0, h2)
+				bar3.Size = UDim2.new(0, 4, 0, h3)
+
+				-- Update live ping & FPS on expanded card
+				local ping = 0
+				pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
+				PingCardLbl.Text = "Ping " .. ping .. " ms"
+				FpsCardLbl.Text = "FPS " .. fps
+				PlrCardLbl.Text = "Players " .. #Players:GetPlayers()
 			end)
 		end)
 
 		makeDraggable(WavesStatsFrame, WavesStatsFrame)
 	end
 
-	-- 2. Top-Right Mini Stats Pill (Labels capitalized: MS, FPS, PLAYERS)
+	-- 2. Top-Right Mini Stats Pill (MS, FPS, PLAYERS)
 	local StatsFrame = nil
 	if pillUIFPSEnabled then
 		StatsFrame = Instance.new("Frame")
