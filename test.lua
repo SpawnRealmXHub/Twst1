@@ -8,7 +8,6 @@ local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
-local TeleportService = game:GetService("TeleportService")
 
 local LocalPlayer = Players.LocalPlayer
 local TWEEN_INFO = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -233,6 +232,64 @@ function Library.CreateWindow(config)
 			MainShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
 			TweenService:Create(MainShiny, TweenInfo.new(3.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.3, 0, -0.5, 0)}):Play()
 			task.wait(7)
+		end
+	end)
+
+	-- Bottom-Right Corner Resizing Handle (as seen in reference image)[cite: 4]
+	local ResizeHandle = Instance.new("TextButton")
+	ResizeHandle.Name = "ResizeHandle"
+	ResizeHandle.Size = UDim2.new(0, 24, 0, 24)
+	ResizeHandle.Position = UDim2.new(1, -24, 1, -24)
+	ResizeHandle.BackgroundTransparency = 1
+	ResizeHandle.Text = ""
+	ResizeHandle.AutoButtonColor = false
+	ResizeHandle.ZIndex = 30
+	ResizeHandle.Parent = Main
+
+	local ResizeVisual = Instance.new("Frame")
+	ResizeVisual.Size = UDim2.new(0, 12, 0, 12)
+	ResizeVisual.Position = UDim2.new(1, -16, 1, -16)
+	ResizeVisual.BackgroundTransparency = 1
+	ResizeVisual.ZIndex = 31
+	ResizeVisual.Parent = ResizeHandle
+
+	-- Draw subtle curved lines for the resize grip indicator matching screenshot[cite: 4]
+	for i = 0, 2 do
+		local line = Instance.new("Frame")
+		line.Size = UDim2.new(0, 2 + (i * 3), 0, 2)
+		line.Position = UDim2.new(1, -2 - (i * 4), 1, -2 - (i * 4))
+		line.BackgroundColor3 = Color3.fromRGB(180, 180, 200)
+		line.BackgroundTransparency = 0.4
+		line.BorderSizePixel = 0
+		line.ZIndex = 32
+		line.Parent = ResizeVisual
+
+		local lCorner = Instance.new("UICorner")
+		lCorner.CornerRadius = UDim.new(1, 0)
+		lCorner.Parent = line
+	end
+
+	-- Resizing Logic
+	local resizing, resizeStart, startSize = false, nil, nil
+	ResizeHandle.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			resizing = true
+			resizeStart = input.Position
+			startSize = Main.AbsoluteSize
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					resizing = false
+				end
+			end)
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - resizeStart
+			local newW = math.clamp(startSize.X + delta.X, 480, 1200)
+			local newH = math.clamp(startSize.Y + delta.Y, 220, 800)
+			Main.Size = UDim2.new(0, newW, 0, newH)
 		end
 	end)
 
@@ -901,45 +958,16 @@ function Library.CreateWindow(config)
 	local function restoreWindowAction()
 		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 		Main.Visible = true
-		if WavesStatsFrame then WavesStatsFrame.Visible = true end
-		if StatsFrame then StatsFrame.Visible = true end
 
 		Main.Size = UDim2.new(0, 0, 0, 0)
 		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
-		if WavesStatsFrame then
-			WavesStatsFrame.Size = UDim2.new(0, 185, 0, 34)
-			WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 2)
-		end
-		if StatsFrame then
-			StatsFrame.Size = UDim2.new(0, 230, 0, 32)
-			StatsFrame.Position = UDim2.new(1, -242, 0, 2)
-		end
-
 		Main.BackgroundTransparency = 1
-		if WavesStatsFrame then WavesStatsFrame.BackgroundTransparency = 1 end
-		if StatsFrame then StatsFrame.BackgroundTransparency = 1 end
 
 		TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 			Size = UDim2.new(0, targetWidth, 0, targetHeight),
 			Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
 			BackgroundTransparency = 0
 		}):Play()
-
-		if WavesStatsFrame then
-			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 185, 0, 34),
-				Position = UDim2.new(0.5, -92, 0, 2),
-				BackgroundTransparency = 0
-			}):Play()
-		end
-
-		if StatsFrame then
-			TweenService:Create(StatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 230, 0, 32),
-				Position = UDim2.new(1, -242, 0, 2),
-				BackgroundTransparency = 0
-			}):Play()
-		end
 
 		ToggleBtnOuter.Visible = false
 	end
@@ -1001,20 +1029,6 @@ function Library.CreateWindow(config)
 			Position = UDim2.new(0.5, 0, 0.45, 0),
 			BackgroundTransparency = 1
 		}):Play()
-		if WavesStatsFrame then
-			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(0.5, -92, 0, 2),
-				BackgroundTransparency = 1
-			}):Play()
-		end
-		if StatsFrame then
-			TweenService:Create(StatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(1, -242, 0, 2),
-				BackgroundTransparency = 1
-			}):Play()
-		end
 		task.wait(0.25)
 		pcall(function() getProtectedParent():Destroy() end)
 	end)
@@ -1040,24 +1054,8 @@ function Library.CreateWindow(config)
 			Position = UDim2.new(0.5, 0, 0.45, 0),
 			BackgroundTransparency = 1
 		}):Play()
-		if WavesStatsFrame then
-			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(0.5, -92, 0, 2),
-				BackgroundTransparency = 1
-			}):Play()
-		end
-		if StatsFrame then
-			TweenService:Create(StatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-				Size = UDim2.new(0, 0, 0, 0),
-				Position = UDim2.new(1, -242, 0, 2),
-				BackgroundTransparency = 1
-			}):Play()
-		end
 		task.wait(0.25)
 		Main.Visible = false
-		if WavesStatsFrame then WavesStatsFrame.Visible = false end
-		if StatsFrame then StatsFrame.Visible = false end
 		ToggleBtnOuter.Visible = true
 	end)
 
