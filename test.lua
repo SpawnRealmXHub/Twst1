@@ -1,4 +1,4 @@
--- SpawnRealm / Moondiety UI Library Module (Aligned to Absolute Top)
+-- SpawnRealm / Moondiety UI Library Module (Interactive Expandable Profile & Stats Pill)
 local Library = {}
 Library.__index = Library
 
@@ -7,9 +7,18 @@ local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
 
 local LocalPlayer = Players.LocalPlayer
 local TWEEN_INFO = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+-- Automatically detect running exploit executor name
+local function getExecutorName()
+	local success, name = pcall(function()
+		return identifyexecutor and identifyexecutor() or (syn and "Synapse" or (KRNL_LOADED and "Krnl" or (fluxus and "Fluxus" or "Delta")))
+	end)
+	return success and name or "Delta"
+end
 
 local LucideIcons = {
 	["home"] = "rbxassetid://10734949856",
@@ -51,7 +60,7 @@ local function getIconAsset(input)
 	if str:match("^rbxassetid://") or str:match("^http") then
 		return str
 	end
-	local formatted = str:lower():gsub("[^a-z]", "")
+	local formatted = str:lower().gsub(str, "[^a-z]", "")
 	return LucideIcons[formatted] or str
 end
 
@@ -131,7 +140,6 @@ function Library.CreateWindow(config)
 	
 	local pillUIWavesEnabled = (config.PillUIWaves == true)
 	local pillUIFPSEnabled = (config.PillUIFPS == true)
-	
 	local loadingXUIEnabled = (config.LoadingXUI == true)
 
 	local parentBase = gethui() or CoreGui
@@ -227,21 +235,24 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- 1. Top-Middle Radar & Wave Performance Pill (Positioned at absolute top Y = 2)
+	-- 1. Tapable Interactive Expandable Profile & Stats Pill (Top-Middle)
 	local WavesStatsFrame = nil
 	if pillUIWavesEnabled then
-		WavesStatsFrame = Instance.new("Frame")
+		WavesStatsFrame = Instance.new("TextButton")
 		WavesStatsFrame.Name = "WavesStatsFrame"
 		WavesStatsFrame.Size = UDim2.new(0, 185, 0, 34)
 		WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 2)
 		WavesStatsFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
 		WavesStatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 		WavesStatsFrame.BorderSizePixel = 0
+		WavesStatsFrame.AutoButtonColor = false
+		WavesStatsFrame.Text = ""
 		WavesStatsFrame.Visible = not loadingXUIEnabled
+		WavesStatsFrame.ClipsDescendants = true
 		WavesStatsFrame.Parent = ScreenGui
 
 		local WStatsCorner = Instance.new("UICorner")
-		WStatsCorner.CornerRadius = UDim.new(0, 30)
+		WStatsCorner.CornerRadius = UDim.new(0, 18)
 		WStatsCorner.Parent = WavesStatsFrame
 
 		local WStatsStroke = Instance.new("UIStroke")
@@ -267,12 +278,19 @@ function Library.CreateWindow(config)
 			end
 		end)
 
+		-- Collapsed Pill Content Container
+		local CollapsedContainer = Instance.new("Frame")
+		CollapsedContainer.Name = "CollapsedContainer"
+		CollapsedContainer.Size = UDim2.new(1, 0, 0, 34)
+		CollapsedContainer.BackgroundTransparency = 1
+		CollapsedContainer.Parent = WavesStatsFrame
+
 		local RadarContainer = Instance.new("Frame")
 		RadarContainer.Size = UDim2.new(0, 20, 0, 20)
 		RadarContainer.Position = UDim2.new(0, 8, 0.5, -10)
 		RadarContainer.BackgroundTransparency = 1
 		RadarContainer.ClipsDescendants = false
-		RadarContainer.Parent = WavesStatsFrame
+		RadarContainer.Parent = CollapsedContainer
 
 		local PingDot = Instance.new("Frame")
 		PingDot.Size = UDim2.new(0, 8, 0, 8)
@@ -320,7 +338,7 @@ function Library.CreateWindow(config)
 		CenterContent.Size = UDim2.new(1, -56, 1, 0)
 		CenterContent.Position = UDim2.new(0, 28, 0, 0)
 		CenterContent.BackgroundTransparency = 1
-		CenterContent.Parent = WavesStatsFrame
+		CenterContent.Parent = CollapsedContainer
 
 		local CenterIcon = Instance.new("ImageLabel")
 		CenterIcon.Size = UDim2.new(0, 13, 0, 13)
@@ -344,7 +362,7 @@ function Library.CreateWindow(config)
 		WaveContainer.Size = UDim2.new(0, 22, 0, 16)
 		WaveContainer.Position = UDim2.new(1, -26, 0.5, -8)
 		WaveContainer.BackgroundTransparency = 1
-		WaveContainer.Parent = WavesStatsFrame
+		WaveContainer.Parent = CollapsedContainer
 
 		local WaveLayout = Instance.new("UIListLayout")
 		WaveLayout.FillDirection = Enum.FillDirection.Horizontal
@@ -370,54 +388,176 @@ function Library.CreateWindow(config)
 		local bar2 = createWaveBar()
 		local bar3 = createWaveBar()
 
-		task.spawn(function()
-			while true do
-				task.wait(1)
-				pcall(function()
-					local ping = 0
-					pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
+		-- Expanded Menu Container (Matching User Screenshot Layout)
+		local ExpandedContainer = Instance.new("Frame")
+		ExpandedContainer.Name = "ExpandedContainer"
+		ExpandedContainer.Size = UDim2.new(1, 0, 1, -34)
+		ExpandedContainer.Position = UDim2.new(0, 0, 0, 34)
+		ExpandedContainer.BackgroundTransparency = 1
+		ExpandedContainer.Visible = false
+		ExpandedContainer.Parent = WavesStatsFrame
 
-					if ping < 100 then
-						PingDot.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-					elseif ping <= 250 then
-						PingDot.BackgroundColor3 = Color3.fromRGB(241, 196, 15)
-					else
-						PingDot.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
-					end
-				end)
+		-- Profile Card Header inside Expanded View
+		local AvatarImg = Instance.new("ImageLabel")
+		AvatarImg.Size = UDim2.new(0, 34, 0, 34)
+		AvatarImg.Position = UDim2.new(0, 12, 0, 8)
+		AvatarImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
+		AvatarImg.BorderSizePixel = 0
+		AvatarImg.Parent = ExpandedContainer
+
+		local AvatarCorner = Instance.new("UICorner")
+		AvatarCorner.CornerRadius = UDim.new(1, 0)
+		AvatarCorner.Parent = AvatarImg
+
+		task.spawn(function()
+			pcall(function()
+				AvatarImg.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", LocalPlayer.UserId)
+			end)
+		end)
+
+		local DisplayNameLbl = Instance.new("TextLabel")
+		DisplayNameLbl.Size = UDim2.new(1, -110, 0, 16)
+		DisplayNameLbl.Position = UDim2.new(0, 54, 0, 8)
+		DisplayNameLbl.BackgroundTransparency = 1
+		DisplayNameLbl.Text = LocalPlayer.DisplayName
+		DisplayNameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+		DisplayNameLbl.TextSize = 12
+		DisplayNameLbl.Font = Enum.Font.GothamBold
+		DisplayNameLbl.TextXAlignment = Enum.TextXAlignment.Left
+		DisplayNameLbl.Parent = ExpandedContainer
+
+		local execName = getExecutorName()
+		local gameName = "[UP] Just a baseplate"
+		pcall(function()
+			local info = MarketplaceService:GetProductInfo(game.PlaceId)
+			if info and info.Name then
+				gameName = "[UP] " .. info.Name
 			end
 		end)
 
-		RunService.RenderStepped:Connect(function(dt)
-			pcall(function()
-				local fps = math.floor(1 / dt)
-				local h1, h2, h3, col
+		local SubInfoLbl = Instance.new("TextLabel")
+		SubInfoLbl.Size = UDim2.new(1, -110, 0, 14)
+		SubInfoLbl.Position = UDim2.new(0, 54, 0, 26)
+		SubInfoLbl.BackgroundTransparency = 1
+		SubInfoLbl.Text = "@" .. LocalPlayer.Name .. " • " .. execName .. "\n" .. gameName
+		SubInfoLbl.TextColor3 = Color3.fromRGB(150, 150, 165)
+		SubInfoLbl.TextSize = 9
+		SubInfoLbl.Font = Enum.Font.GothamMedium
+		SubInfoLbl.TextXAlignment = Enum.TextXAlignment.Left
+		SubInfoLbl.Parent = ExpandedContainer
 
-				if fps >= 50 then
-					col = Color3.fromRGB(46, 204, 113)
-					h1, h2, h3 = 5, 10, 14
-				elseif fps >= 30 then
-					col = Color3.fromRGB(241, 196, 15)
-					h1, h2, h3 = 8, 12, 10
-				else
-					col = Color3.fromRGB(231, 76, 60)
-					h1, h2, h3 = 14, 16, 12
+		-- Session Timer Pill
+		local TimerPill = Instance.new("Frame")
+		TimerPill.Size = UDim2.new(0, 64, 0, 22)
+		TimerPill.Position = UDim2.new(1, -74, 0, 12)
+		TimerPill.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+		TimerPill.BorderSizePixel = 0
+		TimerPill.Parent = ExpandedContainer
+
+		local TimerCorner = Instance.new("UICorner")
+		TimerCorner.CornerRadius = UDim.new(0, 11)
+		TimerCorner.Parent = TimerPill
+
+		local TimerLbl = Instance.new("TextLabel")
+		TimerLbl.Size = UDim2.new(1, 0, 1, 0)
+		TimerLbl.BackgroundTransparency = 1
+		TimerLbl.Text = "0m 0s"
+		TimerLbl.TextColor3 = Color3.fromRGB(210, 210, 220)
+		TimerLbl.TextSize = 9
+		TimerLbl.Font = Enum.Font.GothamBold
+		TimerLbl.Parent = TimerPill
+
+		local startTime = tick()
+		task.spawn(function()
+			while true do
+				task.wait(1)
+				local elapsed = math.floor(tick() - startTime)
+				local mins = math.floor(elapsed / 60)
+				local secs = elapsed % 60
+				TimerLbl.Text = string.format("%dm %ds", mins, secs)
+			end
+		end)
+
+		-- Grid Stats Cards (FPS, Ping, Players, Online)
+		local CardsHolder = Instance.new("Frame")
+		CardsHolder.Size = UDim2.new(1, -20, 0, 68)
+		CardsHolder.Position = UDim2.new(0, 10, 0, 52)
+		CardsHolder.BackgroundTransparency = 1
+		CardsHolder.Parent = ExpandedContainer
+
+		local function createStatCard(posX, posY, iconName, labelName, defaultVal)
+			local card = Instance.new("Frame")
+			card.Size = UDim2.new(0.5, -4, 0, 30)
+			card.Position = posX
+			card.BackgroundColor3 = Color3.fromRGB(25, 25, 32)
+			card.BorderSizePixel = 0
+			card.Parent = CardsHolder
+
+			local cCorner = Instance.new("UICorner")
+			cCorner.CornerRadius = UDim.new(0, 8)
+			cCorner.Parent = card
+
+			local icon = Instance.new("ImageLabel")
+			icon.Size = UDim2.new(0, 12, 0, 12)
+			icon.Position = UDim2.new(0, 8, 0.5, -6)
+			icon.BackgroundTransparency = 1
+			icon.Image = getIconAsset(iconName)
+			icon.ImageColor3 = Color3.fromRGB(160, 160, 175)
+			icon.Parent = card
+
+			local lbl = Instance.new("TextLabel")
+			lbl.Size = UDim2.new(1, -26, 1, 0)
+			lbl.Position = UDim2.new(0, 26, 0, 0)
+			lbl.BackgroundTransparency = 1
+			lbl.Text = labelName .. " " .. defaultVal
+			lbl.TextColor3 = Color3.fromRGB(200, 200, 210)
+			lbl.TextSize = 10
+			lbl.Font = Enum.Font.GothamMedium
+			lbl.TextXAlignment = Enum.TextXAlignment.Left
+			lbl.Parent = card
+			return lbl
+		end
+
+		local FpsCardLbl = createStatCard(UDim2.new(0, 0, 0, 0), UDim2.new(0, 0, 0, 0), "cpu", "FPS", "60")
+		local PingCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 0), UDim2.new(0, 0, 0, 0), "zap", "Ping", "35 ms")
+		local PlrCardLbl = createStatCard(UDim2.new(0, 0, 0, 34), UDim2.new(0, 0, 0, 0), "users", "Players", "4")
+		local OnlineCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 34), UDim2.new(0, 0, 0, 0), "globe", "Online", "3000")
+
+		-- Toggle Expand / Collapse Action
+		local isExpanded = false
+		WavesStatsFrame.MouseButton1Click:Connect(function()
+			playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
+			isExpanded = not isExpanded
+
+			local targetHeight = isExpanded and 130 or 34
+			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, 260, 0, targetHeight)
+			}):Play()
+
+			CollapsedContainer.Visible = not isExpanded
+			ExpandedContainer.Visible = isExpanded
+		end)
+
+		-- Update Stats Loop
+		task.spawn(function()
+			local lastUpdate = 0
+			RunService.RenderStepped:Connect(function(dt)
+				lastUpdate += dt
+				if lastUpdate >= 1 then
+					lastUpdate = 0
+					local ping = 0
+					pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
+					PingCardLbl.Text = "Ping " .. ping .. " ms"
+					FpsCardLbl.Text = "FPS " .. math.floor(1 / dt)
+					PlrCardLbl.Text = "Players " .. #Players:GetPlayers()
 				end
-
-				bar1.BackgroundColor3 = col
-				bar2.BackgroundColor3 = col
-				bar3.BackgroundColor3 = col
-
-				bar1.Size = UDim2.new(0, 4, 0, h1)
-				bar2.Size = UDim2.new(0, 4, 0, h2)
-				bar3.Size = UDim2.new(0, 4, 0, h3)
 			end)
 		end)
 
 		makeDraggable(WavesStatsFrame, WavesStatsFrame)
 	end
 
-	-- 2. Top-Right Mini Stats Pill (Positioned at absolute top Y = 2)
+	-- 2. Top-Right Mini Stats Pill
 	local StatsFrame = nil
 	if pillUIFPSEnabled then
 		StatsFrame = Instance.new("Frame")
@@ -594,11 +734,11 @@ function Library.CreateWindow(config)
 		Main.Size = UDim2.new(0, 0, 0, 0)
 		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
 		if WavesStatsFrame then
-			WavesStatsFrame.Size = UDim2.new(0, 0, 0, 0)
+			WavesStatsFrame.Size = UDim2.new(0, 185, 0, 34)
 			WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 2)
 		end
 		if StatsFrame then
-			StatsFrame.Size = UDim2.new(0, 0, 0, 0)
+			StatsFrame.Size = UDim2.new(0, 220, 0, 32)
 			StatsFrame.Position = UDim2.new(1, -232, 0, 2)
 		end
 
