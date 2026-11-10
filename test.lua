@@ -1416,16 +1416,10 @@ function Library.CreateWindow(config)
 			local switchToThisTab = function()
 				playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 
-				-- Fire Spark / Ember Particle Burst Effect on Tab Click
+				-- White Fire Ember Spark Particle Burst Effect on Tab Click
 				pcall(function()
 					local btnWidth = TabBtn.AbsoluteSize.X
-					local numParticles = 10
-					local fireColors = {
-						Color3.fromRGB(255, 200, 50),
-						Color3.fromRGB(255, 120, 30),
-						Color3.fromRGB(255, 255, 200),
-						Color3.fromRGB(0, 162, 255)
-					}
+					local numParticles = 12
 
 					for i = 1, numParticles do
 						task.spawn(function()
@@ -1433,8 +1427,8 @@ function Library.CreateWindow(config)
 							local startX = math.random(15, math.max(20, btnWidth - 15))
 							particle.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
 							particle.Position = UDim2.new(0, startX, 1, -2)
-							particle.BackgroundColor3 = fireColors[math.random(1, #fireColors)]
-							particle.BackgroundTransparency = 0.2
+							particle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+							particle.BackgroundTransparency = 0.15
 							particle.BorderSizePixel = 0
 							particle.ZIndex = 12
 							particle.Parent = DotContainer
@@ -1444,7 +1438,7 @@ function Library.CreateWindow(config)
 							pCorner.Parent = particle
 
 							-- Target: Move up to middle (~0.5 height) and spread horizontally
-							local targetX = startX + math.random(-25, 25)
+							local targetX = startX + math.random(-28, 28)
 							local targetY = math.random(4, 12)
 
 							TweenService:Create(particle, TweenInfo.new(math.random(35, 55) / 100, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
