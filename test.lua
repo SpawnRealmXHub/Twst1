@@ -42,6 +42,8 @@ local LucideIcons = {
 	["user"] = "rbxassetid://10735031441",
 	["users"] = "rbxassetid://10735031601",
 	["search"] = "rbxassetid://10735005431",
+	["searchicon"] = "rbxassetid://132302594577680",
+	["searchlisticon"] = "rbxassetid://140204894888200",
 	["menu"] = "rbxassetid://10734978184",
 	["grid"] = "rbxassetid://10734941926",
 	["list"] = "rbxassetid://10734974026",
@@ -1089,7 +1091,7 @@ function Library.CreateWindow(config)
 		end)
 	end)
 
-	-- Search Bar Restructured: Left side is Frame + Icon, Right side is TextBox
+	-- Search Bar with Left SearchListIcon and Right TextBox Input
 	local SearchBox = nil
 	if searchBarEnabled then
 		local SearchContainer = Instance.new("Frame")
@@ -1104,7 +1106,7 @@ function Library.CreateWindow(config)
 		SearchCorner.CornerRadius = UDim.new(0, 30)
 		SearchCorner.Parent = SearchContainer
 
-		-- Left Frame with Search Icon
+		-- Left Frame with SearchListIcon
 		local LeftIconFrame = Instance.new("Frame")
 		LeftIconFrame.Name = "LeftIconFrame"
 		LeftIconFrame.Size = UDim2.new(0, 28, 1, 0)
@@ -1116,7 +1118,7 @@ function Library.CreateWindow(config)
 		SearchIcon.Size = UDim2.new(0, 14, 0, 14)
 		SearchIcon.Position = UDim2.new(0.5, -7, 0.5, -7)
 		SearchIcon.BackgroundTransparency = 1
-		SearchIcon.Image = getIconAsset("search")
+		SearchIcon.Image = getIconAsset("searchlisticon")
 		SearchIcon.ImageColor3 = Color3.fromRGB(160, 160, 175)
 		SearchIcon.Parent = LeftIconFrame
 
