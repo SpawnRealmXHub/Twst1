@@ -165,6 +165,7 @@ function Library.CreateWindow(config)
 	end
 
 	local window = {}
+	local searchFilterCallback = nil
 	
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "SR_MainGui"
@@ -255,7 +256,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Minimized Floating Circle Toggle Button with Moving Gradient Outline
+	-- Minimized Floating Circle Toggle Button
 	local ToggleBtnOuter = Instance.new("Frame")
 	ToggleBtnOuter.Name = "ToggleBtnOuter"
 	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
@@ -1088,37 +1089,58 @@ function Library.CreateWindow(config)
 		end)
 	end)
 
+	-- Search Bar Restructured: Left side is Frame + Icon, Right side is TextBox
 	local SearchBox = nil
 	if searchBarEnabled then
+		local SearchContainer = Instance.new("Frame")
+		SearchContainer.Name = "SearchContainer"
+		SearchContainer.Size = UDim2.new(0, 142, 0, 28)
+		SearchContainer.Position = UDim2.new(0, 12, 0, 52)
+		SearchContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+		SearchContainer.BorderSizePixel = 0
+		SearchContainer.Parent = Main
+
+		local SearchCorner = Instance.new("UICorner")
+		SearchCorner.CornerRadius = UDim.new(0, 30)
+		SearchCorner.Parent = SearchContainer
+
+		-- Left Frame with Search Icon
+		local LeftIconFrame = Instance.new("Frame")
+		LeftIconFrame.Name = "LeftIconFrame"
+		LeftIconFrame.Size = UDim2.new(0, 28, 1, 0)
+		LeftIconFrame.Position = UDim2.new(0, 2, 0, 0)
+		LeftIconFrame.BackgroundTransparency = 1
+		LeftIconFrame.Parent = SearchContainer
+
+		local SearchIcon = Instance.new("ImageLabel")
+		SearchIcon.Size = UDim2.new(0, 14, 0, 14)
+		SearchIcon.Position = UDim2.new(0.5, -7, 0.5, -7)
+		SearchIcon.BackgroundTransparency = 1
+		SearchIcon.Image = getIconAsset("search")
+		SearchIcon.ImageColor3 = Color3.fromRGB(160, 160, 175)
+		SearchIcon.Parent = LeftIconFrame
+
+		-- Right Side TextBox Input Box
 		SearchBox = Instance.new("TextBox")
 		SearchBox.Name = "SearchBox"
-		SearchBox.Size = UDim2.new(0, 126, 0, 28)
-		SearchBox.Position = UDim2.new(0, 12, 0, 52)
-		SearchBox.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
-		SearchBox.BorderSizePixel = 0
+		SearchBox.Size = UDim2.new(1, -32, 1, 0)
+		SearchBox.Position = UDim2.new(0, 32, 0, 0)
+		SearchBox.BackgroundTransparency = 1
 		SearchBox.PlaceholderText = "Search..."
 		SearchBox.Text = ""
 		SearchBox.TextColor3 = Color3.fromRGB(240, 240, 245)
 		SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 130)
 		SearchBox.TextSize = 10
 		SearchBox.Font = Enum.Font.GothamMedium
-		SearchBox.Parent = Main
+		SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+		SearchBox.Parent = SearchContainer
 
-		local SearchCorner = Instance.new("UICorner")
-		SearchCorner.CornerRadius = UDim.new(0, 30)
-		SearchCorner.Parent = SearchBox
-
-		local SearchIcon = Instance.new("ImageLabel")
-		SearchIcon.Size = UDim2.new(0, 14, 0, 14)
-		SearchIcon.Position = UDim2.new(0, 8, 0.5, -7)
-		SearchIcon.BackgroundTransparency = 1
-		SearchIcon.Image = getIconAsset("search")
-		SearchIcon.ImageColor3 = Color3.fromRGB(130, 130, 140)
-		SearchIcon.Parent = SearchBox
-
-		local SearchPadding = Instance.new("UIPadding")
-		SearchPadding.PaddingLeft = UDim.new(0, 28)
-		SearchPadding.Parent = SearchBox
+		SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+			local query = SearchBox.Text:lower()
+			if searchFilterCallback then
+				pcall(searchFilterCallback, query)
+			end
+		end)
 	end
 	
 	local tabYOffset = searchBarEnabled and 84 or 52
@@ -1216,6 +1238,24 @@ function Library.CreateWindow(config)
 
 	local tabs = {}
 	local activeTabObject = nil
+	local searchableItems = {}
+
+	searchFilterCallback = function(query)
+		for _, item in pairs(searchableItems) do
+			if item and item.Parent then
+				if query == "" then
+					item.Visible = true
+				else
+					local matchName = item:GetAttribute("SearchName") or ""
+					if matchName:lower():find(query) then
+						item.Visible = true
+					else
+						item.Visible = false
+					end
+				end
+			end
+		end
+	end
 
 	function window:CreateTab(tabConfig)
 		local tabObj = {}
@@ -1313,10 +1353,7 @@ function Library.CreateWindow(config)
 			TabTagsLayout.Parent = TabTagsHolder
 
 			function tabObj:Tag(tagConfig)
-				if hasTag then
-					print("[SpawnRealmX]: Tab tags have a limit of 1 per tab!")
-					return
-				end
+				if hasTag then return end
 
 				tagConfig = tagConfig or {}
 				local tText = tagConfig.Title or tagConfig.title or "Beta"
@@ -1416,7 +1453,6 @@ function Library.CreateWindow(config)
 			local switchToThisTab = function()
 				playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 
-				-- Stop all other tabs' ember loops and reset visuals
 				for _, t in pairs(tabs) do
 					pcall(function()
 						t.Page.Visible = false
@@ -1437,7 +1473,6 @@ function Library.CreateWindow(config)
 				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
 
-				-- Start continuous white fire ember loop for this active tab
 				if activeEmberTask then
 					task.cancel(activeEmberTask)
 				end
@@ -1509,7 +1544,6 @@ function Library.CreateWindow(config)
 				tabObj.Active = true
 				activeTabObject = tabObj
 
-				-- Initial active tab ember start
 				activeEmberTask = task.spawn(function()
 					while tabObj.Active and TabBtn and TabBtn.Parent do
 						pcall(function()
@@ -1589,6 +1623,8 @@ function Library.CreateWindow(config)
 							local ToggleItem = Instance.new("Frame")
 							ToggleItem.Size = UDim2.new(1, -18, 0, desc and 38 or 28)
 							ToggleItem.BackgroundTransparency = 1
+							ToggleItem:SetAttribute("SearchName", tostring(name) .. " " .. tostring(desc or ""))
+							table.insert(searchableItems, ToggleItem)
 							ToggleItem.Parent = SectionFrame
 
 							local Label = Instance.new("TextLabel")
@@ -1656,6 +1692,8 @@ function Library.CreateWindow(config)
 							Btn.Font = Enum.Font.GothamMedium
 							Btn.TextSize = 11
 							Btn.TextXAlignment = Enum.TextXAlignment.Left
+							Btn:SetAttribute("SearchName", tostring(name))
+							table.insert(searchableItems, Btn)
 							Btn.Parent = SectionFrame
 
 							local BtnCorner = Instance.new("UICorner")
@@ -1679,6 +1717,8 @@ function Library.CreateWindow(config)
 							local SliderItem = Instance.new("Frame")
 							SliderItem.Size = UDim2.new(1, -18, 0, 42)
 							SliderItem.BackgroundTransparency = 1
+							SliderItem:SetAttribute("SearchName", tostring(name))
+							table.insert(searchableItems, SliderItem)
 							SliderItem.Parent = SectionFrame
 
 							local Label = Instance.new("TextLabel")
