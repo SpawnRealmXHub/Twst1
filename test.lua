@@ -235,7 +235,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- Bottom-Right Corner Resizing Handle (as seen in reference image)[cite: 4]
+	-- Bottom-Right Corner Resizing Handle
 	local ResizeHandle = Instance.new("TextButton")
 	ResizeHandle.Name = "ResizeHandle"
 	ResizeHandle.Size = UDim2.new(0, 24, 0, 24)
@@ -253,7 +253,6 @@ function Library.CreateWindow(config)
 	ResizeVisual.ZIndex = 31
 	ResizeVisual.Parent = ResizeHandle
 
-	-- Draw subtle curved lines for the resize grip indicator matching screenshot[cite: 4]
 	for i = 0, 2 do
 		local line = Instance.new("Frame")
 		line.Size = UDim2.new(0, 2 + (i * 3), 0, 2)
@@ -269,7 +268,6 @@ function Library.CreateWindow(config)
 		lCorner.Parent = line
 	end
 
-	-- Resizing Logic
 	local resizing, resizeStart, startSize = false, nil, nil
 	ResizeHandle.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -293,687 +291,6 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle)
-	local WavesStatsFrame = nil
-	if pillUIWavesEnabled then
-		WavesStatsFrame = Instance.new("TextButton")
-		WavesStatsFrame.Name = "WavesStatsFrame"
-		WavesStatsFrame.Size = UDim2.new(0, 185, 0, 34)
-		WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 2)
-		WavesStatsFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-		WavesStatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
-		WavesStatsFrame.BorderSizePixel = 0
-		WavesStatsFrame.AutoButtonColor = false
-		WavesStatsFrame.Text = ""
-		WavesStatsFrame.Visible = not loadingXUIEnabled
-		WavesStatsFrame.ClipsDescendants = true
-		WavesStatsFrame.ZIndex = 10
-		WavesStatsFrame.Parent = ScreenGui
-
-		local WStatsCorner = Instance.new("UICorner")
-		WStatsCorner.CornerRadius = UDim.new(0, 18)
-		WStatsCorner.Parent = WavesStatsFrame
-
-		local WStatsStroke = Instance.new("UIStroke")
-		WStatsStroke.Thickness = 2.2
-		WStatsStroke.Parent = WavesStatsFrame
-
-		local WStatsStrokeGrad = Instance.new("UIGradient")
-		WStatsStrokeGrad.Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0),
-			NumberSequenceKeypoint.new(0.2, 0.2),
-			NumberSequenceKeypoint.new(0.4, 0.9),
-			NumberSequenceKeypoint.new(0.5, 0),
-			NumberSequenceKeypoint.new(0.7, 0.9),
-			NumberSequenceKeypoint.new(0.9, 0.2),
-			NumberSequenceKeypoint.new(1, 0)
-		})
-		WStatsStrokeGrad.Parent = WStatsStroke
-
-		task.spawn(function()
-			while WStatsStrokeGrad and WStatsStrokeGrad.Parent do
-				TweenService:Create(WStatsStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = WStatsStrokeGrad.Rotation + 360}):Play()
-				task.wait(2.8)
-			end
-		end)
-
-		-- Collapsed Pill Content Container
-		local CollapsedContainer = Instance.new("Frame")
-		CollapsedContainer.Name = "CollapsedContainer"
-		CollapsedContainer.Size = UDim2.new(1, 0, 0, 34)
-		CollapsedContainer.BackgroundTransparency = 1
-		CollapsedContainer.ZIndex = 11
-		CollapsedContainer.Parent = WavesStatsFrame
-
-		local RadarContainer = Instance.new("Frame")
-		RadarContainer.Size = UDim2.new(0, 20, 0, 20)
-		RadarContainer.Position = UDim2.new(0, 8, 0.5, -10)
-		RadarContainer.BackgroundTransparency = 1
-		RadarContainer.ClipsDescendants = false
-		RadarContainer.ZIndex = 12
-		RadarContainer.Parent = CollapsedContainer
-
-		local PingDot = Instance.new("Frame")
-		PingDot.Size = UDim2.new(0, 8, 0, 8)
-		PingDot.Position = UDim2.new(0.5, -4, 0.5, -4)
-		PingDot.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-		PingDot.BorderSizePixel = 0
-		PingDot.ZIndex = 13
-		PingDot.Parent = RadarContainer
-
-		local PingDotCorner = Instance.new("UICorner")
-		PingDotCorner.CornerRadius = UDim.new(1, 0)
-		PingDotCorner.Parent = PingDot
-
-		task.spawn(function()
-			while WavesStatsFrame and WavesStatsFrame.Parent do
-				pcall(function()
-					local ring = Instance.new("Frame")
-					ring.Size = UDim2.new(0, 8, 0, 8)
-					ring.Position = UDim2.new(0.5, -4, 0.5, -4)
-					ring.BackgroundColor3 = PingDot.BackgroundColor3
-					ring.BackgroundTransparency = 0.2
-					ring.BorderSizePixel = 0
-					ring.ZIndex = 12
-					ring.Parent = RadarContainer
-
-					local rCorner = Instance.new("UICorner")
-					rCorner.CornerRadius = UDim.new(1, 0)
-					rCorner.Parent = ring
-
-					TweenService:Create(ring, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 24, 0, 24),
-						Position = UDim2.new(0.5, -12, 0.5, -12),
-						BackgroundTransparency = 1
-					}):Play()
-
-					task.delay(0.9, function()
-						if ring then ring:Destroy() end
-					end)
-				end)
-				task.wait(1.0)
-			end
-		end)
-
-		local CenterContent = Instance.new("Frame")
-		CenterContent.Size = UDim2.new(1, -56, 1, 0)
-		CenterContent.Position = UDim2.new(0, 28, 0, 0)
-		CenterContent.BackgroundTransparency = 1
-		CenterContent.ZIndex = 12
-		CenterContent.Parent = CollapsedContainer
-
-		local CenterIcon = Instance.new("ImageLabel")
-		CenterIcon.Size = UDim2.new(0, 13, 0, 13)
-		CenterIcon.Position = UDim2.new(0, 0, 0.5, -6.5)
-		CenterIcon.BackgroundTransparency = 1
-		CenterIcon.Image = iconId
-		CenterIcon.ZIndex = 13
-		CenterIcon.Parent = CenterContent
-
-		local CenterTitle = Instance.new("TextLabel")
-		CenterTitle.Size = UDim2.new(1, -15, 1, 0)
-		CenterTitle.Position = UDim2.new(0, 15, 0, 0)
-		CenterTitle.BackgroundTransparency = 1
-		CenterTitle.Text = "SpawnRealmXHub"
-		CenterTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-		CenterTitle.TextSize = 10
-		CenterTitle.Font = Enum.Font.GothamBold
-		CenterTitle.TextXAlignment = Enum.TextXAlignment.Left
-		CenterTitle.ZIndex = 13
-		CenterTitle.Parent = CenterContent
-
-		local WaveContainer = Instance.new("Frame")
-		WaveContainer.Size = UDim2.new(0, 22, 0, 16)
-		WaveContainer.Position = UDim2.new(1, -26, 0.5, -8)
-		WaveContainer.BackgroundTransparency = 1
-		WaveContainer.ZIndex = 12
-		WaveContainer.Parent = CollapsedContainer
-
-		local WaveLayout = Instance.new("UIListLayout")
-		WaveLayout.FillDirection = Enum.FillDirection.Horizontal
-		WaveLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-		WaveLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-		WaveLayout.Padding = UDim.new(0, 2)
-		WaveLayout.Parent = WaveContainer
-
-		local function createWaveBar()
-			local bar = Instance.new("Frame")
-			bar.Size = UDim2.new(0, 4, 0, 8)
-			bar.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-			bar.BorderSizePixel = 0
-			bar.ZIndex = 13
-			bar.Parent = WaveContainer
-
-			local bCorner = Instance.new("UICorner")
-			bCorner.CornerRadius = UDim.new(1, 0)
-			bCorner.Parent = bar
-			return bar
-		end
-
-		local bar1 = createWaveBar()
-		local bar2 = createWaveBar()
-		local bar3 = createWaveBar()
-
-		-- Expanded Menu Container
-		local ExpandedContainer = Instance.new("Frame")
-		ExpandedContainer.Name = "ExpandedContainer"
-		ExpandedContainer.Size = UDim2.new(1, 0, 0, 136)
-		ExpandedContainer.Position = UDim2.new(0, 0, 0, 34)
-		ExpandedContainer.BackgroundTransparency = 1
-		ExpandedContainer.Visible = false
-		ExpandedContainer.ZIndex = 11
-		ExpandedContainer.Parent = WavesStatsFrame
-
-		-- Shiny Light Beam effect inside Expanded Pill Menu
-		local PillShinyClip = Instance.new("Frame")
-		PillShinyClip.Size = UDim2.new(1, 0, 1, 0)
-		PillShinyClip.BackgroundTransparency = 1
-		PillShinyClip.ClipsDescendants = true
-		PillShinyClip.ZIndex = 11
-		PillShinyClip.Parent = ExpandedContainer
-
-		local PillShiny = Instance.new("Frame")
-		PillShiny.Size = UDim2.new(0, 80, 2, 0)
-		PillShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
-		PillShiny.Rotation = 30
-		PillShiny.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		PillShiny.BackgroundTransparency = 0.92
-		PillShiny.BorderSizePixel = 0
-		PillShiny.ZIndex = 11
-		PillShiny.Parent = PillShinyClip
-
-		local PillShinyGrad = Instance.new("UIGradient")
-		PillShinyGrad.Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 1),
-			NumberSequenceKeypoint.new(0.5, 0.5),
-			NumberSequenceKeypoint.new(1, 1)
-		})
-		PillShinyGrad.Parent = PillShiny
-
-		task.spawn(function()
-			while ExpandedContainer and ExpandedContainer.Parent do
-				PillShiny.Position = UDim2.new(-0.5, 0, -0.5, 0)
-				TweenService:Create(PillShiny, TweenInfo.new(3.0, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.3, 0, -0.5, 0)}):Play()
-				task.wait(6)
-			end
-		end)
-
-		-- Profile Card Header inside Expanded View
-		local AvatarImg = Instance.new("ImageLabel")
-		AvatarImg.Size = UDim2.new(0, 34, 0, 34)
-		AvatarImg.Position = UDim2.new(0, 12, 0, 4)
-		AvatarImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-		AvatarImg.BorderSizePixel = 0
-		AvatarImg.ZIndex = 12
-		AvatarImg.Parent = ExpandedContainer
-
-		local AvatarCorner = Instance.new("UICorner")
-		AvatarCorner.CornerRadius = UDim.new(1, 0)
-		AvatarCorner.Parent = AvatarImg
-
-		task.spawn(function()
-			pcall(function()
-				AvatarImg.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", LocalPlayer.UserId)
-			end)
-		end)
-
-		local DisplayNameLbl = Instance.new("TextLabel")
-		DisplayNameLbl.Size = UDim2.new(1, -125, 0, 16)
-		DisplayNameLbl.Position = UDim2.new(0, 54, 0, 4)
-		DisplayNameLbl.BackgroundTransparency = 1
-		DisplayNameLbl.Text = LocalPlayer.DisplayName
-		DisplayNameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-		DisplayNameLbl.TextSize = 11
-		DisplayNameLbl.Font = Enum.Font.GothamBold
-		DisplayNameLbl.TextXAlignment = Enum.TextXAlignment.Left
-		DisplayNameLbl.ZIndex = 12
-		DisplayNameLbl.Parent = ExpandedContainer
-
-		local execName = getExecutorName()
-		local gameName = "Just a baseplate"
-		pcall(function()
-			local info = MarketplaceService:GetProductInfo(game.PlaceId)
-			if info and info.Name then
-				gameName = info.Name
-			end
-		end)
-
-		local SubInfoLbl = Instance.new("TextLabel")
-		SubInfoLbl.Size = UDim2.new(1, -125, 0, 20)
-		SubInfoLbl.Position = UDim2.new(0, 54, 0, 20)
-		SubInfoLbl.BackgroundTransparency = 1
-		SubInfoLbl.Text = "@" .. LocalPlayer.Name .. " • " .. execName .. "\n" .. gameName
-		SubInfoLbl.TextColor3 = Color3.fromRGB(150, 150, 165)
-		SubInfoLbl.TextSize = 8.5
-		SubInfoLbl.Font = Enum.Font.GothamMedium
-		SubInfoLbl.TextXAlignment = Enum.TextXAlignment.Left
-		SubInfoLbl.ZIndex = 12
-		SubInfoLbl.Parent = ExpandedContainer
-
-		-- Session Timer Pill
-		local TimerPill = Instance.new("Frame")
-		TimerPill.Size = UDim2.new(0, 60, 0, 20)
-		TimerPill.Position = UDim2.new(1, -70, 0, 6)
-		TimerPill.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-		TimerPill.BorderSizePixel = 0
-		TimerPill.ZIndex = 12
-		TimerPill.Parent = ExpandedContainer
-
-		local TimerCorner = Instance.new("UICorner")
-		TimerCorner.CornerRadius = UDim.new(0, 10)
-		TimerCorner.Parent = TimerPill
-
-		local TimerLbl = Instance.new("TextLabel")
-		TimerLbl.Size = UDim2.new(1, 0, 1, 0)
-		TimerLbl.BackgroundTransparency = 1
-		TimerLbl.Text = "0m 0s"
-		TimerLbl.TextColor3 = Color3.fromRGB(210, 210, 220)
-		TimerLbl.TextSize = 8.5
-		TimerLbl.Font = Enum.Font.GothamBold
-		TimerLbl.ZIndex = 13
-		TimerLbl.Parent = TimerPill
-
-		local startTime = tick()
-		task.spawn(function()
-			while true do
-				task.wait(1)
-				local elapsed = math.floor(tick() - startTime)
-				local mins = math.floor(elapsed / 60)
-				local secs = elapsed % 60
-				TimerLbl.Text = string.format("%dm %ds", mins, secs)
-			end
-		end)
-
-		-- Grid Stats Cards
-		local CardsHolder = Instance.new("Frame")
-		CardsHolder.Size = UDim2.new(1, -16, 0, 58)
-		CardsHolder.Position = UDim2.new(0, 8, 0, 44)
-		CardsHolder.BackgroundTransparency = 1
-		CardsHolder.ZIndex = 12
-		CardsHolder.Parent = ExpandedContainer
-
-		local function createStatCard(posX, posY, iconName, labelName, defaultVal)
-			local card = Instance.new("Frame")
-			card.Size = UDim2.new(0.5, -4, 0, 26)
-			card.Position = posX
-			card.BackgroundColor3 = Color3.fromRGB(25, 25, 32)
-			card.BorderSizePixel = 0
-			card.ZIndex = 13
-			card.Parent = CardsHolder
-
-			local cCorner = Instance.new("UICorner")
-			cCorner.CornerRadius = UDim.new(0, 8)
-			cCorner.Parent = card
-
-			local icon = Instance.new("ImageLabel")
-			icon.Size = UDim2.new(0, 11, 0, 11)
-			icon.Position = UDim2.new(0, 6, 0.5, -5.5)
-			icon.BackgroundTransparency = 1
-			icon.Image = getIconAsset(iconName)
-			icon.ImageColor3 = Color3.fromRGB(160, 160, 175)
-			icon.ZIndex = 14
-			icon.Parent = card
-
-			local lbl = Instance.new("TextLabel")
-			lbl.Size = UDim2.new(1, -22, 1, 0)
-			lbl.Position = UDim2.new(0, 22, 0, 0)
-			lbl.BackgroundTransparency = 1
-			lbl.Text = labelName .. " " .. defaultVal
-			lbl.TextColor3 = Color3.fromRGB(200, 200, 210)
-			lbl.TextSize = 9.5
-			lbl.Font = Enum.Font.GothamMedium
-			lbl.TextXAlignment = Enum.TextXAlignment.Left
-			lbl.ZIndex = 14
-			lbl.Parent = card
-			return lbl
-		end
-
-		local FpsCardLbl = createStatCard(UDim2.new(0, 0, 0, 0), UDim2.new(0, 0, 0, 0), "cpu", "FPS", "60")
-		local PingCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 0), UDim2.new(0, 0, 0, 0), "zap", "Ping", "35 ms")
-		local PlrCardLbl = createStatCard(UDim2.new(0, 0, 0, 30), UDim2.new(0, 0, 0, 0), "users", "Players", "4")
-		local OnlineCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 30), UDim2.new(0, 0, 0, 0), "globe", "Online", "3000")
-
-		-- Global Server Player Counter fetcher
-		task.spawn(function()
-			while true do
-				pcall(function()
-					local s, count = pcall(function()
-						return MarketplaceService:GetServerPlayerCount(game.PlaceId)
-					end)
-					if s and count then
-						OnlineCardLbl.Text = "Online " .. count
-					else
-						OnlineCardLbl.Text = "Online " .. (#Players:GetPlayers() * 45)
-					end
-				end)
-				task.wait(15)
-			end
-		end)
-
-		-- "Restore Window" Button at the bottom inside expanded pill menu
-		local RestoreBtn = Instance.new("TextButton")
-		RestoreBtn.Size = UDim2.new(1, -16, 0, 26)
-		RestoreBtn.Position = UDim2.new(0, 8, 0, 106)
-		RestoreBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-		RestoreBtn.BorderSizePixel = 0
-		RestoreBtn.AutoButtonColor = false
-		RestoreBtn.Text = "> Restore Window"
-		RestoreBtn.TextColor3 = Color3.fromRGB(210, 210, 220)
-		RestoreBtn.TextSize = 9.5
-		RestoreBtn.Font = Enum.Font.GothamBold
-		RestoreBtn.ZIndex = 13
-		RestoreBtn.Parent = ExpandedContainer
-
-		local RestoreCorner = Instance.new("UICorner")
-		RestoreCorner.CornerRadius = UDim.new(0, 8)
-		RestoreCorner.Parent = RestoreBtn
-
-		local isExpanded = false
-
-		local function collapsePill()
-			if not isExpanded then return end
-			isExpanded = false
-			ExpandedContainer.Visible = false
-			CollapsedContainer.Visible = true
-
-			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 185, 0, 34)
-			}):Play()
-		end
-
-		local function expandPill()
-			if isExpanded then return end
-			isExpanded = true
-			CollapsedContainer.Visible = false
-			ExpandedContainer.Visible = true
-
-			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 260, 0, 140)
-			}):Play()
-		end
-
-		WavesStatsFrame.MouseButton1Click:Connect(function()
-			playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
-			if isExpanded then
-				collapsePill()
-			else
-				expandPill()
-			end
-		end)
-
-		-- Restore Window & Mini Stats Position Action
-		RestoreBtn.MouseButton1Click:Connect(function()
-			playSound("rbxassetid://122966251252708", soundEnabled, 2.0)
-			collapsePill()
-
-			-- Reset Main Window position & visibility
-			Main.Visible = true
-			Main.Size = UDim2.new(0, targetWidth, 0, targetHeight)
-			Main.Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2)
-			Main.BackgroundTransparency = 0
-
-			-- Reset Top Pill positions
-			WavesStatsFrame.Size = UDim2.new(0, 185, 0, 34)
-			WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 2)
-			WavesStatsFrame.Visible = true
-
-			if StatsFrame then
-				StatsFrame.Size = UDim2.new(0, 230, 0, 32)
-				StatsFrame.Position = UDim2.new(1, -242, 0, 2)
-				StatsFrame.Visible = true
-			end
-
-			if ToggleBtnOuter then
-				ToggleBtnOuter.Visible = false
-			end
-		end)
-
-		-- Outside tap listener to auto-close expanded pill
-		UserInputService.InputBegan:Connect(function(input, gameProcessed)
-			if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-				if isExpanded then
-					local pos = input.Position
-					local framePos = WavesStatsFrame.AbsolutePosition
-					local frameSize = WavesStatsFrame.AbsoluteSize
-					if pos.X < framePos.X or pos.X > (framePos.X + frameSize.X) or pos.Y < framePos.Y or pos.Y > (framePos.Y + frameSize.Y) then
-						collapsePill()
-					end
-				end
-			end
-		end)
-
-		-- Fixed Animated Wave Performance Loop
-		RunService.RenderStepped:Connect(function(dt)
-			pcall(function()
-				local fps = math.floor(1 / dt)
-				local h1, h2, h3, col
-
-				if fps >= 50 then
-					col = Color3.fromRGB(46, 204, 113)
-					h1, h2, h3 = math.random(4, 8), math.random(8, 12), math.random(10, 14)
-				elseif fps >= 30 then
-					col = Color3.fromRGB(241, 196, 15)
-					h1, h2, h3 = math.random(6, 10), math.random(10, 14), math.random(8, 12)
-				else
-					col = Color3.fromRGB(231, 76, 60)
-					h1, h2, h3 = math.random(10, 14), math.random(12, 16), math.random(10, 14)
-				end
-
-				bar1.BackgroundColor3 = col
-				bar2.BackgroundColor3 = col
-				bar3.BackgroundColor3 = col
-
-				bar1.Size = UDim2.new(0, 4, 0, h1)
-				bar2.Size = UDim2.new(0, 4, 0, h2)
-				bar3.Size = UDim2.new(0, 4, 0, h3)
-
-				-- Update live ping & FPS on expanded card
-				local ping = 0
-				pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
-				PingCardLbl.Text = "Ping " .. ping .. " ms"
-				FpsCardLbl.Text = "FPS " .. fps
-				PlrCardLbl.Text = "Players " .. #Players:GetPlayers()
-			end)
-		end)
-
-		makeDraggable(WavesStatsFrame, WavesStatsFrame)
-	end
-
-	-- 2. Top-Right Mini Stats Pill (MS, FPS, PLAYERS)
-	local StatsFrame = nil
-	if pillUIFPSEnabled then
-		StatsFrame = Instance.new("Frame")
-		StatsFrame.Name = "StatsFrame"
-		StatsFrame.Size = UDim2.new(0, 230, 0, 32)
-		StatsFrame.Position = UDim2.new(1, -242, 0, 2)
-		StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
-		StatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
-		StatsFrame.BorderSizePixel = 0
-		StatsFrame.Visible = not loadingXUIEnabled
-		StatsFrame.ZIndex = 10
-		StatsFrame.Parent = ScreenGui
-
-		local StatsCorner = Instance.new("UICorner")
-		StatsCorner.CornerRadius = UDim.new(0, 30)
-		StatsCorner.Parent = StatsFrame
-
-		local StatsStroke = Instance.new("UIStroke")
-		StatsStroke.Thickness = 2.5
-		StatsStroke.Parent = StatsFrame
-
-		local StatsStrokeGrad = Instance.new("UIGradient")
-		StatsStrokeGrad.Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0),
-			NumberSequenceKeypoint.new(0.2, 0.2),
-			NumberSequenceKeypoint.new(0.4, 0.9),
-			NumberSequenceKeypoint.new(0.5, 0),
-			NumberSequenceKeypoint.new(0.7, 0.9),
-			NumberSequenceKeypoint.new(0.9, 0.2),
-			NumberSequenceKeypoint.new(1, 0)
-		})
-		StatsStrokeGrad.Parent = StatsStroke
-
-		task.spawn(function()
-			while StatsStrokeGrad and StatsStrokeGrad.Parent do
-				TweenService:Create(StatsStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = StatsStrokeGrad.Rotation + 360}):Play()
-				task.wait(2.8)
-			end
-		end)
-
-		local HeadshotImg = Instance.new("ImageLabel")
-		HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
-		HeadshotImg.Position = UDim2.new(0, 8, 0.5, -10)
-		HeadshotImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-		HeadshotImg.BorderSizePixel = 0
-		HeadshotImg.ZIndex = 11
-		HeadshotImg.Parent = StatsFrame
-
-		local HeadCorner = Instance.new("UICorner")
-		HeadCorner.CornerRadius = UDim.new(1, 0)
-		HeadCorner.Parent = HeadshotImg
-
-		task.spawn(function()
-			while not LocalPlayer do task.wait(0.1) end
-			pcall(function()
-				HeadshotImg.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", LocalPlayer.UserId)
-			end)
-		end)
-
-		local StatsContainer = Instance.new("Frame")
-		StatsContainer.Size = UDim2.new(1, -30, 1, 0)
-		StatsContainer.Position = UDim2.new(0, 30, 0, 0)
-		StatsContainer.BackgroundTransparency = 1
-		StatsContainer.ZIndex = 11
-		StatsContainer.Parent = StatsFrame
-
-		local StatsLayout = Instance.new("UIListLayout")
-		StatsLayout.FillDirection = Enum.FillDirection.Horizontal
-		StatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		StatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-		StatsLayout.Padding = UDim.new(0, 4)
-		StatsLayout.Parent = StatsContainer
-
-		local function createStatBadge(iconId, labelName, defaultVal)
-			local holder = Instance.new("Frame")
-			holder.Size = UDim2.new(0, 62, 1, 0)
-			holder.BackgroundTransparency = 1
-			holder.ZIndex = 11
-			holder.Parent = StatsContainer
-
-			local icon = Instance.new("ImageLabel")
-			icon.Size = UDim2.new(0, 11, 0, 11)
-			icon.Position = UDim2.new(0, 0, 0.5, -5.5)
-			icon.BackgroundTransparency = 1
-			icon.Image = getIconAsset(iconId)
-			icon.ImageColor3 = Color3.fromRGB(160, 160, 175)
-			icon.ZIndex = 12
-			icon.Parent = holder
-
-			local lbl = Instance.new("TextLabel")
-			lbl.Size = UDim2.new(1, -13, 1, 0)
-			lbl.Position = UDim2.new(0, 13, 0, 0)
-			lbl.BackgroundTransparency = 1
-			lbl.Text = defaultVal .. " " .. labelName
-			lbl.TextColor3 = Color3.fromRGB(180, 180, 190)
-			lbl.TextSize = 8
-			lbl.Font = Enum.Font.GothamMedium
-			lbl.TextXAlignment = Enum.TextXAlignment.Left
-			lbl.ZIndex = 12
-			lbl.Parent = holder
-			return lbl
-		end
-
-		local PingLabel = createStatBadge("zap", "MS", "32")
-		local FpsLabel = createStatBadge("cpu", "FPS", "60")
-		local PlayersLabel = createStatBadge("users", "PLAYERS", "12")
-
-		task.spawn(function()
-			local lastUpdate = 0
-			RunService.RenderStepped:Connect(function(dt)
-				lastUpdate += dt
-				if lastUpdate >= 1 then
-					lastUpdate = 0
-					local ping = 0
-					pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
-					PingLabel.Text = ping .. " MS"
-					FpsLabel.Text = math.floor(1 / dt) .. " FPS"
-					PlayersLabel.Text = #Players:GetPlayers() .. " PLAYERS"
-				end
-			end)
-		end)
-
-		makeDraggable(StatsFrame, StatsFrame)
-	end
-
-	-- 3. Minimized Floating Circle Toggle Button
-	local ToggleBtnOuter = Instance.new("Frame")
-	ToggleBtnOuter.Name = "ToggleBtnOuter"
-	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
-	ToggleBtnOuter.Position = UDim2.new(0, 40, 0, 200)
-	ToggleBtnOuter.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-	ToggleBtnOuter.BorderSizePixel = 0
-	ToggleBtnOuter.Visible = false
-	ToggleBtnOuter.ZIndex = 20
-	ToggleBtnOuter.Parent = ScreenGui
-
-	local TBtnOuterCorner = Instance.new("UICorner")
-	TBtnOuterCorner.CornerRadius = UDim.new(1, 0)
-	TBtnOuterCorner.Parent = ToggleBtnOuter
-
-	local ToggleBtnStroke = Instance.new("UIStroke")
-	ToggleBtnStroke.Thickness = 2.2
-	ToggleBtnStroke.Parent = ToggleBtnOuter
-
-	local ToggleBtnStrokeGrad = Instance.new("UIGradient")
-	ToggleBtnStrokeGrad.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(0.15, 0.1),
-		NumberSequenceKeypoint.new(0.35, 0.9),
-		NumberSequenceKeypoint.new(0.5, 0),
-		NumberSequenceKeypoint.new(0.65, 0.9),
-		NumberSequenceKeypoint.new(0.85, 0.1),
-		NumberSequenceKeypoint.new(1, 0)
-	})
-	ToggleBtnStrokeGrad.Parent = ToggleBtnStroke
-
-	task.spawn(function()
-		while ToggleBtnStrokeGrad and ToggleBtnStrokeGrad.Parent do
-			TweenService:Create(ToggleBtnStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = ToggleBtnStrokeGrad.Rotation + 360}):Play()
-			task.wait(2.8)
-		end
-	end)
-
-	local ToggleBtn = Instance.new("ImageButton")
-	ToggleBtn.Size = UDim2.new(0, 24, 0, 24)
-	ToggleBtn.Position = UDim2.new(0.5, -12, 0.5, -12)
-	ToggleBtn.BackgroundTransparency = 1
-	ToggleBtn.Image = iconId
-	ToggleBtn.ScaleType = Enum.ScaleType.Fit
-	ToggleBtn.ZIndex = 21
-	ToggleBtn.Parent = ToggleBtnOuter
-
-	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
-	makeDraggable(ToggleBtn, ToggleBtnOuter)
-
-	local function restoreWindowAction()
-		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
-		Main.Visible = true
-
-		Main.Size = UDim2.new(0, 0, 0, 0)
-		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
-		Main.BackgroundTransparency = 1
-
-		TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0, targetWidth, 0, targetHeight),
-			Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
-			BackgroundTransparency = 0
-		}):Play()
-
-		ToggleBtnOuter.Visible = false
-	end
-
-	ToggleBtn.MouseButton1Click:Connect(restoreWindowAction)
-
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
 	Topbar.Size = UDim2.new(1, 0, 0, 50)
@@ -988,6 +305,7 @@ function Library.CreateWindow(config)
 	WindowIcon.Parent = Topbar
 
 	local TitleLabel = Instance.new("TextLabel")
+	TitleLabel.Name = "TitleLabel"
 	TitleLabel.Size = UDim2.new(0, 200, 0, 20)
 	TitleLabel.Position = UDim2.new(0, 48, 0, 8)
 	TitleLabel.BackgroundTransparency = 1
@@ -1008,6 +326,76 @@ function Library.CreateWindow(config)
 	SubTitleLabel.Font = Enum.Font.GothamMedium
 	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	SubTitleLabel.Parent = Topbar
+
+	-- Window Tags Holder Container (Places next to title & chains rightwards matching screenshot[cite: 5])
+	local WindowTagsContainer = Instance.new("Frame")
+	WindowTagsContainer.Name = "WindowTagsContainer"
+	WindowTagsContainer.Size = UDim2.new(0, 400, 0, 28)
+	WindowTagsContainer.Position = UDim2.new(0, 250, 0, 11)
+	WindowTagsContainer.BackgroundTransparency = 1
+	WindowTagsContainer.ZIndex = 15
+	WindowTagsContainer.Parent = Topbar
+
+	local WindowTagsLayout = Instance.new("UIListLayout")
+	WindowTagsLayout.FillDirection = Enum.FillDirection.Horizontal
+	WindowTagsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	WindowTagsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	WindowTagsLayout.Padding = UDim.new(0, 6)
+	WindowTagsLayout.Parent = WindowTagsContainer
+
+	function window:Tag(tagConfig)
+		tagConfig = tagConfig or {}
+		local tText = tagConfig.Title or tagConfig.title or "Tag"
+		local tIcon = getIconAsset(tagConfig.Icon or tagConfig.icon)
+		local tTextColor = tagConfig.TextColor or tagConfig.textColor or Color3.fromRGB(255, 255, 255)
+		local tBgColor = tagConfig.BackgroundColor or tagConfig.backgroundColor or Color3.fromRGB(45, 45, 55)
+
+		pcall(function()
+			local tagPill = Instance.new("Frame")
+			tagPill.Size = UDim2.new(0, 0, 0, 24)
+			tagPill.AutomaticSize = Enum.AutomaticSize.X
+			tagPill.BackgroundColor3 = tBgColor
+			tagPill.BorderSizePixel = 0
+			tagPill.ZIndex = 16
+			tagPill.Parent = WindowTagsContainer
+
+			local tCorner = Instance.new("UICorner")
+			tCorner.CornerRadius = UDim0 or UDim.new(1, 0)
+			tCorner.Parent = tagPill
+
+			local pad = Instance.new("UIPadding")
+			pad.PaddingLeft = UDim.new(0, tIcon ~= "" and 6 or 10)
+			pad.PaddingRight = UDim.new(0, 10)
+			pad.Parent = tagPill
+
+			local layout = Instance.new("UIListLayout")
+			layout.FillDirection = Enum.FillDirection.Horizontal
+			layout.VerticalAlignment = Enum.VerticalAlignment.Center
+			layout.Padding = UDim.new(0, 4)
+			layout.Parent = tagPill
+
+			if tIcon ~= "" then
+				local img = Instance.new("ImageLabel")
+				img.Size = UDim2.new(0, 12, 0, 12)
+				img.BackgroundTransparency = 1
+				img.Image = tIcon
+				img.ImageColor3 = tTextColor
+				img.ZIndex = 17
+				img.Parent = tagPill
+			end
+
+			local lbl = Instance.new("TextLabel")
+			lbl.Size = UDim2.new(0, 0, 1, 0)
+			lbl.AutomaticSize = Enum.AutomaticSize.X
+			lbl.BackgroundTransparency = 1
+			lbl.Text = tText
+			lbl.TextColor3 = tTextColor
+			lbl.TextSize = 10
+			lbl.Font = Enum.Font.GothamBold
+			lbl.ZIndex = 17
+			lbl.Parent = tagPill
+		end)
+	end
 
 	local CloseBtn = Instance.new("TextButton")
 	CloseBtn.Size = UDim2.new(0, 22, 0, 22)
@@ -1056,10 +444,525 @@ function Library.CreateWindow(config)
 		}):Play()
 		task.wait(0.25)
 		Main.Visible = false
-		ToggleBtnOuter.Visible = true
+		if ToggleBtnOuter then ToggleBtnOuter.Visible = true end
 	end)
 
 	makeDraggable(Topbar, Main)
+
+	-- 1. Fixed Tapable Interactive Profile & Stats Pill (Top-Middle Correct Position)
+	local WavesStatsFrame = nil
+	if pillUIWavesEnabled then
+		WavesStatsFrame = Instance.new("TextButton")
+		WavesStatsFrame.Name = "WavesStatsFrame"
+		WavesStatsFrame.Size = UDim2.new(0, 185, 0, 34)
+		WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 8)
+		WavesStatsFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+		WavesStatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
+		WavesStatsFrame.BorderSizePixel = 0
+		WavesStatsFrame.AutoButtonColor = false
+		WavesStatsFrame.Text = ""
+		WavesStatsFrame.Visible = not loadingXUIEnabled
+		WavesStatsFrame.ClipsDescendants = true
+		WavesStatsFrame.ZIndex = 50
+		WavesStatsFrame.Parent = ScreenGui
+
+		local WStatsCorner = Instance.new("UICorner")
+		WStatsCorner.CornerRadius = UDim.new(0, 18)
+		WStatsCorner.Parent = WavesStatsFrame
+
+		local WStatsStroke = Instance.new("UIStroke")
+		WStatsStroke.Thickness = 2.2
+		WStatsStroke.Parent = WavesStatsFrame
+
+		local WStatsStrokeGrad = Instance.new("UIGradient")
+		WStatsStrokeGrad.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0),
+			NumberSequenceKeypoint.new(0.2, 0.2),
+			NumberSequenceKeypoint.new(0.4, 0.9),
+			NumberSequenceKeypoint.new(0.5, 0),
+			NumberSequenceKeypoint.new(0.7, 0.9),
+			NumberSequenceKeypoint.new(0.9, 0.2),
+			NumberSequenceKeypoint.new(1, 0)
+		})
+		WStatsStrokeGrad.Parent = WStatsStroke
+
+		task.spawn(function()
+			while WStatsStrokeGrad and WStatsStrokeGrad.Parent do
+				TweenService:Create(WStatsStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = WStatsStrokeGrad.Rotation + 360}):Play()
+				task.wait(2.8)
+			end
+		end)
+
+		local CollapsedContainer = Instance.new("Frame")
+		CollapsedContainer.Name = "CollapsedContainer"
+		CollapsedContainer.Size = UDim2.new(1, 0, 0, 34)
+		CollapsedContainer.BackgroundTransparency = 1
+		CollapsedContainer.ZIndex = 51
+		CollapsedContainer.Parent = WavesStatsFrame
+
+		local RadarContainer = Instance.new("Frame")
+		RadarContainer.Size = UDim2.new(0, 20, 0, 20)
+		RadarContainer.Position = UDim2.new(0, 8, 0.5, -10)
+		RadarContainer.BackgroundTransparency = 1
+		RadarContainer.ClipsDescendants = false
+		RadarContainer.ZIndex = 52
+		RadarContainer.Parent = CollapsedContainer
+
+		local PingDot = Instance.new("Frame")
+		PingDot.Size = UDim2.new(0, 8, 0, 8)
+		PingDot.Position = UDim2.new(0.5, -4, 0.5, -4)
+		PingDot.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+		PingDot.BorderSizePixel = 0
+		PingDot.ZIndex = 53
+		PingDot.Parent = RadarContainer
+
+		local PingDotCorner = Instance.new("UICorner")
+		PingDotCorner.CornerRadius = UDim.new(1, 0)
+		PingDotCorner.Parent = PingDot
+
+		task.spawn(function()
+			while WavesStatsFrame and WavesStatsFrame.Parent do
+				pcall(function()
+					local ring = Instance.new("Frame")
+					ring.Size = UDim2.new(0, 8, 0, 8)
+					ring.Position = UDim2.new(0.5, -4, 0.5, -4)
+					ring.BackgroundColor3 = PingDot.BackgroundColor3
+					ring.BackgroundTransparency = 0.2
+					ring.BorderSizePixel = 0
+					ring.ZIndex = 52
+					ring.Parent = RadarContainer
+
+					local rCorner = Instance.new("UICorner")
+					rCorner.CornerRadius = UDim.new(1, 0)
+					rCorner.Parent = ring
+
+					TweenService:Create(ring, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						Size = UDim2.new(0, 24, 0, 24),
+						Position = UDim2.new(0.5, -12, 0.5, -12),
+						BackgroundTransparency = 1
+					}):Play()
+
+					task.delay(0.9, function()
+						if ring then ring:Destroy() end
+					end)
+				end)
+				task.wait(1.0)
+			end
+		end)
+
+		local CenterContent = Instance.new("Frame")
+		CenterContent.Size = UDim2.new(1, -56, 1, 0)
+		CenterContent.Position = UDim2.new(0, 28, 0, 0)
+		CenterContent.BackgroundTransparency = 1
+		CenterContent.ZIndex = 52
+		CenterContent.Parent = CollapsedContainer
+
+		local CenterIcon = Instance.new("ImageLabel")
+		CenterIcon.Size = UDim2.new(0, 13, 0, 13)
+		CenterIcon.Position = UDim2.new(0, 0, 0.5, -6.5)
+		CenterIcon.BackgroundTransparency = 1
+		CenterIcon.Image = iconId
+		CenterIcon.ZIndex = 53
+		CenterIcon.Parent = CenterContent
+
+		local CenterTitle = Instance.new("TextLabel")
+		CenterTitle.Size = UDim2.new(1, -15, 1, 0)
+		CenterTitle.Position = UDim2.new(0, 15, 0, 0)
+		CenterTitle.BackgroundTransparency = 1
+		CenterTitle.Text = "SpawnRealmXHub"
+		CenterTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+		CenterTitle.TextSize = 10
+		CenterTitle.Font = Enum.Font.GothamBold
+		CenterTitle.TextXAlignment = Enum.TextXAlignment.Left
+		CenterTitle.ZIndex = 53
+		CenterTitle.Parent = CenterContent
+
+		local WaveContainer = Instance.new("Frame")
+		WaveContainer.Size = UDim2.new(0, 22, 0, 16)
+		WaveContainer.Position = UDim2.new(1, -26, 0.5, -8)
+		WaveContainer.BackgroundTransparency = 1
+		WaveContainer.ZIndex = 52
+		WaveContainer.Parent = CollapsedContainer
+
+		local function createWaveBar()
+			local bar = Instance.new("Frame")
+			bar.Size = UDim2.new(0, 4, 0, 8)
+			bar.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+			bar.BorderSizePixel = 0
+			bar.ZIndex = 53
+			bar.Parent = WaveContainer
+
+			local bCorner = Instance.new("UICorner")
+			bCorner.CornerRadius = UDim.new(1, 0)
+			bCorner.Parent = bar
+			return bar
+		end
+
+		local bar1 = createWaveBar()
+		local bar2 = createWaveBar()
+		local bar3 = createWaveBar()
+
+		local ExpandedContainer = Instance.new("Frame")
+		ExpandedContainer.Name = "ExpandedContainer"
+		ExpandedContainer.Size = UDim2.new(1, 0, 0, 136)
+		ExpandedContainer.Position = UDim2.new(0, 0, 0, 34)
+		ExpandedContainer.BackgroundTransparency = 1
+		ExpandedContainer.Visible = false
+		ExpandedContainer.ZIndex = 51
+		ExpandedContainer.Parent = WavesStatsFrame
+
+		local AvatarImg = Instance.new("ImageLabel")
+		AvatarImg.Size = UDim2.new(0, 34, 0, 34)
+		AvatarImg.Position = UDim2.new(0, 12, 0, 4)
+		AvatarImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
+		AvatarImg.BorderSizePixel = 0
+		AvatarImg.ZIndex = 52
+		AvatarImg.Parent = ExpandedContainer
+
+		local AvatarCorner = Instance.new("UICorner")
+		AvatarCorner.CornerRadius = UDim.new(1, 0)
+		AvatarCorner.Parent = AvatarImg
+
+		task.spawn(function()
+			pcall(function()
+				AvatarImg.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", LocalPlayer.UserId)
+			end)
+		end)
+
+		local DisplayNameLbl = Instance.new("TextLabel")
+		DisplayNameLbl.Size = UDim2.new(1, -125, 0, 16)
+		DisplayNameLbl.Position = UDim2.new(0, 54, 0, 4)
+		DisplayNameLbl.BackgroundTransparency = 1
+		DisplayNameLbl.Text = LocalPlayer.DisplayName
+		DisplayNameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+		DisplayNameLbl.TextSize = 11
+		DisplayNameLbl.Font = Enum.Font.GothamBold
+		DisplayNameLbl.TextXAlignment = Enum.TextXAlignment.Left
+		DisplayNameLbl.ZIndex = 52
+		DisplayNameLbl.Parent = ExpandedContainer
+
+		local execName = getExecutorName()
+		local gameName = "Just a baseplate"
+		pcall(function()
+			local info = MarketplaceService:GetProductInfo(game.PlaceId)
+			if info and info.Name then gameName = info.Name end
+		end)
+
+		local SubInfoLbl = Instance.new("TextLabel")
+		SubInfoLbl.Size = UDim2.new(1, -125, 0, 20)
+		SubInfoLbl.Position = UDim2.new(0, 54, 0, 20)
+		SubInfoLbl.BackgroundTransparency = 1
+		SubInfoLbl.Text = "@" .. LocalPlayer.Name .. " • " .. execName .. "\n" .. gameName
+		SubInfoLbl.TextColor3 = Color3.fromRGB(150, 150, 165)
+		SubInfoLbl.TextSize = 8.5
+		SubInfoLbl.Font = Enum.Font.GothamMedium
+		SubInfoLbl.TextXAlignment = Enum.TextXAlignment.Left
+		SubInfoLbl.ZIndex = 52
+		SubInfoLbl.Parent = ExpandedContainer
+
+		local TimerPill = Instance.new("Frame")
+		TimerPill.Size = UDim2.new(0, 60, 0, 20)
+		TimerPill.Position = UDim2.new(1, -70, 0, 6)
+		TimerPill.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+		TimerPill.BorderSizePixel = 0
+		TimerPill.ZIndex = 52
+		TimerPill.Parent = ExpandedContainer
+
+		local TimerCorner = Instance.new("UICorner")
+		TimerCorner.CornerRadius = UDim.new(0, 10)
+		TimerCorner.Parent = TimerPill
+
+		local TimerLbl = Instance.new("TextLabel")
+		TimerLbl.Size = UDim2.new(1, 0, 1, 0)
+		TimerLbl.BackgroundTransparency = 1
+		TimerLbl.Text = "0m 0s"
+		TimerLbl.TextColor3 = Color3.fromRGB(210, 210, 220)
+		TimerLbl.TextSize = 8.5
+		TimerLbl.Font = Enum.Font.GothamBold
+		TimerLbl.ZIndex = 53
+		TimerLbl.Parent = TimerPill
+
+		local startTime = tick()
+		task.spawn(function()
+			while true do
+				task.wait(1)
+				local elapsed = math.floor(tick() - startTime)
+				TimerLbl.Text = string.format("%dm %ds", math.floor(elapsed / 60), elapsed % 60)
+			end
+		end)
+
+		local CardsHolder = Instance.new("Frame")
+		CardsHolder.Size = UDim2.new(1, -16, 0, 58)
+		CardsHolder.Position = UDim2.new(0, 8, 0, 44)
+		CardsHolder.BackgroundTransparency = 1
+		CardsHolder.ZIndex = 52
+		CardsHolder.Parent = ExpandedContainer
+
+		local function createStatCard(posX, iconName, labelName, defaultVal)
+			local card = Instance.new("Frame")
+			card.Size = UDim2.new(0.5, -4, 0, 26)
+			card.Position = posX
+			card.BackgroundColor3 = Color3.fromRGB(25, 25, 32)
+			card.BorderSizePixel = 0
+			card.ZIndex = 53
+			card.Parent = CardsHolder
+
+			local cCorner = Instance.new("UICorner")
+			cCorner.CornerRadius = UDim.new(0, 8)
+			cCorner.Parent = card
+
+			local icon = Instance.new("ImageLabel")
+			icon.Size = UDim2.new(0, 11, 0, 11)
+			icon.Position = UDim2.new(0, 6, 0.5, -5.5)
+			icon.BackgroundTransparency = 1
+			icon.Image = getIconAsset(iconName)
+			icon.ImageColor3 = Color3.fromRGB(160, 160, 175)
+			icon.ZIndex = 54
+			icon.Parent = card
+
+			local lbl = Instance.new("TextLabel")
+			lbl.Size = UDim2.new(1, -22, 1, 0)
+			lbl.Position = UDim2.new(0, 22, 0, 0)
+			lbl.BackgroundTransparency = 1
+			lbl.Text = labelName .. " " .. defaultVal
+			lbl.TextColor3 = Color3.fromRGB(200, 200, 210)
+			lbl.TextSize = 9.5
+			lbl.Font = Enum.Font.GothamMedium
+			lbl.TextXAlignment = Enum.TextXAlignment.Left
+			lbl.ZIndex = 54
+			lbl.Parent = card
+			return lbl
+		end
+
+		local FpsCardLbl = createStatCard(UDim2.new(0, 0, 0, 0), "cpu", "FPS", "60")
+		local PingCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 0), "zap", "Ping", "35 ms")
+		local PlrCardLbl = createStatCard(UDim2.new(0, 0, 0, 30), "users", "Players", "4")
+		local OnlineCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 30), "globe", "Online", "3000")
+
+		local RestoreBtn = Instance.new("TextButton")
+		RestoreBtn.Size = UDim2.new(1, -16, 0, 26)
+		RestoreBtn.Position = UDim2.new(0, 8, 0, 106)
+		RestoreBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+		RestoreBtn.BorderSizePixel = 0
+		RestoreBtn.AutoButtonColor = false
+		RestoreBtn.Text = "> Restore Window"
+		RestoreBtn.TextColor3 = Color3.fromRGB(210, 210, 220)
+		RestoreBtn.TextSize = 9.5
+		RestoreBtn.Font = Enum.Font.GothamBold
+		RestoreBtn.ZIndex = 53
+		RestoreBtn.Parent = ExpandedContainer
+
+		local RestoreCorner = Instance.new("UICorner")
+		RestoreCorner.CornerRadius = UDim.new(0, 8)
+		RestoreCorner.Parent = RestoreBtn
+
+		local isExpanded = false
+		local function collapsePill()
+			if not isExpanded then return end
+			isExpanded = false
+			ExpandedContainer.Visible = false
+			CollapsedContainer.Visible = true
+			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, 185, 0, 34)
+			}):Play()
+		end
+
+		local function expandPill()
+			if isExpanded then return end
+			isExpanded = true
+			CollapsedContainer.Visible = false
+			ExpandedContainer.Visible = true
+			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, 260, 0, 140)
+			}):Play()
+		end
+
+		WavesStatsFrame.MouseButton1Click:Connect(function()
+			playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
+			if isExpanded then collapsePill() else expandPill() end
+		end)
+
+		RestoreBtn.MouseButton1Click:Connect(function()
+			playSound("rbxassetid://122966251252708", soundEnabled, 2.0)
+			collapsePill()
+			Main.Visible = true
+			Main.Size = UDim2.new(0, targetWidth, 0, targetHeight)
+			Main.Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2)
+			Main.BackgroundTransparency = 0
+			WavesStatsFrame.Size = UDim2.new(0, 185, 0, 34)
+			WavesStatsFrame.Position = UDim2.new(0.5, -92, 0, 8)
+			WavesStatsFrame.Visible = true
+		end)
+
+		-- Fixed Real FPS Calculation Loop (No more 99 glitch reset)
+		RunService.RenderStepped:Connect(function(dt)
+			pcall(function()
+				local fps = math.floor(1 / math.max(dt, 0.001))
+				local col = fps >= 50 and Color3.fromRGB(46, 204, 113) or (fps >= 30 and Color3.fromRGB(241, 196, 15) or Color3.fromRGB(231, 76, 60))
+				
+				bar1.BackgroundColor3 = col
+				bar2.BackgroundColor3 = col
+				bar3.BackgroundColor3 = col
+				bar1.Size = UDim2.new(0, 4, 0, math.clamp(math.floor(fps / 10), 4, 14))
+				bar2.Size = UDim2.new(0, 4, 0, math.clamp(math.floor(fps / 8), 6, 16))
+				bar3.Size = UDim2.new(0, 4, 0, math.clamp(math.floor(fps / 9), 5, 15))
+
+				local ping = 0
+				pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
+				PingCardLbl.Text = "Ping " .. ping .. " ms"
+				FpsCardLbl.Text = "FPS " .. fps
+				PlrCardLbl.Text = "Players " .. #Players:GetPlayers()
+			end)
+		end)
+
+		makeDraggable(WavesStatsFrame, WavesStatsFrame)
+	end
+
+	-- 2. Top-Right Mini Stats Pill (MS, FPS, PLAYERS)
+	local StatsFrame = nil
+	if pillUIFPSEnabled then
+		StatsFrame = Instance.new("Frame")
+		StatsFrame.Name = "StatsFrame"
+		StatsFrame.Size = UDim2.new(0, 230, 0, 32)
+		StatsFrame.Position = UDim2.new(1, -242, 0, 8)
+		StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
+		StatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
+		StatsFrame.BorderSizePixel = 0
+		StatsFrame.Visible = not loadingXUIEnabled
+		StatsFrame.ZIndex = 50
+		StatsFrame.Parent = ScreenGui
+
+		local StatsCorner = Instance.new("UICorner")
+		StatsCorner.CornerRadius = UDim.new(0, 30)
+		StatsCorner.Parent = StatsFrame
+
+		local StatsStroke = Instance.new("UIStroke")
+		StatsStroke.Thickness = 2.5
+		StatsStroke.Parent = StatsFrame
+
+		local HeadshotImg = Instance.new("ImageLabel")
+		HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
+		HeadshotImg.Position = UDim2.new(0, 8, 0.5, -10)
+		HeadshotImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
+		HeadshotImg.BorderSizePixel = 0
+		HeadshotImg.ZIndex = 51
+		HeadshotImg.Parent = StatsFrame
+
+		local HeadCorner = Instance.new("UICorner")
+		HeadCorner.CornerRadius = UDim.new(1, 0)
+		HeadCorner.Parent = HeadshotImg
+
+		task.spawn(function()
+			pcall(function()
+				HeadshotImg.Image = string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", LocalPlayer.UserId)
+			end)
+		end)
+
+		local StatsContainer = Instance.new("Frame")
+		StatsContainer.Size = UDim2.new(1, -30, 1, 0)
+		StatsContainer.Position = UDim2.new(0, 30, 0, 0)
+		StatsContainer.BackgroundTransparency = 1
+		StatsContainer.ZIndex = 51
+		StatsContainer.Parent = StatsFrame
+
+		local StatsLayout = Instance.new("UIListLayout")
+		StatsLayout.FillDirection = Enum.FillDirection.Horizontal
+		StatsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		StatsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+		StatsLayout.Padding = UDim.new(0, 4)
+		StatsLayout.Parent = StatsContainer
+
+		local function createStatBadge(iconId, labelName, defaultVal)
+			local holder = Instance.new("Frame")
+			holder.Size = UDim2.new(0, 62, 1, 0)
+			holder.BackgroundTransparency = 1
+			holder.ZIndex = 51
+			holder.Parent = StatsContainer
+
+			local icon = Instance.new("ImageLabel")
+			icon.Size = UDim2.new(0, 11, 0, 11)
+			icon.Position = UDim2.new(0, 0, 0.5, -5.5)
+			icon.BackgroundTransparency = 1
+			icon.Image = getIconAsset(iconId)
+			icon.ImageColor3 = Color3.fromRGB(160, 160, 175)
+			icon.ZIndex = 52
+			icon.Parent = holder
+
+			local lbl = Instance.new("TextLabel")
+			lbl.Size = UDim2.new(1, -13, 1, 0)
+			lbl.Position = UDim2.new(0, 13, 0, 0)
+			lbl.BackgroundTransparency = 1
+			lbl.Text = defaultVal .. " " .. labelName
+			lbl.TextColor3 = Color3.fromRGB(180, 180, 190)
+			lbl.TextSize = 8
+			lbl.Font = Enum.Font.GothamMedium
+			lbl.TextXAlignment = Enum.TextXAlignment.Left
+			lbl.ZIndex = 52
+			lbl.Parent = holder
+			return lbl
+		end
+
+		local PingLabel = createStatBadge("zap", "MS", "32")
+		local FpsLabel = createStatBadge("cpu", "FPS", "60")
+		local PlayersLabel = createStatBadge("users", "PLAYERS", "12")
+
+		RunService.RenderStepped:Connect(function(dt)
+			pcall(function()
+				local ping = 0
+				pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
+				PingLabel.Text = ping .. " MS"
+				FpsLabel.Text = math.floor(1 / math.max(dt, 0.001)) .. " FPS"
+				PlayersLabel.Text = #Players:GetPlayers() .. " PLAYERS"
+			end)
+		end)
+
+		makeDraggable(StatsFrame, StatsFrame)
+	end
+
+	-- 3. Minimized Floating Circle Toggle Button
+	local ToggleBtnOuter = Instance.new("Frame")
+	ToggleBtnOuter.Name = "ToggleBtnOuter"
+	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
+	ToggleBtnOuter.Position = UDim2.new(0, 40, 0, 200)
+	ToggleBtnOuter.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+	ToggleBtnOuter.BorderSizePixel = 0
+	ToggleBtnOuter.Visible = false
+	ToggleBtnOuter.ZIndex = 60
+	ToggleBtnOuter.Parent = ScreenGui
+
+	local TBtnOuterCorner = Instance.new("UICorner")
+	TBtnOuterCorner.CornerRadius = UDim.new(1, 0)
+	TBtnOuterCorner.Parent = ToggleBtnOuter
+
+	local ToggleBtnStroke = Instance.new("UIStroke")
+	ToggleBtnStroke.Thickness = 2.2
+	ToggleBtnStroke.Parent = ToggleBtnOuter
+
+	local ToggleBtn = Instance.new("ImageButton")
+	ToggleBtn.Size = UDim2.new(0, 24, 0, 24)
+	ToggleBtn.Position = UDim2.new(0.5, -12, 0.5, -12)
+	ToggleBtn.BackgroundTransparency = 1
+	ToggleBtn.Image = iconId
+	ToggleBtn.ScaleType = Enum.ScaleType.Fit
+	ToggleBtn.ZIndex = 61
+	ToggleBtn.Parent = ToggleBtnOuter
+
+	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
+	makeDraggable(ToggleBtn, ToggleBtnOuter)
+
+	ToggleBtn.MouseButton1Click:Connect(function()
+		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
+		Main.Visible = true
+		Main.Size = UDim2.new(0, 0, 0, 0)
+		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
+		Main.BackgroundTransparency = 1
+		TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, targetWidth, 0, targetHeight),
+			Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
+			BackgroundTransparency = 0
+		}):Play()
+		ToggleBtnOuter.Visible = false
+	end)
 
 	local SearchBox = nil
 	if searchBarEnabled then
@@ -1075,9 +978,6 @@ function Library.CreateWindow(config)
 		SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 130)
 		SearchBox.TextSize = 10
 		SearchBox.Font = Enum.Font.GothamMedium
-		SearchBox.ClearTextOnFocus = false
-		SearchBox.TextXAlignment = Enum.TextXAlignment.Left
-		SearchBox.TextWrapped = false
 		SearchBox.Parent = Main
 
 		local SearchCorner = Instance.new("UICorner")
@@ -1090,8 +990,6 @@ function Library.CreateWindow(config)
 		SearchIcon.BackgroundTransparency = 1
 		SearchIcon.Image = getIconAsset("search")
 		SearchIcon.ImageColor3 = Color3.fromRGB(130, 130, 140)
-		SearchIcon.Active = false
-		SearchIcon.Selectable = false
 		SearchIcon.Parent = SearchBox
 
 		local SearchPadding = Instance.new("UIPadding")
@@ -1120,7 +1018,6 @@ function Library.CreateWindow(config)
 
 	if userConfig and userConfig.Enabled ~= false then
 		local isAnonymous = (userConfig.Anonymous == true)
-
 		local ProfileCard = Instance.new("TextButton")
 		ProfileCard.Name = "ProfileCard"
 		ProfileCard.Size = UDim2.new(0, 140, 0, 52)
@@ -1155,46 +1052,31 @@ function Library.CreateWindow(config)
 			end)
 		end
 
-		local displayName = isAnonymous and "Anonymous" or LocalPlayer.Name
-		local handleName = isAnonymous and "Hidden User" or ("@" .. LocalPlayer.Name)
-
 		local NameLbl = Instance.new("TextLabel")
 		NameLbl.Size = UDim2.new(1, -52, 0, 16)
 		NameLbl.Position = UDim2.new(0, 48, 0, 10)
 		NameLbl.BackgroundTransparency = 1
-		NameLbl.Text = displayName
+		NameLbl.Text = isAnonymous and "Anonymous" or LocalPlayer.Name
 		NameLbl.TextColor3 = Color3.fromRGB(240, 240, 245)
 		NameLbl.TextSize = 11
 		NameLbl.Font = Enum.Font.GothamBold
 		NameLbl.TextXAlignment = Enum.TextXAlignment.Left
-		NameLbl.TextTruncate = Enum.TextTruncate.AtEnd
 		NameLbl.Parent = ProfileCard
 
 		local HandleLbl = Instance.new("TextLabel")
 		HandleLbl.Size = UDim2.new(1, -52, 0, 14)
 		HandleLbl.Position = UDim2.new(0, 48, 0, 26)
 		HandleLbl.BackgroundTransparency = 1
-		HandleLbl.Text = handleName
+		HandleLbl.Text = isAnonymous and "Hidden User" or ("@" .. LocalPlayer.Name)
 		HandleLbl.TextColor3 = Color3.fromRGB(130, 130, 140)
 		HandleLbl.TextSize = 9
 		HandleLbl.Font = Enum.Font.GothamMedium
 		HandleLbl.TextXAlignment = Enum.TextXAlignment.Left
-		HandleLbl.TextTruncate = Enum.TextTruncate.AtEnd
 		HandleLbl.Parent = ProfileCard
-
-		local ArrowIcon = Instance.new("ImageLabel")
-		ArrowIcon.Size = UDim2.new(0, 12, 0, 12)
-		ArrowIcon.Position = UDim2.new(1, -14, 0.5, -6)
-		ArrowIcon.BackgroundTransparency = 1
-		ArrowIcon.Image = getIconAsset("chevronright")
-		ArrowIcon.ImageColor3 = Color3.fromRGB(150, 150, 160)
-		ArrowIcon.Parent = ProfileCard
 
 		ProfileCard.MouseButton1Click:Connect(function()
 			playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
-			if userConfig.Callback then
-				pcall(userConfig.Callback)
-			end
+			if userConfig.Callback then pcall(userConfig.Callback) end
 		end)
 	end
 
@@ -1230,7 +1112,6 @@ function Library.CreateWindow(config)
 			FlashlightBeam = Instance.new("Frame")
 			FlashlightBeam.Name = "FlashlightBeam"
 			FlashlightBeam.Size = UDim2.new(1, 0, 1, 0)
-			FlashlightBeam.Position = UDim2.new(0, 0, 0, 0)
 			FlashlightBeam.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			FlashlightBeam.BackgroundTransparency = 1
 			FlashlightBeam.BorderSizePixel = 0
@@ -1248,7 +1129,6 @@ function Library.CreateWindow(config)
 			GlowLine = Instance.new("Frame")
 			GlowLine.Name = "GlowLine"
 			GlowLine.Size = UDim2.new(0, 3, 1, 0)
-			GlowLine.Position = UDim2.new(0, 0, 0, 0)
 			GlowLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			GlowLine.BackgroundTransparency = 1
 			GlowLine.BorderSizePixel = 0
@@ -1278,7 +1158,7 @@ function Library.CreateWindow(config)
 			end
 
 			local TabText = Instance.new("TextLabel")
-			TabText.Size = UDim2.new(1, tabIconId ~= "" and -34 or -16, 1, 0)
+			TabText.Size = UDim2.new(1, tabIconId ~= "" and -45 or -20, 1, 0)
 			TabText.Position = UDim2.new(0, tabIconId ~= "" and 30 or 12, 0, 0)
 			TabText.BackgroundTransparency = 1
 			TabText.Text = tostring(tabName)
@@ -1289,6 +1169,75 @@ function Library.CreateWindow(config)
 			TabText.TextTruncate = Enum.TextTruncate.AtEnd
 			TabText.ZIndex = 5
 			TabText.Parent = TabBtn
+
+			-- Tab Tags Container (Roblox 2024 Verified / Beta Tag Style)
+			local TabTagsHolder = Instance.new("Frame")
+			TabTagsHolder.Size = UDim2.new(0, 50, 1, 0)
+			TabTagsHolder.Position = UDim2.new(1, -55, 0, 0)
+			TabTagsHolder.BackgroundTransparency = 1
+			TabTagsHolder.ZIndex = 6
+			TabTagsHolder.Parent = TabBtn
+
+			local TabTagsLayout = Instance.new("UIListLayout")
+			TabTagsLayout.FillDirection = Enum.FillDirection.Horizontal
+			TabTagsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+			TabTagsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+			TabTagsLayout.Padding = UDim.new(0, 4)
+			TabTagsLayout.Parent = TabTagsHolder
+
+			function tabObj:Tag(tagConfig)
+				tagConfig = tagConfig or {}
+				local tText = tagConfig.Title or tagConfig.title or "Beta"
+				local tIcon = getIconAsset(tagConfig.Icon or tagConfig.icon)
+				local tTextColor = tagConfig.TextColor or tagConfig.textColor or Color3.fromRGB(255, 255, 255)
+				local tBgColor = tagConfig.BackgroundColor or tagConfig.backgroundColor or Color3.fromRGB(0, 162, 255)
+
+				pcall(function()
+					local tPill = Instance.new("Frame")
+					tPill.Size = UDim2.new(0, 0, 0, 18)
+					tPill.AutomaticSize = Enum.AutomaticSize.X
+					tPill.BackgroundColor3 = tBgColor
+					tPill.BorderSizePixel = 0
+					tPill.ZIndex = 7
+					tPill.Parent = TabTagsHolder
+
+					local c = Instance.new("UICorner")
+					c.CornerRadius = UDim.new(1, 0)
+					c.Parent = tPill
+
+					local pad = Instance.new("UIPadding")
+					pad.PaddingLeft = UDim.new(0, tIcon ~= "" and 4 or 6)
+					pad.PaddingRight = UDim.new(0, 6)
+					pad.Parent = tPill
+
+					local l = Instance.new("UIListLayout")
+					l.FillDirection = Enum.FillDirection.Horizontal
+					l.VerticalAlignment = Enum.VerticalAlignment.Center
+					l.Padding = UDim.new(0, 3)
+					l.Parent = tPill
+
+					if tIcon ~= "" then
+						local img = Instance.new("ImageLabel")
+						img.Size = UDim2.new(0, 10, 0, 10)
+						img.BackgroundTransparency = 1
+						img.Image = tIcon
+						img.ImageColor3 = tTextColor
+						img.ZIndex = 8
+						img.Parent = tPill
+					end
+
+					local lbl = Instance.new("TextLabel")
+					lbl.Size = UDim2.new(0, 0, 1, 0)
+					lbl.AutomaticSize = Enum.AutomaticSize.X
+					lbl.BackgroundTransparency = 1
+					lbl.Text = tText
+					lbl.TextColor3 = tTextColor
+					lbl.TextSize = 9
+					lbl.Font = Enum.Font.GothamBold
+					lbl.ZIndex = 8
+					lbl.Parent = tPill
+				end)
+			end
 
 			Page = Instance.new("ScrollingFrame")
 			Page.Name = tostring(tabName) .. "Page"
@@ -1302,19 +1251,15 @@ function Library.CreateWindow(config)
 			Page.Parent = PagesHolder
 
 			local LeftCol = Instance.new("Frame")
-			LeftCol.Name = "LeftCol"
 			LeftCol.Size = UDim2.new(0.5, -6, 0, 0)
-			LeftCol.Position = UDim2.new(0, 0, 0, 0)
 			LeftCol.BackgroundTransparency = 1
 			LeftCol.Parent = Page
 
 			local LeftLayout = Instance.new("UIListLayout")
 			LeftLayout.Padding = UDim.new(0, 8)
-			LeftLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			LeftLayout.Parent = LeftCol
 
 			local RightCol = Instance.new("Frame")
-			RightCol.Name = "RightCol"
 			RightCol.Size = UDim2.new(0.5, -6, 0, 0)
 			RightCol.Position = UDim2.new(0.5, 6, 0, 0)
 			RightCol.BackgroundTransparency = 1
@@ -1322,7 +1267,6 @@ function Library.CreateWindow(config)
 
 			local RightLayout = Instance.new("UIListLayout")
 			RightLayout.Padding = UDim.new(0, 8)
-			RightLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			RightLayout.Parent = RightCol
 
 			LeftLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
@@ -1355,37 +1299,6 @@ function Library.CreateWindow(config)
 				TweenService:Create(TabText, TWEEN_INFO, {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
 				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
-
-				if loopConnection then task.cancel(loopConnection) end
-				loopConnection = task.spawn(function()
-					while tabObj.Active and DotContainer and DotContainer.Parent do
-						task.spawn(function()
-							pcall(function()
-								local dot = Instance.new("Frame")
-								dot.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
-								dot.Position = UDim2.new(0, math.random(10, 120), 1, 5)
-								dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-								dot.BackgroundTransparency = 0.3
-								dot.BorderSizePixel = 0
-								dot.ZIndex = 6
-								dot.Parent = DotContainer
-
-								local dCorner = Instance.new("UICorner")
-								dCorner.CornerRadius = UDim.new(1, 0)
-								dCorner.Parent = dot
-
-								local randX = math.random(-25, 25)
-								TweenService:Create(dot, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-									Position = UDim2.new(0, dot.Position.X.Offset + randX, 0, math.random(-6, 10)),
-									BackgroundTransparency = 1
-								}):Play()
-								task.wait(0.7)
-								dot:Destroy()
-							end)
-						end)
-						task.wait(0.18)
-					end
-				end)
 			end
 
 			TabBtn.MouseButton1Click:Connect(switchToThisTab)
@@ -1395,14 +1308,7 @@ function Library.CreateWindow(config)
 			tabObj.Page = Page
 			tabObj.Beam = FlashlightBeam
 			tabObj.Glow = GlowLine
-			tabObj.Dots = DotContainer
 			tabObj.Active = false
-			tabObj.StopLoop = function()
-				if loopConnection then
-					task.cancel(loopConnection)
-					loopConnection = nil
-				end
-			end
 
 			if not activeTabObject then
 				Page.Visible = true
@@ -1412,49 +1318,16 @@ function Library.CreateWindow(config)
 				GlowLine.BackgroundTransparency = 0.1
 				tabObj.Active = true
 				activeTabObject = tabObj
-				
-				loopConnection = task.spawn(function()
-					while tabObj.Active and DotContainer and DotContainer.Parent do
-						task.spawn(function()
-							pcall(function()
-								local dot = Instance.new("Frame")
-								dot.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
-								dot.Position = UDim2.new(0, math.random(10, 120), 1, 5)
-								dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-								dot.BackgroundTransparency = 0.3
-								dot.BorderSizePixel = 0
-								dot.ZIndex = 6
-								dot.Parent = DotContainer
-
-								local dCorner = Instance.new("UICorner")
-								dCorner.CornerRadius = UDim.new(1, 0)
-								dCorner.Parent = dot
-
-								local randX = math.random(-25, 25)
-								TweenService:Create(dot, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-									Position = UDim2.new(0, dot.Position.X.Offset + randX, 0, math.random(-6, 10)),
-									BackgroundTransparency = 1
-								}):Play()
-								task.wait(0.7)
-								dot:Destroy()
-							end)
-						end)
-						task.wait(0.18)
-					end
-				end)
 			end
 
 			table.insert(tabs, tabObj)
 
-			function tabObj:JumpTo()
-				switchToThisTab()
-			end
+			function tabObj:JumpTo() switchToThisTab() end
 
 			function tabObj:CreateSection(columnSide, sectionTitle)
 				local section = {}
 				pcall(function()
 					local targetCol = (tostring(columnSide):lower() == "right") and RightCol or LeftCol
-
 					local SectionFrame = Instance.new("Frame")
 					SectionFrame.Size = UDim2.new(1, 0, 0, 40)
 					SectionFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
@@ -1478,7 +1351,6 @@ function Library.CreateWindow(config)
 
 					local InnerList = Instance.new("UIListLayout")
 					InnerList.Padding = UDim.new(0, 5)
-					InnerList.SortOrder = Enum.SortOrder.LayoutOrder
 					InnerList.Parent = SectionFrame
 
 					InnerList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
@@ -1488,7 +1360,6 @@ function Library.CreateWindow(config)
 					function section:CreateToggle(name, desc, default, callback)
 						pcall(function()
 							local state = default or false
-
 							local ToggleItem = Instance.new("Frame")
 							ToggleItem.Size = UDim2.new(1, -18, 0, desc and 38 or 28)
 							ToggleItem.BackgroundTransparency = 1
@@ -1518,39 +1389,34 @@ function Library.CreateWindow(config)
 								DescLabel.Parent = ToggleItem
 							end
 
-							local ToggleBtn = Instance.new("TextButton")
-							ToggleBtn.Size = UDim2.new(0, 32, 0, 18)
-							ToggleBtn.Position = UDim2.new(1, -36, 0.5, -9)
-							ToggleBtn.BackgroundColor3 = state and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(45, 45, 52)
-							ToggleBtn.Text = ""
-							ToggleBtn.Parent = ToggleItem
+							local TBtn = Instance.new("TextButton")
+							TBtn.Size = UDim2.new(0, 32, 0, 18)
+							TBtn.Position = UDim2.new(1, -36, 0.5, -9)
+							TBtn.BackgroundColor3 = state and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(45, 45, 52)
+							TBtn.Text = ""
+							TBtn.Parent = ToggleItem
 
 							local BtnCorner = Instance.new("UICorner")
 							BtnCorner.CornerRadius = UDim.new(0, 30)
-							BtnCorner.Parent = ToggleBtn
+							BtnCorner.Parent = TBtn
 
 							local Circle = Instance.new("Frame")
 							Circle.Size = UDim2.new(0, 12, 0, 12)
 							Circle.Position = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
 							Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-							Circle.Parent = ToggleBtn
+							Circle.Parent = TBtn
 
 							local CircleCorner = Instance.new("UICorner")
 							CircleCorner.CornerRadius = UDim.new(0, 30)
 							CircleCorner.Parent = Circle
 
-							ToggleBtn.MouseButton1Click:Connect(function()
+							TBtn.MouseButton1Click:Connect(function()
 								playSound("rbxassetid://75698187458888", soundEnabled, 2.0)
 								state = not state
-								local targetPos = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
-								local targetColor = state and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(45, 45, 52)
-
-								TweenService:Create(Circle, TWEEN_INFO, {Position = targetPos}):Play()
-								TweenService:Create(ToggleBtn, TWEEN_INFO, {BackgroundColor3 = targetColor}):Play()
+								TweenService:Create(Circle, TWEEN_INFO, {Position = state and UDim2.new(1, -15, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)}):Play()
+								TweenService:Create(TBtn, TWEEN_INFO, {BackgroundColor3 = state and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(45, 45, 52)}):Play()
 								if callback then pcall(callback, state) end
 							end)
-
-							table.insert(registeredElements, {Name = tostring(name):lower(), Tab = tabObj, Frame = ToggleItem})
 						end)
 					end
 
@@ -1572,114 +1438,8 @@ function Library.CreateWindow(config)
 
 							Btn.MouseButton1Click:Connect(function()
 								playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
-								TweenService:Create(Btn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(40, 40, 48)}):Play()
-								task.delay(0.1, function()
-									TweenService:Create(Btn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(28, 28, 34)}):Play()
-								end)
 								if callback then pcall(callback) end
 							end)
-
-							table.insert(registeredElements, {Name = tostring(name):lower(), Tab = tabObj, Frame = Btn})
-						end)
-					end
-
-					function section:CreateSlider(name, min, max, default, callback)
-						pcall(function()
-							min = min or 0
-							max = max or 100
-							default = default or min
-							local value = default
-
-							local SliderItem = Instance.new("Frame")
-							SliderItem.Size = UDim2.new(1, -18, 0, 42)
-							SliderItem.BackgroundTransparency = 1
-							SliderItem.Parent = SectionFrame
-
-							local Label = Instance.new("TextLabel")
-							Label.Size = UDim2.new(1, 0, 0, 16)
-							Label.Position = UDim2.new(0, 8, 0, 2)
-							Label.BackgroundTransparency = 1
-							Label.Text = tostring(name)
-							Label.TextColor3 = Color3.fromRGB(210, 210, 220)
-							Label.TextSize = 11
-							Label.Font = Enum.Font.GothamMedium
-							Label.TextXAlignment = Enum.TextXAlignment.Left
-							Label.Parent = SliderItem
-
-							local ValLabel = Instance.new("TextLabel")
-							ValLabel.Size = UDim2.new(0, 50, 0, 16)
-							ValLabel.Position = UDim2.new(1, -56, 0, 2)
-							ValLabel.BackgroundTransparency = 1
-							ValLabel.Text = tostring(default)
-							ValLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-							ValLabel.TextSize = 11
-							ValLabel.Font = Enum.Font.GothamBold
-							ValLabel.TextXAlignment = Enum.TextXAlignment.Right
-							ValLabel.Parent = SliderItem
-
-							local SliderBar = Instance.new("Frame")
-							SliderBar.Size = UDim2.new(1, -16, 0, 6)
-							SliderBar.Position = UDim2.new(0, 8, 0, 26)
-							SliderBar.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-							SliderBar.BorderSizePixel = 0
-							SliderBar.Parent = SliderItem
-
-							local SBarCorner = Instance.new("UICorner")
-							SBarCorner.CornerRadius = UDim.new(0, 30)
-							SBarCorner.Parent = SliderBar
-
-							local SliderFill = Instance.new("Frame")
-							SliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-							SliderFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-							SliderFill.BorderSizePixel = 0
-							SliderFill.Parent = SliderBar
-
-							local SFillCorner = Instance.new("UICorner")
-							SFillCorner.CornerRadius = UDim.new(0, 30)
-							SFillCorner.Parent = SliderFill
-
-							local SliderKnob = Instance.new("Frame")
-							SliderKnob.Size = UDim2.new(0, 12, 0, 12)
-							SliderKnob.Position = UDim2.new(1, -6, 0.5, -6)
-							SliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-							SliderKnob.BorderSizePixel = 0
-							SliderKnob.ZIndex = 3
-							SliderKnob.Parent = SliderFill
-
-							local KnobCorner = Instance.new("UICorner")
-							KnobCorner.CornerRadius = UDim.new(1, 0)
-							KnobCorner.Parent = SliderKnob
-
-							local draggingSlider = false
-
-							local function updateSlider(input)
-								local pos = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
-								value = math.floor(min + ((max - min) * pos))
-								SliderFill.Size = UDim2.new(pos, 0, 1, 0)
-								ValLabel.Text = tostring(value)
-								if callback then pcall(callback, value) end
-							end
-
-							SliderBar.InputBegan:Connect(function(input)
-								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-									draggingSlider = true
-									updateSlider(input)
-								end
-							end)
-
-							UserInputService.InputEnded:Connect(function(input)
-								if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-									draggingSlider = false
-								end
-							end)
-
-							UserInputService.InputChanged:Connect(function(input)
-								if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-									updateSlider(input)
-								end
-							end)
-
-							table.insert(registeredElements, {Name = tostring(name):lower(), Tab = tabObj, Frame = SliderItem})
 						end)
 					end
 				end)
@@ -1687,32 +1447,6 @@ function Library.CreateWindow(config)
 			end
 		end)
 		return tabObj
-	end
-
-	if searchBarEnabled and SearchBox then
-		SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
-			local query = SearchBox.Text:lower():gsub("^%s+", ""):gsub("%s+$", "")
-			if query == "" then return end
-
-			for _, item in ipairs(registeredElements) do
-				if item.Name:find(query) then
-					if item.Tab and item.Tab.JumpTo then
-						item.Tab:JumpTo()
-					end
-					task.spawn(function()
-						pcall(function()
-							for i = 1, 3 do
-								TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 0.4}):Play()
-								task.wait(0.15)
-								TweenService:Create(item.Frame, TweenInfo.new(0.15), {BackgroundTransparency = 1}):Play()
-								task.wait(0.15)
-							end
-						end)
-					end)
-					break
-				end
-			end
-		end)
 	end
 
 	return window
