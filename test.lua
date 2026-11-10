@@ -534,7 +534,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle) with Moving Outline & Expanded Outline
+	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle)
 	local WavesStatsFrame = nil
 	local OnlineCardLbl = nil
 	local FpsCardLbl = nil
@@ -865,7 +865,6 @@ function Library.CreateWindow(config)
 		PlrCardLbl = createStatCard(UDim2.new(0, 0, 0, 30), "users", "Players", "4")
 		OnlineCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 30), "users", "Active", "0")
 
-		-- Universe Active Players Count
 		task.spawn(function()
 			while true do
 				pcall(function()
@@ -942,7 +941,7 @@ function Library.CreateWindow(config)
 		makeDraggable(WavesStatsFrame, WavesStatsFrame)
 	end
 
-	-- 2. Top-Right Mini Stats Pill (MS, FPS, PLAYERS) with Moving Outline
+	-- 2. Top-Right Mini Stats Pill (MS, FPS, PLAYERS)
 	local StatsFrame = nil
 	local PingLabel, FpsLabel, PlayersLabel = nil, nil, nil
 
@@ -1222,6 +1221,7 @@ function Library.CreateWindow(config)
 		local tabObj = {}
 		local TabBtn, Page, FlashlightBeam, GlowLine, DotContainer
 		local hasTag = false
+		local activeEmberTask = nil
 		
 		pcall(function()
 			if type(tabConfig) == "string" then
@@ -1416,13 +1416,36 @@ function Library.CreateWindow(config)
 			local switchToThisTab = function()
 				playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 
-				-- White Fire Ember Spark Particle Burst Effect on Tab Click
-				pcall(function()
-					local btnWidth = TabBtn.AbsoluteSize.X
-					local numParticles = 12
+				-- Stop all other tabs' ember loops and reset visuals
+				for _, t in pairs(tabs) do
+					pcall(function()
+						t.Page.Visible = false
+						t.Active = false
+						if t.StopEmberLoop then t.StopEmberLoop() end
+						TweenService:Create(t.Button, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(22, 22, 26)}):Play()
+						TweenService:Create(t.Label, TWEEN_INFO, {TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
+						if t.Beam then TweenService:Create(t.Beam, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end
+						if t.Glow then TweenService:Create(t.Glow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end
+					end)
+				end
 
-					for i = 1, numParticles do
-						task.spawn(function()
+				Page.Visible = true
+				tabObj.Active = true
+				activeTabObject = tabObj
+				TweenService:Create(TabBtn, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(28, 28, 34)}):Play()
+				TweenService:Create(TabText, TWEEN_INFO, {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
+				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
+
+				-- Start continuous white fire ember loop for this active tab
+				if activeEmberTask then
+					task.cancel(activeEmberTask)
+				end
+
+				activeEmberTask = task.spawn(function()
+					while tabObj.Active and TabBtn and TabBtn.Parent do
+						pcall(function()
+							local btnWidth = TabBtn.AbsoluteSize.X
 							local particle = Instance.new("Frame")
 							local startX = math.random(15, math.max(20, btnWidth - 15))
 							particle.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
@@ -1437,7 +1460,6 @@ function Library.CreateWindow(config)
 							pCorner.CornerRadius = UDim.new(1, 0)
 							pCorner.Parent = particle
 
-							-- Target: Move up to middle (~0.5 height) and spread horizontally
 							local targetX = startX + math.random(-28, 28)
 							local targetY = math.random(4, 12)
 
@@ -1451,27 +1473,22 @@ function Library.CreateWindow(config)
 								if particle then particle:Destroy() end
 							end)
 						end)
+						task.wait(0.08)
 					end
 				end)
+			end
 
-				for _, t in pairs(tabs) do
-					pcall(function()
-						t.Page.Visible = false
-						t.Active = false
-						if t.StopLoop then t.StopLoop() end
-						TweenService:Create(t.Button, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(22, 22, 26)}):Play()
-						TweenService:Create(t.Label, TWEEN_INFO, {TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
-						if t.Beam then TweenService:Create(t.Beam, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end
-						if t.Glow then TweenService:Create(t.Glow, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end
-					end)
+			tabObj.StopEmberLoop = function()
+				tabObj.Active = false
+				if activeEmberTask then
+					task.cancel(activeEmberTask)
+					activeEmberTask = nil
 				end
-				Page.Visible = true
-				tabObj.Active = true
-				activeTabObject = tabObj
-				TweenService:Create(TabBtn, TWEEN_INFO, {BackgroundColor3 = Color3.fromRGB(28, 28, 34)}):Play()
-				TweenService:Create(TabText, TWEEN_INFO, {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-				TweenService:Create(FlashlightBeam, TweenInfo.new(0.3), {BackgroundTransparency = 0.2}):Play()
-				TweenService:Create(GlowLine, TweenInfo.new(0.3), {BackgroundTransparency = 0.1}):Play()
+				pcall(function()
+					for _, child in pairs(DotContainer:GetChildren()) do
+						child:Destroy()
+					end
+				end)
 			end
 
 			TabBtn.MouseButton1Click:Connect(switchToThisTab)
@@ -1491,6 +1508,42 @@ function Library.CreateWindow(config)
 				GlowLine.BackgroundTransparency = 0.1
 				tabObj.Active = true
 				activeTabObject = tabObj
+
+				-- Initial active tab ember start
+				activeEmberTask = task.spawn(function()
+					while tabObj.Active and TabBtn and TabBtn.Parent do
+						pcall(function()
+							local btnWidth = TabBtn.AbsoluteSize.X
+							local particle = Instance.new("Frame")
+							local startX = math.random(15, math.max(20, btnWidth - 15))
+							particle.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
+							particle.Position = UDim2.new(0, startX, 1, -2)
+							particle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+							particle.BackgroundTransparency = 0.15
+							particle.BorderSizePixel = 0
+							particle.ZIndex = 12
+							particle.Parent = DotContainer
+
+							local pCorner = Instance.new("UICorner")
+							pCorner.CornerRadius = UDim.new(1, 0)
+							pCorner.Parent = particle
+
+							local targetX = startX + math.random(-28, 28)
+							local targetY = math.random(4, 12)
+
+							TweenService:Create(particle, TweenInfo.new(math.random(35, 55) / 100, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+								Position = UDim2.new(0, targetX, 0, targetY),
+								Size = UDim2.new(0, 1, 0, 1),
+								BackgroundTransparency = 1
+							}):Play()
+
+							task.delay(0.55, function()
+								if particle then particle:Destroy() end
+							end)
+						end)
+						task.wait(0.08)
+					end
+				end)
 			end
 
 			table.insert(tabs, tabObj)
