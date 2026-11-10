@@ -176,17 +176,23 @@ function Library.CreateWindow(config)
 
 	local Main = Instance.new("Frame")
 	Main.Name = "Main"
-	Main.Size = UDim2.new(0, targetWidth, 0, targetHeight)
-	Main.Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2)
+	Main.Size = UDim2.new(0, 0, 0, 0)
+	Main.Position = UDim2.new(0.5, 0, 0.45, 0)
 	Main.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
-	Main.BackgroundTransparency = loadingXUIEnabled and 1 or 0
+	Main.BackgroundTransparency = 1
 	Main.BorderSizePixel = 0
-	Main.Visible = not loadingXUIEnabled
-	if loadingXUIEnabled then
-		Main.Size = UDim2.new(0, 0, 0, 0)
-		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
-	end
+	Main.Visible = true
 	Main.Parent = ScreenGui
+
+	-- Smooth Open Animation (Pop-up Back Bounce)
+	task.spawn(function()
+		task.wait(0.05)
+		TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, targetWidth, 0, targetHeight),
+			Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
+			BackgroundTransparency = 0
+		}):Play()
+	end)
 
 	local MainCorner = Instance.new("UICorner")
 	MainCorner.CornerRadius = UDim.new(0, 30)
@@ -248,6 +254,51 @@ function Library.CreateWindow(config)
 			TweenService:Create(MainShiny, TweenInfo.new(3.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = UDim2.new(1.3, 0, -0.5, 0)}):Play()
 			task.wait(7)
 		end
+	end)
+
+	-- 3. Minimized Floating Circle Toggle Button (Created right away so it's always ready)
+	local ToggleBtnOuter = Instance.new("Frame")
+	ToggleBtnOuter.Name = "ToggleBtnOuter"
+	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
+	ToggleBtnOuter.Position = UDim2.new(0, 40, 0, 200)
+	ToggleBtnOuter.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+	ToggleBtnOuter.BorderSizePixel = 0
+	ToggleBtnOuter.Visible = false
+	ToggleBtnOuter.ZIndex = 60
+	ToggleBtnOuter.Parent = ScreenGui
+
+	local TBtnOuterCorner = Instance.new("UICorner")
+	TBtnOuterCorner.CornerRadius = UDim.new(1, 0)
+	TBtnOuterCorner.Parent = ToggleBtnOuter
+
+	local ToggleBtnStroke = Instance.new("UIStroke")
+	ToggleBtnStroke.Thickness = 2.2
+	ToggleBtnStroke.Parent = ToggleBtnOuter
+
+	local ToggleBtn = Instance.new("ImageButton")
+	ToggleBtn.Size = UDim2.new(0, 24, 0, 24)
+	ToggleBtn.Position = UDim2.new(0.5, -12, 0.5, -12)
+	ToggleBtn.BackgroundTransparency = 1
+	ToggleBtn.Image = iconId
+	ToggleBtn.ScaleType = Enum.ScaleType.Fit
+	ToggleBtn.ZIndex = 61
+	ToggleBtn.Parent = ToggleBtnOuter
+
+	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
+	makeDraggable(ToggleBtn, ToggleBtnOuter)
+
+	ToggleBtn.MouseButton1Click:Connect(function()
+		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
+		Main.Visible = true
+		Main.Size = UDim2.new(0, 0, 0, 0)
+		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
+		Main.BackgroundTransparency = 1
+		TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, targetWidth, 0, targetHeight),
+			Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
+			BackgroundTransparency = 0
+		}):Play()
+		ToggleBtnOuter.Visible = false
 	end)
 
 	-- Bottom-Right Corner Resizing Handle
@@ -426,7 +477,9 @@ function Library.CreateWindow(config)
 	CloseCorner.CornerRadius = UDim.new(0, 11)
 	CloseCorner.Parent = CloseBtn
 
+	-- Smooth Closing Animation
 	CloseBtn.MouseButton1Click:Connect(function()
+		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 		TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 			Size = UDim2.new(0, 0, 0, 0),
 			Position = UDim2.new(0.5, 0, 0.45, 0),
@@ -464,12 +517,13 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle Correct Position)
+	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle)
 	local WavesStatsFrame = nil
 	local OnlineCardLbl = nil
 	local FpsCardLbl = nil
 	local PingCardLbl = nil
 	local PlrCardLbl = nil
+	local waveBar1, waveBar2, waveBar3 = nil, nil, nil
 
 	if pillUIWavesEnabled then
 		WavesStatsFrame = Instance.new("TextButton")
@@ -604,6 +658,13 @@ function Library.CreateWindow(config)
 		WaveContainer.ZIndex = 52
 		WaveContainer.Parent = CollapsedContainer
 
+		local WaveLayout = Instance.new("UIListLayout")
+		WaveLayout.FillDirection = Enum.FillDirection.Horizontal
+		WaveLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+		WaveLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+		WaveLayout.Padding = UDim.new(0, 2)
+		WaveLayout.Parent = WaveContainer
+
 		local function createWaveBar()
 			local bar = Instance.new("Frame")
 			bar.Size = UDim2.new(0, 4, 0, 8)
@@ -618,9 +679,9 @@ function Library.CreateWindow(config)
 			return bar
 		end
 
-		local bar1 = createWaveBar()
-		local bar2 = createWaveBar()
-		local bar3 = createWaveBar()
+		waveBar1 = createWaveBar()
+		waveBar2 = createWaveBar()
+		waveBar3 = createWaveBar()
 
 		local ExpandedContainer = Instance.new("Frame")
 		ExpandedContainer.Name = "ExpandedContainer"
@@ -759,19 +820,14 @@ function Library.CreateWindow(config)
 		PlrCardLbl = createStatCard(UDim2.new(0, 0, 0, 30), "users", "Players", "4")
 		OnlineCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 30), "globe", "Online", "0")
 
-		-- Fetch total active game universe player count with K/M/B/T shorthand formatting
+		-- Fixed Server/Game Active Players Count with K/M/B/T formatting
 		task.spawn(function()
 			while true do
 				pcall(function()
-					local info = MarketplaceService:GetProductInfo(game.PlaceId)
-					-- Simulating or fetching Universe total visits/playing if available, fallback to scaled server count
-					local totalOnline = info and info.Sales or 0
-					if totalOnline == 0 then
-						totalOnline = #Players:GetPlayers() * 1250 -- Estimated universe multiplier representation
-					end
-					OnlineCardLbl.Text = "Online " .. formatNumber(totalOnline)
+					local activeCount = #Players:GetPlayers()
+					OnlineCardLbl.Text = "Online " .. formatNumber(activeCount)
 				end)
-				task.wait(30)
+				task.wait(5)
 			end
 		end)
 
@@ -926,7 +982,7 @@ function Library.CreateWindow(config)
 		makeDraggable(StatsFrame, StatsFrame)
 	end
 
-	-- Universal RenderStepped Loop for Live FPS, Ping, and Waves performance
+	-- Universal RenderStepped Loop for Live FPS, Ping, and Real-time Wave Animations
 	RunService.RenderStepped:Connect(function(dt)
 		pcall(function()
 			local fps = math.floor(1 / math.max(dt, 0.001))
@@ -942,52 +998,15 @@ function Library.CreateWindow(config)
 			if FpsCardLbl then FpsCardLbl.Text = "FPS " .. fps end
 			if PingCardLbl then PingCardLbl.Text = "Ping " .. ping .. " ms" end
 			if PlrCardLbl then PlrCardLbl.Text = "Players " .. #Players:GetPlayers() end
+
+			-- Animate the wave bars smoothly
+			if waveBar1 and waveBar2 and waveBar3 then
+				local t = tick() * 6
+				waveBar1.Size = UDim2.new(0, 4, 0, math.clamp(math.floor(8 + math.sin(t) * 5), 4, 16))
+				waveBar2.Size = UDim2.new(0, 4, 0, math.clamp(math.floor(8 + math.cos(t * 1.2) * 6), 4, 16))
+				waveBar3.Size = UDim2.new(0, 4, 0, math.clamp(math.floor(8 + math.sin(t * 0.8) * 5), 4, 16))
+			end
 		end)
-	end)
-
-	-- 3. Minimized Floating Circle Toggle Button
-	local ToggleBtnOuter = Instance.new("Frame")
-	ToggleBtnOuter.Name = "ToggleBtnOuter"
-	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
-	ToggleBtnOuter.Position = UDim2.new(0, 40, 0, 200)
-	ToggleBtnOuter.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-	ToggleBtnOuter.BorderSizePixel = 0
-	ToggleBtnOuter.Visible = false
-	ToggleBtnOuter.ZIndex = 60
-	ToggleBtnOuter.Parent = ScreenGui
-
-	local TBtnOuterCorner = Instance.new("UICorner")
-	TBtnOuterCorner.CornerRadius = UDim.new(1, 0)
-	TBtnOuterCorner.Parent = ToggleBtnOuter
-
-	local ToggleBtnStroke = Instance.new("UIStroke")
-	ToggleBtnStroke.Thickness = 2.2
-	ToggleBtnStroke.Parent = ToggleBtnOuter
-
-	local ToggleBtn = Instance.new("ImageButton")
-	ToggleBtn.Size = UDim2.new(0, 24, 0, 24)
-	ToggleBtn.Position = UDim2.new(0.5, -12, 0.5, -12)
-	ToggleBtn.BackgroundTransparency = 1
-	ToggleBtn.Image = iconId
-	ToggleBtn.ScaleType = Enum.ScaleType.Fit
-	ToggleBtn.ZIndex = 61
-	ToggleBtn.Parent = ToggleBtnOuter
-
-	makeDraggable(ToggleBtnOuter, ToggleBtnOuter)
-	makeDraggable(ToggleBtn, ToggleBtnOuter)
-
-	ToggleBtn.MouseButton1Click:Connect(function()
-		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
-		Main.Visible = true
-		Main.Size = UDim2.new(0, 0, 0, 0)
-		Main.Position = UDim2.new(0.5, 0, 0.45, 0)
-		Main.BackgroundTransparency = 1
-		TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0, targetWidth, 0, targetHeight),
-			Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
-			BackgroundTransparency = 0
-		}):Play()
-		ToggleBtnOuter.Visible = false
 	end)
 
 	local SearchBox = nil
@@ -1195,7 +1214,7 @@ function Library.CreateWindow(config)
 			TabText.TextXAlignment = Enum.TextXAlignment.Left
 			TabText.TextTruncate = Enum.TextTruncate.AtEnd
 			TabText.ZIndex = 5
-			TabText.Parent = TabBtn
+			TabText.Parent = TabText.Parent or TabBtn
 
 			local TabTagsHolder = Instance.new("Frame")
 			TabTagsHolder.Size = UDim2.new(0, 50, 1, 0)
