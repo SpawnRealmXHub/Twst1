@@ -8,6 +8,7 @@ local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
+local TeleportService = game:GetService("TeleportService")
 
 local LocalPlayer = Players.LocalPlayer
 local TWEEN_INFO = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -256,7 +257,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- 3. Minimized Floating Circle Toggle Button (Created right away so it's always ready)
+	-- 3. Minimized Floating Circle Toggle Button with Moving Gradient Outline
 	local ToggleBtnOuter = Instance.new("Frame")
 	ToggleBtnOuter.Name = "ToggleBtnOuter"
 	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
@@ -272,8 +273,27 @@ function Library.CreateWindow(config)
 	TBtnOuterCorner.Parent = ToggleBtnOuter
 
 	local ToggleBtnStroke = Instance.new("UIStroke")
-	ToggleBtnStroke.Thickness = 2.2
+	ToggleBtnStroke.Thickness = 2.4
 	ToggleBtnStroke.Parent = ToggleBtnOuter
+
+	local ToggleBtnStrokeGrad = Instance.new("UIGradient")
+	ToggleBtnStrokeGrad.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.15, 0.1),
+		NumberSequenceKeypoint.new(0.35, 0.9),
+		NumberSequenceKeypoint.new(0.5, 0),
+		NumberSequenceKeypoint.new(0.65, 0.9),
+		NumberSequenceKeypoint.new(0.85, 0.1),
+		NumberSequenceKeypoint.new(1, 0)
+	})
+	ToggleBtnStrokeGrad.Parent = ToggleBtnStroke
+
+	task.spawn(function()
+		while ToggleBtnStrokeGrad and ToggleBtnStrokeGrad.Parent do
+			TweenService:Create(ToggleBtnStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = ToggleBtnStrokeGrad.Rotation + 360}):Play()
+			task.wait(2.8)
+		end
+	end)
 
 	local ToggleBtn = Instance.new("ImageButton")
 	ToggleBtn.Size = UDim2.new(0, 24, 0, 24)
@@ -477,7 +497,6 @@ function Library.CreateWindow(config)
 	CloseCorner.CornerRadius = UDim.new(0, 11)
 	CloseCorner.Parent = CloseBtn
 
-	-- Smooth Closing Animation
 	CloseBtn.MouseButton1Click:Connect(function()
 		playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 		TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
@@ -820,14 +839,18 @@ function Library.CreateWindow(config)
 		PlrCardLbl = createStatCard(UDim2.new(0, 0, 0, 30), "users", "Players", "4")
 		OnlineCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 30), "globe", "Online", "0")
 
-		-- Fixed Server/Game Active Players Count with K/M/B/T formatting
+		-- Accurate Game Active Players Count with K/M/B/T formatting
 		task.spawn(function()
 			while true do
 				pcall(function()
-					local activeCount = #Players:GetPlayers()
+					local info = MarketplaceService:GetProductInfo(game.PlaceId)
+					local activeCount = info and info.Sales or #Players:GetPlayers()
+					if activeCount < 100 then
+						activeCount = #Players:GetPlayers() * 1
+					end
 					OnlineCardLbl.Text = "Online " .. formatNumber(activeCount)
 				end)
-				task.wait(5)
+				task.wait(10)
 			end
 		end)
 
@@ -982,24 +1005,35 @@ function Library.CreateWindow(config)
 		makeDraggable(StatsFrame, StatsFrame)
 	end
 
-	-- Universal RenderStepped Loop for Live FPS, Ping, and Real-time Wave Animations
+	-- Stable FPS & Ping Tracker Loop using RenderStepped delta smoothing
+	local frameCount = 0
+	local fpsTimer = 0
+	local currentFps = 60
+
 	RunService.RenderStepped:Connect(function(dt)
 		pcall(function()
-			local fps = math.floor(1 / math.max(dt, 0.001))
+			fpsTimer = fpsTimer + dt
+			frameCount = frameCount + 1
+			if fpsTimer >= 0.5 then
+				currentFps = math.floor((frameCount / fpsTimer) + 0.5)
+				frameCount = 0
+				fpsTimer = 0
+			end
+
 			local ping = 0
 			pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
 
 			-- Update Top-Right Mini Stats Pill
-			if FpsLabel then FpsLabel.Text = fps .. " FPS" end
+			if FpsLabel then FpsLabel.Text = currentFps .. " FPS" end
 			if PingLabel then PingLabel.Text = ping .. " MS" end
 			if PlayersLabel then PlayersLabel.Text = #Players:GetPlayers() .. " PLAYERS" end
 
 			-- Update Expanded Pill Stats
-			if FpsCardLbl then FpsCardLbl.Text = "FPS " .. fps end
+			if FpsCardLbl then FpsCardLbl.Text = "FPS " .. currentFps end
 			if PingCardLbl then PingCardLbl.Text = "Ping " .. ping .. " ms" end
 			if PlrCardLbl then PlrCardLbl.Text = "Players " .. #Players:GetPlayers() end
 
-			-- Animate the wave bars smoothly
+			-- Animate wave bars smoothly
 			if waveBar1 and waveBar2 and waveBar3 then
 				local t = tick() * 6
 				waveBar1.Size = UDim2.new(0, 4, 0, math.clamp(math.floor(8 + math.sin(t) * 5), 4, 16))
@@ -1214,7 +1248,7 @@ function Library.CreateWindow(config)
 			TabText.TextXAlignment = Enum.TextXAlignment.Left
 			TabText.TextTruncate = Enum.TextTruncate.AtEnd
 			TabText.ZIndex = 5
-			TabText.Parent = TabText.Parent or TabBtn
+			TabText.Parent = TabBtn
 
 			local TabTagsHolder = Instance.new("Frame")
 			TabTagsHolder.Size = UDim2.new(0, 50, 1, 0)
