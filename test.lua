@@ -837,7 +837,7 @@ function Library.CreateWindow(config)
 		PlrCardLbl = createStatCard(UDim2.new(0, 0, 0, 30), "users", "Players", "4")
 		OnlineCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 30), "users", "Active", "0")
 
-		-- Universe Active Players Count (Matching Roblox Game Details Active Count e.g. 91 active)
+		-- Universe Active Players Count
 		task.spawn(function()
 			while true do
 				pcall(function()
@@ -848,7 +848,7 @@ function Library.CreateWindow(config)
 					if success and result and result.data and result.data[1] and result.data[1].playing then
 						activeCount = result.data[1].playing
 					else
-						activeCount = #Players:GetPlayers() * 12 -- Fallback approximation if HTTP blocked
+						activeCount = #Players:GetPlayers() * 12
 					end
 					OnlineCardLbl.Text = "Active " .. formatNumber(activeCount)
 				end)
@@ -1095,11 +1095,11 @@ function Library.CreateWindow(config)
 	end
 	
 	local tabYOffset = searchBarEnabled and 84 or 52
-	local tabBottomOffset = (userConfig and userConfig.Enabled ~= false) and (searchBarEnabled and -146 or -112) or (searchBarEnabled and -88 or -55)
+	local tabBottomOffset = (userConfig and userConfig.Enabled ~= false) and (searchBarEnabled and -155 or -120) or (searchBarEnabled and -88 or -55)
 
 	local TabContainer = Instance.new("ScrollingFrame")
 	TabContainer.Name = "TabContainer"
-	TabContainer.Size = UDim2.new(0, 140, 1, tabBottomOffset)
+	TabContainer.Size = UDim2.new(0, 155, 1, tabBottomOffset)
 	TabContainer.Position = UDim2.new(0, 12, 0, tabYOffset)
 	TabContainer.BackgroundTransparency = 1
 	TabContainer.ScrollBarThickness = 4
@@ -1113,31 +1113,31 @@ function Library.CreateWindow(config)
 	TabList.SortOrder = Enum.SortOrder.LayoutOrder
 	TabList.Parent = TabContainer
 
-	-- Bottom-Left Profile Card Fix (Clean Non-Overlapping Layout)
+	-- Bottom-Left Profile Card Fix (Wider 155px container with non-overlapping text bounds)
 	if userConfig and userConfig.Enabled ~= false then
 		local isAnonymous = (userConfig.Anonymous == true)
 		local ProfileCard = Instance.new("TextButton")
 		ProfileCard.Name = "ProfileCard"
-		ProfileCard.Size = UDim2.new(0, 140, 0, 52)
-		ProfileCard.Position = UDim2.new(0, 12, 1, -60)
+		ProfileCard.Size = UDim2.new(0, 155, 0, 56)
+		ProfileCard.Position = UDim2.new(0, 12, 1, -64)
 		ProfileCard.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
 		ProfileCard.AutoButtonColor = false
 		ProfileCard.Text = ""
 		ProfileCard.Parent = Main
 
 		local PCardCorner = Instance.new("UICorner")
-		PCardCorner.CornerRadius = UDim.new(0, 30)
+		PCardCorner.CornerRadius = UDim.new(0, 28)
 		PCardCorner.Parent = ProfileCard
 
 		local AvatarImg = Instance.new("ImageLabel")
-		AvatarImg.Size = UDim2.new(0, 34, 0, 34)
-		AvatarImg.Position = UDim2.new(0, 8, 0.5, -17)
+		AvatarImg.Size = UDim2.new(0, 36, 0, 36)
+		AvatarImg.Position = UDim2.new(0, 10, 0.5, -18)
 		AvatarImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
 		AvatarImg.BorderSizePixel = 0
 		AvatarImg.Parent = ProfileCard
 
 		local AvatarCorner = Instance.new("UICorner")
-		AvatarCorner.CornerRadius = UDim.new(0, 17)
+		AvatarCorner.CornerRadius = UDim.new(0, 18)
 		AvatarCorner.Parent = AvatarImg
 
 		if isAnonymous then
@@ -1151,25 +1151,27 @@ function Library.CreateWindow(config)
 		end
 
 		local NameLbl = Instance.new("TextLabel")
-		NameLbl.Size = UDim2.new(1, -50, 0, 15)
-		NameLbl.Position = UDim2.new(0, 47, 0, 11)
+		NameLbl.Size = UDim2.new(1, -54, 0, 16)
+		NameLbl.Position = UDim2.new(0, 52, 0, 11)
 		NameLbl.BackgroundTransparency = 1
 		NameLbl.Text = isAnonymous and "Anonymous" or LocalPlayer.Name
 		NameLbl.TextColor3 = Color3.fromRGB(240, 240, 245)
 		NameLbl.TextSize = 10.5
 		NameLbl.Font = Enum.Font.GothamBold
 		NameLbl.TextXAlignment = Enum.TextXAlignment.Left
+		NameLbl.TextTruncate = Enum.TextTruncate.AtEnd
 		NameLbl.Parent = ProfileCard
 
 		local HandleLbl = Instance.new("TextLabel")
-		HandleLbl.Size = UDim2.new(1, -50, 0, 14)
-		HandleLbl.Position = UDim2.new(0, 47, 0, 27)
+		HandleLbl.Size = UDim2.new(1, -54, 0, 14)
+		HandleLbl.Position = UDim2.new(0, 52, 0, 29)
 		HandleLbl.BackgroundTransparency = 1
 		HandleLbl.Text = isAnonymous and "Hidden" or ("@" .. LocalPlayer.Name)
 		HandleLbl.TextColor3 = Color3.fromRGB(130, 130, 140)
 		HandleLbl.TextSize = 8.5
 		HandleLbl.Font = Enum.Font.GothamMedium
 		HandleLbl.TextXAlignment = Enum.TextXAlignment.Left
+		HandleLbl.TextTruncate = Enum.TextTruncate.AtEnd
 		HandleLbl.Parent = ProfileCard
 
 		ProfileCard.MouseButton1Click:Connect(function()
@@ -1180,8 +1182,8 @@ function Library.CreateWindow(config)
 
 	local PagesHolder = Instance.new("Frame")
 	PagesHolder.Name = "PagesHolder"
-	PagesHolder.Size = UDim2.new(1, -165, 1, -55)
-	PagesHolder.Position = UDim2.new(0, 158, 0, 48)
+	PagesHolder.Size = UDim2.new(1, -180, 1, -55)
+	PagesHolder.Position = UDim2.new(0, 172, 0, 48)
 	PagesHolder.BackgroundTransparency = 1
 	PagesHolder.Parent = Main
 
@@ -1385,6 +1387,38 @@ function Library.CreateWindow(config)
 
 			local switchToThisTab = function()
 				playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
+
+				-- Spawn ripple dot animation on tab click
+				pcall(function()
+					local mouseLoc = UserInputService:GetMouseLocation()
+					local absPos = TabBtn.AbsolutePosition
+					local rx = mouseLoc.X - absPos.X
+					local ry = mouseLoc.Y - absPos.Y
+
+					local dot = Instance.new("Frame")
+					dot.Size = UDim2.new(0, 4, 0, 4)
+					dot.Position = UDim2.new(0, rx, 0, ry)
+					dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+					dot.BackgroundTransparency = 0.3
+					dot.BorderSizePixel = 0
+					dot.ZIndex = 10
+					dot.Parent = DotContainer
+
+					local dCorner = Instance.new("UICorner")
+					dCorner.CornerRadius = UDim.new(1, 0)
+					dCorner.Parent = dot
+
+					TweenService:Create(dot, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						Size = UDim2.new(0, 160, 0, 160),
+						Position = UDim2.new(0, rx - 80, 0, ry - 80),
+						BackgroundTransparency = 1
+					}):Play()
+
+					task.delay(0.5, function()
+						if dot then dot:Destroy() end
+					end)
+				end)
+
 				for _, t in pairs(tabs) do
 					pcall(function()
 						t.Page.Visible = false
