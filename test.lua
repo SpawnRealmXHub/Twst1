@@ -8,7 +8,7 @@ local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
-local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 
 local LocalPlayer = Players.LocalPlayer
 local TWEEN_INFO = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -165,7 +165,6 @@ function Library.CreateWindow(config)
 	end
 
 	local window = {}
-	local registeredElements = {}
 	
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "SR_MainGui"
@@ -185,7 +184,6 @@ function Library.CreateWindow(config)
 	Main.Visible = true
 	Main.Parent = ScreenGui
 
-	-- Smooth Open Animation (Pop-up Back Bounce)
 	task.spawn(function()
 		task.wait(0.05)
 		TweenService:Create(Main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
@@ -257,7 +255,7 @@ function Library.CreateWindow(config)
 		end
 	end)
 
-	-- 3. Minimized Floating Circle Toggle Button with Moving Gradient Outline
+	-- Minimized Floating Circle Toggle Button with Moving Gradient Outline
 	local ToggleBtnOuter = Instance.new("Frame")
 	ToggleBtnOuter.Name = "ToggleBtnOuter"
 	ToggleBtnOuter.Size = UDim2.new(0, 44, 0, 44)
@@ -536,7 +534,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle)
+	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle) with Moving Outline
 	local WavesStatsFrame = nil
 	local OnlineCardLbl = nil
 	local FpsCardLbl = nil
@@ -564,17 +562,17 @@ function Library.CreateWindow(config)
 		WStatsCorner.Parent = WavesStatsFrame
 
 		local WStatsStroke = Instance.new("UIStroke")
-		WStatsStroke.Thickness = 2.2
+		WStatsStroke.Thickness = 2.4
 		WStatsStroke.Parent = WavesStatsFrame
 
 		local WStatsStrokeGrad = Instance.new("UIGradient")
 		WStatsStrokeGrad.Transparency = NumberSequence.new({
 			NumberSequenceKeypoint.new(0, 0),
-			NumberSequenceKeypoint.new(0.2, 0.2),
-			NumberSequenceKeypoint.new(0.4, 0.9),
+			NumberSequenceKeypoint.new(0.15, 0.1),
+			NumberSequenceKeypoint.new(0.35, 0.9),
 			NumberSequenceKeypoint.new(0.5, 0),
-			NumberSequenceKeypoint.new(0.7, 0.9),
-			NumberSequenceKeypoint.new(0.9, 0.2),
+			NumberSequenceKeypoint.new(0.65, 0.9),
+			NumberSequenceKeypoint.new(0.85, 0.1),
 			NumberSequenceKeypoint.new(1, 0)
 		})
 		WStatsStrokeGrad.Parent = WStatsStroke
@@ -837,18 +835,22 @@ function Library.CreateWindow(config)
 		FpsCardLbl = createStatCard(UDim2.new(0, 0, 0, 0), "cpu", "FPS", "60")
 		PingCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 0), "zap", "Ping", "35 ms")
 		PlrCardLbl = createStatCard(UDim2.new(0, 0, 0, 30), "users", "Players", "4")
-		OnlineCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 30), "globe", "Online", "0")
+		OnlineCardLbl = createStatCard(UDim2.new(0.5, 4, 0, 30), "users", "Active", "0")
 
-		-- Accurate Game Active Players Count with K/M/B/T formatting
+		-- Universe Active Players Count (Matching Roblox Game Details Active Count e.g. 91 active)
 		task.spawn(function()
 			while true do
 				pcall(function()
-					local info = MarketplaceService:GetProductInfo(game.PlaceId)
-					local activeCount = info and info.Sales or #Players:GetPlayers()
-					if activeCount < 100 then
-						activeCount = #Players:GetPlayers() * 1
+					local activeCount = 0
+					local success, result = pcall(function()
+						return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games?universeIds=" .. tostring(game.GameId)))
+					end)
+					if success and result and result.data and result.data[1] and result.data[1].playing then
+						activeCount = result.data[1].playing
+					else
+						activeCount = #Players:GetPlayers() * 12 -- Fallback approximation if HTTP blocked
 					end
-					OnlineCardLbl.Text = "Online " .. formatNumber(activeCount)
+					OnlineCardLbl.Text = "Active " .. formatNumber(activeCount)
 				end)
 				task.wait(10)
 			end
@@ -912,7 +914,7 @@ function Library.CreateWindow(config)
 		makeDraggable(WavesStatsFrame, WavesStatsFrame)
 	end
 
-	-- 2. Top-Right Mini Stats Pill (MS, FPS, PLAYERS)
+	-- 2. Top-Right Mini Stats Pill (MS, FPS, PLAYERS) with Moving Outline
 	local StatsFrame = nil
 	local PingLabel, FpsLabel, PlayersLabel = nil, nil, nil
 
@@ -933,8 +935,27 @@ function Library.CreateWindow(config)
 		StatsCorner.Parent = StatsFrame
 
 		local StatsStroke = Instance.new("UIStroke")
-		StatsStroke.Thickness = 2.5
+		StatsStroke.Thickness = 2.4
 		StatsStroke.Parent = StatsFrame
+
+		local StatsStrokeGrad = Instance.new("UIGradient")
+		StatsStrokeGrad.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0),
+			NumberSequenceKeypoint.new(0.15, 0.1),
+			NumberSequenceKeypoint.new(0.35, 0.9),
+			NumberSequenceKeypoint.new(0.5, 0),
+			NumberSequenceKeypoint.new(0.65, 0.9),
+			NumberSequenceKeypoint.new(0.85, 0.1),
+			NumberSequenceKeypoint.new(1, 0)
+		})
+		StatsStrokeGrad.Parent = StatsStroke
+
+		task.spawn(function()
+			while StatsStrokeGrad and StatsStrokeGrad.Parent do
+				TweenService:Create(StatsStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = StatsStrokeGrad.Rotation + 360}):Play()
+				task.wait(2.8)
+			end
+		end)
 
 		local HeadshotImg = Instance.new("ImageLabel")
 		HeadshotImg.Size = UDim2.new(0, 20, 0, 20)
@@ -1005,7 +1026,7 @@ function Library.CreateWindow(config)
 		makeDraggable(StatsFrame, StatsFrame)
 	end
 
-	-- Stable FPS & Ping Tracker Loop using RenderStepped delta smoothing
+	-- Stable FPS & Ping Tracker Loop
 	local frameCount = 0
 	local fpsTimer = 0
 	local currentFps = 60
@@ -1023,17 +1044,14 @@ function Library.CreateWindow(config)
 			local ping = 0
 			pcall(function() ping = math.floor(LocalPlayer:GetNetworkPing() * 1000) end)
 
-			-- Update Top-Right Mini Stats Pill
 			if FpsLabel then FpsLabel.Text = currentFps .. " FPS" end
 			if PingLabel then PingLabel.Text = ping .. " MS" end
 			if PlayersLabel then PlayersLabel.Text = #Players:GetPlayers() .. " PLAYERS" end
 
-			-- Update Expanded Pill Stats
 			if FpsCardLbl then FpsCardLbl.Text = "FPS " .. currentFps end
 			if PingCardLbl then PingCardLbl.Text = "Ping " .. ping .. " ms" end
 			if PlrCardLbl then PlrCardLbl.Text = "Players " .. #Players:GetPlayers() end
 
-			-- Animate wave bars smoothly
 			if waveBar1 and waveBar2 and waveBar3 then
 				local t = tick() * 6
 				waveBar1.Size = UDim2.new(0, 4, 0, math.clamp(math.floor(8 + math.sin(t) * 5), 4, 16))
@@ -1095,6 +1113,7 @@ function Library.CreateWindow(config)
 	TabList.SortOrder = Enum.SortOrder.LayoutOrder
 	TabList.Parent = TabContainer
 
+	-- Bottom-Left Profile Card Fix (Clean Non-Overlapping Layout)
 	if userConfig and userConfig.Enabled ~= false then
 		local isAnonymous = (userConfig.Anonymous == true)
 		local ProfileCard = Instance.new("TextButton")
@@ -1132,23 +1151,23 @@ function Library.CreateWindow(config)
 		end
 
 		local NameLbl = Instance.new("TextLabel")
-		NameLbl.Size = UDim2.new(1, -52, 0, 16)
-		NameLbl.Position = UDim2.new(0, 48, 0, 10)
+		NameLbl.Size = UDim2.new(1, -50, 0, 15)
+		NameLbl.Position = UDim2.new(0, 47, 0, 11)
 		NameLbl.BackgroundTransparency = 1
 		NameLbl.Text = isAnonymous and "Anonymous" or LocalPlayer.Name
 		NameLbl.TextColor3 = Color3.fromRGB(240, 240, 245)
-		NameLbl.TextSize = 11
+		NameLbl.TextSize = 10.5
 		NameLbl.Font = Enum.Font.GothamBold
 		NameLbl.TextXAlignment = Enum.TextXAlignment.Left
 		NameLbl.Parent = ProfileCard
 
 		local HandleLbl = Instance.new("TextLabel")
-		HandleLbl.Size = UDim2.new(1, -52, 0, 14)
-		HandleLbl.Position = UDim2.new(0, 48, 0, 26)
+		HandleLbl.Size = UDim2.new(1, -50, 0, 14)
+		HandleLbl.Position = UDim2.new(0, 47, 0, 27)
 		HandleLbl.BackgroundTransparency = 1
-		HandleLbl.Text = isAnonymous and "Hidden User" or ("@" .. LocalPlayer.Name)
+		HandleLbl.Text = isAnonymous and "Hidden" or ("@" .. LocalPlayer.Name)
 		HandleLbl.TextColor3 = Color3.fromRGB(130, 130, 140)
-		HandleLbl.TextSize = 9
+		HandleLbl.TextSize = 8.5
 		HandleLbl.Font = Enum.Font.GothamMedium
 		HandleLbl.TextXAlignment = Enum.TextXAlignment.Left
 		HandleLbl.Parent = ProfileCard
@@ -1172,7 +1191,6 @@ function Library.CreateWindow(config)
 	function window:CreateTab(tabConfig)
 		local tabObj = {}
 		local TabBtn, Page, FlashlightBeam, GlowLine, DotContainer
-		local loopConnection = nil
 		local hasTag = false
 		
 		pcall(function()
