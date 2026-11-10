@@ -306,7 +306,8 @@ function Library.CreateWindow(config)
 
 	local TitleLabel = Instance.new("TextLabel")
 	TitleLabel.Name = "TitleLabel"
-	TitleLabel.Size = UDim2.new(0, 200, 0, 20)
+	TitleLabel.Size = UDim2.new(0, 0, 0, 20)
+	TitleLabel.AutomaticSize = Enum.AutomaticSize.X
 	TitleLabel.Position = UDim2.new(0, 48, 0, 8)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = titleText
@@ -327,11 +328,11 @@ function Library.CreateWindow(config)
 	SubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	SubTitleLabel.Parent = Topbar
 
-	-- Window Tags Holder Container (Places next to title & chains rightwards matching screenshot[cite: 5])
+	-- Window Tags Container (Positioned closer to title so there's no large gap)
 	local WindowTagsContainer = Instance.new("Frame")
 	WindowTagsContainer.Name = "WindowTagsContainer"
-	WindowTagsContainer.Size = UDim2.new(0, 400, 0, 28)
-	WindowTagsContainer.Position = UDim2.new(0, 250, 0, 11)
+	WindowTagsContainer.Size = UDim2.new(0, 400, 0, 24)
+	WindowTagsContainer.Position = UDim2.new(0, 195, 0, 6)
 	WindowTagsContainer.BackgroundTransparency = 1
 	WindowTagsContainer.ZIndex = 15
 	WindowTagsContainer.Parent = Topbar
@@ -352,7 +353,7 @@ function Library.CreateWindow(config)
 
 		pcall(function()
 			local tagPill = Instance.new("Frame")
-			tagPill.Size = UDim2.new(0, 0, 0, 24)
+			tagPill.Size = UDim2.new(0, 0, 0, 22)
 			tagPill.AutomaticSize = Enum.AutomaticSize.X
 			tagPill.BackgroundColor3 = tBgColor
 			tagPill.BorderSizePixel = 0
@@ -360,7 +361,7 @@ function Library.CreateWindow(config)
 			tagPill.Parent = WindowTagsContainer
 
 			local tCorner = Instance.new("UICorner")
-			tCorner.CornerRadius = UDim0 or UDim.new(1, 0)
+			tCorner.CornerRadius = UDim.new(1, 0)
 			tCorner.Parent = tagPill
 
 			local pad = Instance.new("UIPadding")
@@ -449,7 +450,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- 1. Fixed Tapable Interactive Profile & Stats Pill (Top-Middle Correct Position)
+	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle Correct Position)
 	local WavesStatsFrame = nil
 	if pillUIWavesEnabled then
 		WavesStatsFrame = Instance.new("TextButton")
@@ -794,7 +795,6 @@ function Library.CreateWindow(config)
 			WavesStatsFrame.Visible = true
 		end)
 
-		-- Fixed Real FPS Calculation Loop (No more 99 glitch reset)
 		RunService.RenderStepped:Connect(function(dt)
 			pcall(function()
 				local fps = math.floor(1 / math.max(dt, 0.001))
@@ -1094,6 +1094,7 @@ function Library.CreateWindow(config)
 		local tabObj = {}
 		local TabBtn, Page, FlashlightBeam, GlowLine, DotContainer
 		local loopConnection = nil
+		local hasTag = false -- Track tag count per tab
 		
 		pcall(function()
 			if type(tabConfig) == "string" then
@@ -1186,6 +1187,12 @@ function Library.CreateWindow(config)
 			TabTagsLayout.Parent = TabTagsHolder
 
 			function tabObj:Tag(tagConfig)
+				-- Strict check for 1 tag limit per tab
+				if hasTag then
+					print("[SpawnRealmX]: Tab tags have a limit of 1 per tab!")
+					return
+				end
+
 				tagConfig = tagConfig or {}
 				local tText = tagConfig.Title or tagConfig.title or "Beta"
 				local tIcon = getIconAsset(tagConfig.Icon or tagConfig.icon)
@@ -1236,6 +1243,8 @@ function Library.CreateWindow(config)
 					lbl.Font = Enum.Font.GothamBold
 					lbl.ZIndex = 8
 					lbl.Parent = tPill
+
+					hasTag = true
 				end)
 			end
 
