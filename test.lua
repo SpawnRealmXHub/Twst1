@@ -534,7 +534,7 @@ function Library.CreateWindow(config)
 
 	makeDraggable(Topbar, Main)
 
-	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle) with Moving Outline
+	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle) with Moving Outline & Expanded Outline
 	local WavesStatsFrame = nil
 	local OnlineCardLbl = nil
 	local FpsCardLbl = nil
@@ -704,14 +704,42 @@ function Library.CreateWindow(config)
 		ExpandedContainer.Name = "ExpandedContainer"
 		ExpandedContainer.Size = UDim2.new(1, 0, 0, 136)
 		ExpandedContainer.Position = UDim2.new(0, 0, 0, 34)
-		ExpandedContainer.BackgroundTransparency = 1
+		ExpandedContainer.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
+		ExpandedContainer.BackgroundTransparency = 0.05
 		ExpandedContainer.Visible = false
 		ExpandedContainer.ZIndex = 51
 		ExpandedContainer.Parent = WavesStatsFrame
 
+		local ExpCorner = Instance.new("UICorner")
+		ExpCorner.CornerRadius = UDim.new(0, 16)
+		ExpCorner.Parent = ExpandedContainer
+
+		local ExpStroke = Instance.new("UIStroke")
+		ExpStroke.Thickness = 2.2
+		ExpStroke.Parent = ExpandedContainer
+
+		local ExpStrokeGrad = Instance.new("UIGradient")
+		ExpStrokeGrad.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0),
+			NumberSequenceKeypoint.new(0.15, 0.1),
+			NumberSequenceKeypoint.new(0.35, 0.9),
+			NumberSequenceKeypoint.new(0.5, 0),
+			NumberSequenceKeypoint.new(0.65, 0.9),
+			NumberSequenceKeypoint.new(0.85, 0.1),
+			NumberSequenceKeypoint.new(1, 0)
+		})
+		ExpStrokeGrad.Parent = ExpStroke
+
+		task.spawn(function()
+			while ExpStrokeGrad and ExpStrokeGrad.Parent do
+				TweenService:Create(ExpStrokeGrad, TweenInfo.new(2.8, Enum.EasingStyle.Linear), {Rotation = ExpStrokeGrad.Rotation + 360}):Play()
+				task.wait(2.8)
+			end
+		end)
+
 		local AvatarImg = Instance.new("ImageLabel")
 		AvatarImg.Size = UDim2.new(0, 34, 0, 34)
-		AvatarImg.Position = UDim2.new(0, 12, 0, 4)
+		AvatarImg.Position = UDim2.new(0, 12, 0, 8)
 		AvatarImg.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
 		AvatarImg.BorderSizePixel = 0
 		AvatarImg.ZIndex = 52
@@ -729,7 +757,7 @@ function Library.CreateWindow(config)
 
 		local DisplayNameLbl = Instance.new("TextLabel")
 		DisplayNameLbl.Size = UDim2.new(1, -125, 0, 16)
-		DisplayNameLbl.Position = UDim2.new(0, 54, 0, 4)
+		DisplayNameLbl.Position = UDim2.new(0, 54, 0, 8)
 		DisplayNameLbl.BackgroundTransparency = 1
 		DisplayNameLbl.Text = LocalPlayer.DisplayName
 		DisplayNameLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -748,7 +776,7 @@ function Library.CreateWindow(config)
 
 		local SubInfoLbl = Instance.new("TextLabel")
 		SubInfoLbl.Size = UDim2.new(1, -125, 0, 20)
-		SubInfoLbl.Position = UDim2.new(0, 54, 0, 20)
+		SubInfoLbl.Position = UDim2.new(0, 54, 0, 24)
 		SubInfoLbl.BackgroundTransparency = 1
 		SubInfoLbl.Text = "@" .. LocalPlayer.Name .. " • " .. execName .. "\n" .. gameName
 		SubInfoLbl.TextColor3 = Color3.fromRGB(150, 150, 165)
@@ -760,7 +788,7 @@ function Library.CreateWindow(config)
 
 		local TimerPill = Instance.new("Frame")
 		TimerPill.Size = UDim2.new(0, 60, 0, 20)
-		TimerPill.Position = UDim2.new(1, -70, 0, 6)
+		TimerPill.Position = UDim2.new(1, -70, 0, 10)
 		TimerPill.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
 		TimerPill.BorderSizePixel = 0
 		TimerPill.ZIndex = 52
@@ -791,7 +819,7 @@ function Library.CreateWindow(config)
 
 		local CardsHolder = Instance.new("Frame")
 		CardsHolder.Size = UDim2.new(1, -16, 0, 58)
-		CardsHolder.Position = UDim2.new(0, 8, 0, 44)
+		CardsHolder.Position = UDim2.new(0, 8, 0, 48)
 		CardsHolder.BackgroundTransparency = 1
 		CardsHolder.ZIndex = 52
 		CardsHolder.Parent = ExpandedContainer
@@ -858,7 +886,7 @@ function Library.CreateWindow(config)
 
 		local RestoreBtn = Instance.new("TextButton")
 		RestoreBtn.Size = UDim2.new(1, -16, 0, 26)
-		RestoreBtn.Position = UDim2.new(0, 8, 0, 106)
+		RestoreBtn.Position = UDim2.new(0, 8, 0, 110)
 		RestoreBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
 		RestoreBtn.BorderSizePixel = 0
 		RestoreBtn.AutoButtonColor = false
@@ -890,7 +918,7 @@ function Library.CreateWindow(config)
 			CollapsedContainer.Visible = false
 			ExpandedContainer.Visible = true
 			TweenService:Create(WavesStatsFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Size = UDim2.new(0, 260, 0, 140)
+				Size = UDim2.new(0, 260, 0, 144)
 			}):Play()
 		end
 
@@ -1113,7 +1141,7 @@ function Library.CreateWindow(config)
 	TabList.SortOrder = Enum.SortOrder.LayoutOrder
 	TabList.Parent = TabContainer
 
-	-- Bottom-Left Profile Card Fix (Wider 155px container with non-overlapping text bounds)
+	-- Bottom-Left Profile Card
 	if userConfig and userConfig.Enabled ~= false then
 		local isAnonymous = (userConfig.Anonymous == true)
 		local ProfileCard = Instance.new("TextButton")
@@ -1239,7 +1267,7 @@ function Library.CreateWindow(config)
 			DotContainer.Name = "DotContainer"
 			DotContainer.Size = UDim2.new(1, 0, 1, 0)
 			DotContainer.BackgroundTransparency = 1
-			DotContainer.ClipsDescendants = true
+			DotContainer.ClipsDescendants = false
 			DotContainer.ZIndex = 4
 			DotContainer.Parent = TabBtn
 
@@ -1388,35 +1416,48 @@ function Library.CreateWindow(config)
 			local switchToThisTab = function()
 				playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
 
-				-- Spawn ripple dot animation on tab click
+				-- Fire Spark / Ember Particle Burst Effect on Tab Click
 				pcall(function()
-					local mouseLoc = UserInputService:GetMouseLocation()
-					local absPos = TabBtn.AbsolutePosition
-					local rx = mouseLoc.X - absPos.X
-					local ry = mouseLoc.Y - absPos.Y
+					local btnWidth = TabBtn.AbsoluteSize.X
+					local numParticles = 10
+					local fireColors = {
+						Color3.fromRGB(255, 200, 50),
+						Color3.fromRGB(255, 120, 30),
+						Color3.fromRGB(255, 255, 200),
+						Color3.fromRGB(0, 162, 255)
+					}
 
-					local dot = Instance.new("Frame")
-					dot.Size = UDim2.new(0, 4, 0, 4)
-					dot.Position = UDim2.new(0, rx, 0, ry)
-					dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					dot.BackgroundTransparency = 0.3
-					dot.BorderSizePixel = 0
-					dot.ZIndex = 10
-					dot.Parent = DotContainer
+					for i = 1, numParticles do
+						task.spawn(function()
+							local particle = Instance.new("Frame")
+							local startX = math.random(15, math.max(20, btnWidth - 15))
+							particle.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
+							particle.Position = UDim2.new(0, startX, 1, -2)
+							particle.BackgroundColor3 = fireColors[math.random(1, #fireColors)]
+							particle.BackgroundTransparency = 0.2
+							particle.BorderSizePixel = 0
+							particle.ZIndex = 12
+							particle.Parent = DotContainer
 
-					local dCorner = Instance.new("UICorner")
-					dCorner.CornerRadius = UDim.new(1, 0)
-					dCorner.Parent = dot
+							local pCorner = Instance.new("UICorner")
+							pCorner.CornerRadius = UDim.new(1, 0)
+							pCorner.Parent = particle
 
-					TweenService:Create(dot, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-						Size = UDim2.new(0, 160, 0, 160),
-						Position = UDim2.new(0, rx - 80, 0, ry - 80),
-						BackgroundTransparency = 1
-					}):Play()
+							-- Target: Move up to middle (~0.5 height) and spread horizontally
+							local targetX = startX + math.random(-25, 25)
+							local targetY = math.random(4, 12)
 
-					task.delay(0.5, function()
-						if dot then dot:Destroy() end
-					end)
+							TweenService:Create(particle, TweenInfo.new(math.random(35, 55) / 100, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+								Position = UDim2.new(0, targetX, 0, targetY),
+								Size = UDim2.new(0, 1, 0, 1),
+								BackgroundTransparency = 1
+							}):Play()
+
+							task.delay(0.55, function()
+								if particle then particle:Destroy() end
+							end)
+						end)
+					end
 				end)
 
 				for _, t in pairs(tabs) do
