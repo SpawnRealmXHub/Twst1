@@ -187,6 +187,10 @@ function Library.CreateWindow(config)
 	Main.Visible = not loadingXUIEnabled
 	Main.Parent = ScreenGui
 
+	-- References for top pills so they can fade in after loading
+	local WavesStatsFrame = nil
+	local StatsFrame = nil
+
 	-- 10x Cooler Real Loading Screen Component
 	if loadingXUIEnabled then
 		local LoaderOverlay = Instance.new("Frame")
@@ -337,7 +341,7 @@ function Library.CreateWindow(config)
 			task.wait(0.4)
 			LoaderOverlay:Destroy()
 
-			-- Show and pop main window
+			-- Show and pop main window and top pills
 			Main.Visible = true
 			Main.Size = UDim2.new(0, 0, 0, 0)
 			Main.Position = UDim2.new(0.5, 0, 0.45, 0)
@@ -347,6 +351,17 @@ function Library.CreateWindow(config)
 				Position = UDim2.new(0.5, -targetWidth/2, 0.45, -targetHeight/2),
 				BackgroundTransparency = 0
 			}):Play()
+
+			if WavesStatsFrame then
+				WavesStatsFrame.Visible = true
+				WavesStatsFrame.BackgroundTransparency = 1
+				TweenService:Create(WavesStatsFrame, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+			end
+			if StatsFrame then
+				StatsFrame.Visible = true
+				StatsFrame.BackgroundTransparency = 1
+				TweenService:Create(StatsFrame, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+			end
 		end)
 	else
 		task.spawn(function()
@@ -701,7 +716,6 @@ function Library.CreateWindow(config)
 	makeDraggable(Topbar, Main)
 
 	-- 1. Tapable Interactive Profile & Stats Pill (Top-Middle)
-	local WavesStatsFrame = nil
 	local OnlineCardLbl = nil
 	local FpsCardLbl = nil
 	local PingCardLbl = nil
@@ -718,7 +732,7 @@ function Library.CreateWindow(config)
 		WavesStatsFrame.BorderSizePixel = 0
 		WavesStatsFrame.AutoButtonColor = false
 		WavesStatsFrame.Text = ""
-		WavesStatsFrame.Visible = not loadingXUIEnabled
+		WavesStatsFrame.Visible = true
 		WavesStatsFrame.ClipsDescendants = true
 		WavesStatsFrame.ZIndex = 50
 		WavesStatsFrame.Parent = ScreenGui
@@ -1108,7 +1122,6 @@ function Library.CreateWindow(config)
 	end
 
 	-- 2. Top-Right Mini Stats Pill (MS, FPS, PLAYERS)
-	local StatsFrame = nil
 	local PingLabel, FpsLabel, PlayersLabel = nil, nil, nil
 
 	if pillUIFPSEnabled then
@@ -1119,7 +1132,7 @@ function Library.CreateWindow(config)
 		StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 		StatsFrame.BackgroundTransparency = loadingXUIEnabled and 1 or 0
 		StatsFrame.BorderSizePixel = 0
-		StatsFrame.Visible = not loadingXUIEnabled
+		StatsFrame.Visible = true
 		StatsFrame.ZIndex = 50
 		StatsFrame.Parent = ScreenGui
 
