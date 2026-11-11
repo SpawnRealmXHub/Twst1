@@ -160,7 +160,7 @@ function Library.CreateWindow(config)
 	local pillUIFPSEnabled = (config.PillUIFPS == true)
 	local loadingXUIEnabled = (config.LoadingXUI == true)
 
-	local parentBase = gethui() or CoreGui
+	local parentBase = getProtectedParent()
 	local existingFolder = parentBase:FindFirstChild("SR_DedicatedFolder")
 	if existingFolder then
 		existingFolder:Destroy()
@@ -191,155 +191,329 @@ function Library.CreateWindow(config)
 	local WavesStatsFrame = nil
 	local StatsFrame = nil
 
-	-- 10x Cooler Real Loading Screen Component
+	-- Advanced CRT Kinetic Phosphor Loader Component
 	if loadingXUIEnabled then
-		local LoaderOverlay = Instance.new("Frame")
-		LoaderOverlay.Name = "LoaderOverlay"
-		LoaderOverlay.Size = UDim2.new(1, 0, 1, 0)
-		LoaderOverlay.BackgroundColor3 = Color3.fromRGB(10, 10, 13)
-		LoaderOverlay.BackgroundTransparency = 0
-		LoaderOverlay.BorderSizePixel = 0
-		LoaderOverlay.ZIndex = 100
-		LoaderOverlay.Parent = ScreenGui
+		local MainFrame = Instance.new("Frame")
+		MainFrame.Name = "MainFrame"
+		MainFrame.Size = UDim2.new(1, 0, 1, 0)
+		MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		MainFrame.BackgroundTransparency = 0.1
+		MainFrame.BorderSizePixel = 0
+		MainFrame.ZIndex = 100
+		MainFrame.Parent = ScreenGui
 
-		local LoaderCard = Instance.new("Frame")
-		LoaderCard.Size = UDim2.new(0, 360, 0, 180)
-		LoaderCard.Position = UDim2.new(0.5, -180, 0.5, -90)
-		LoaderCard.BackgroundColor3 = Color3.fromRGB(16, 16, 21)
-		LoaderCard.BorderSizePixel = 0
-		LoaderCard.ZIndex = 101
-		LoaderCard.Parent = LoaderOverlay
+		local AmbientGlow = Instance.new("ImageLabel")
+		AmbientGlow.Name = "AmbientGlow"
+		AmbientGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+		AmbientGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
+		AmbientGlow.Size = UDim2.new(0.8, 0, 0.8, 0)
+		AmbientGlow.BackgroundTransparency = 1
+		AmbientGlow.Image = "rbxassetid://5028857484"
+		AmbientGlow.ImageColor3 = Color3.fromRGB(255, 255, 255)
+		AmbientGlow.ImageTransparency = 0.92
+		AmbientGlow.ZIndex = 100
+		AmbientGlow.Parent = MainFrame
 
-		local LCardCorner = Instance.new("UICorner")
-		LCardCorner.CornerRadius = UDim.new(0, 24)
-		LCardCorner.Parent = LoaderCard
+		local CRTScanlines = Instance.new("ImageLabel")
+		CRTScanlines.Name = "CRTScanlines"
+		CRTScanlines.Size = UDim2.new(1, 0, 1, 0)
+		CRTScanlines.BackgroundTransparency = 1
+		CRTScanlines.Image = "rbxassetid://2151741365"
+		CRTScanlines.ImageColor3 = Color3.fromRGB(255, 255, 255)
+		CRTScanlines.ImageTransparency = 0.93
+		CRTScanlines.ScaleType = Enum.ScaleType.Tile
+		CRTScanlines.TileSize = UDim2.new(0, 100, 0, 4)
+		CRTScanlines.ZIndex = 100
+		CRTScanlines.Parent = MainFrame
 
-		local LCardStroke = Instance.new("UIStroke")
-		LCardStroke.Thickness = 2.5
-		LCardStroke.Parent = LoaderCard
+		local Container = Instance.new("Frame")
+		Container.Name = "Container"
+		Container.AnchorPoint = Vector2.new(0.5, 0.5)
+		Container.Position = UDim2.new(0.5, 0, 0.55, 0)
+		Container.Size = UDim2.new(0.38, 0, 0.38, 0)
+		Container.BackgroundColor3 = Color3.fromRGB(6, 6, 6)
+		Container.BackgroundTransparency = 1
+		Container.BorderSizePixel = 0
+		Container.ClipsDescendants = true
+		Container.ZIndex = 101
+		Container.Parent = MainFrame
 
-		local LCardStrokeGrad = Instance.new("UIGradient")
-		LCardStrokeGrad.Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0),
-			NumberSequenceKeypoint.new(0.2, 0.2),
-			NumberSequenceKeypoint.new(0.5, 0.9),
-			NumberSequenceKeypoint.new(0.8, 0.2),
-			NumberSequenceKeypoint.new(1, 0)
-		})
-		LCardStrokeGrad.Parent = LCardStroke
+		local SizeConstraint = Instance.new("UISizeConstraint")
+		SizeConstraint.MinSize = Vector2.new(380, 220)
+		SizeConstraint.MaxSize = Vector2.new(520, 300)
+		SizeConstraint.Parent = Container
+
+		local ContainerCorner = Instance.new("UICorner")
+		ContainerCorner.CornerRadius = UDim.new(0, 12)
+		ContainerCorner.Parent = Container
+
+		local OuterStroke = Instance.new("UIStroke")
+		OuterStroke.Color = Color3.fromRGB(255, 255, 255)
+		OuterStroke.Thickness = 1.5
+		OuterStroke.Transparency = 1
+		OuterStroke.Parent = Container
+
+		local TopAccent = Instance.new("Frame")
+		TopAccent.Name = "TopAccent"
+		TopAccent.Size = UDim2.new(1, 0, 0, 1)
+		TopAccent.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		TopAccent.BackgroundTransparency = 1
+		TopAccent.BorderSizePixel = 0
+		TopAccent.ZIndex = 102
+		TopAccent.Parent = Container
+
+		local SmoothScanner = Instance.new("Frame")
+		SmoothScanner.Name = "SmoothScanner"
+		SmoothScanner.Size = UDim2.new(1, 0, 0, 2)
+		SmoothScanner.Position = UDim2.new(0, 0, 0, 0)
+		SmoothScanner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		SmoothScanner.BackgroundTransparency = 1
+		SmoothScanner.BorderSizePixel = 0
+		SmoothScanner.ZIndex = 103
+		SmoothScanner.Parent = Container
+
+		local ScannerCoreStroke = Instance.new("UIStroke")
+		ScannerCoreStroke.Color = Color3.fromRGB(255, 255, 255)
+		ScannerCoreStroke.Thickness = 2.5
+		ScannerCoreStroke.Transparency = 0.15
+		ScannerCoreStroke.Parent = SmoothScanner
+
+		local PhosphorBloom = Instance.new("Frame")
+		PhosphorBloom.Name = "PhosphorBloom"
+		PhosphorBloom.AnchorPoint = Vector2.new(0.5, 0.5)
+		PhosphorBloom.Position = UDim2.new(0.5, 0, 0.5, 0)
+		PhosphorBloom.Size = UDim2.new(1, 40, 0, 20)
+		PhosphorBloom.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		PhosphorBloom.BackgroundTransparency = 0.8
+		PhosphorBloom.BorderSizePixel = 0
+		PhosphorBloom.ZIndex = 102
+		PhosphorBloom.Parent = SmoothScanner
+
+		local BloomCorner = Instance.new("UICorner")
+		BloomCorner.CornerRadius = UDim.new(1, 0)
+		BloomCorner.Parent = PhosphorBloom
+
+		local HubTitle = Instance.new("TextLabel")
+		HubTitle.Name = "HubTitle"
+		HubTitle.Size = UDim2.new(1, 0, 0, 28)
+		HubTitle.Position = UDim2.new(0, 0, 0, 20)
+		HubTitle.BackgroundTransparency = 1
+		HubTitle.ZIndex = 104
+		HubTitle.Font = Enum.Font.GothamBold
+		HubTitle.Text = titleText
+		HubTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+		HubTitle.TextScaled = true
+		HubTitle.TextTransparency = 1
+		HubTitle.Parent = Container
+
+		local TitleConstraint = Instance.new("UITextSizeConstraint")
+		TitleConstraint.MaxTextSize = 22
+		TitleConstraint.MinTextSize = 14
+		TitleConstraint.Parent = HubTitle
+
+		local Subtitle = Instance.new("TextLabel")
+		Subtitle.Name = "Subtitle"
+		Subtitle.Size = UDim2.new(1, 0, 0, 16)
+		Subtitle.Position = UDim2.new(0, 0, 0, 50)
+		Subtitle.BackgroundTransparency = 1
+		Subtitle.ZIndex = 104
+		Subtitle.Font = Enum.Font.Code
+		Subtitle.Text = subText
+		Subtitle.TextColor3 = Color3.fromRGB(150, 150, 150)
+		Subtitle.TextScaled = true
+		Subtitle.TextTransparency = 1
+		Subtitle.Parent = Container
+
+		local SubConstraint = Instance.new("UITextSizeConstraint")
+		SubConstraint.MaxTextSize = 11
+		SubConstraint.MinTextSize = 8
+		SubConstraint.Parent = Subtitle
+
+		local ConsoleBox = Instance.new("Frame")
+		ConsoleBox.Name = "ConsoleBox"
+		ConsoleBox.AnchorPoint = Vector2.new(0.5, 0)
+		ConsoleBox.Position = UDim2.new(0.5, 0, 0, 80)
+		ConsoleBox.Size = UDim2.new(0.88, 0, 0, 55)
+		ConsoleBox.BackgroundColor3 = Color3.fromRGB(3, 3, 3)
+		ConsoleBox.BackgroundTransparency = 1
+		ConsoleBox.BorderSizePixel = 0
+		ConsoleBox.ZIndex = 104
+		ConsoleBox.Parent = Container
+
+		local ConsoleCorner = Instance.new("UICorner")
+		ConsoleCorner.CornerRadius = UDim.new(0, 8)
+		ConsoleCorner.Parent = ConsoleBox
+
+		local ConsoleStroke = Instance.new("UIStroke")
+		ConsoleStroke.Color = Color3.fromRGB(50, 50, 50)
+		ConsoleStroke.Thickness = 1
+		ConsoleStroke.Transparency = 1
+		ConsoleStroke.Parent = ConsoleBox
+
+		local ConsoleText = Instance.new("TextLabel")
+		ConsoleText.Name = "ConsoleText"
+		ConsoleText.Size = UDim2.new(1, -24, 1, 0)
+		ConsoleText.Position = UDim2.new(0, 12, 0, 0)
+		ConsoleText.BackgroundTransparency = 1
+		ConsoleText.ZIndex = 105
+		ConsoleText.Font = Enum.Font.Code
+		ConsoleText.Text = "> Initializing SpawnRealm neural cores..."
+		ConsoleText.TextColor3 = Color3.fromRGB(240, 240, 240)
+		ConsoleText.TextScaled = true
+		ConsoleText.TextXAlignment = Enum.TextXAlignment.Left
+		ConsoleText.TextTransparency = 1
+		ConsoleText.Parent = ConsoleBox
+
+		local ConsoleTextConstraint = Instance.new("UITextSizeConstraint")
+		ConsoleTextConstraint.MaxTextSize = 11
+		ConsoleTextConstraint.MinTextSize = 9
+		ConsoleTextConstraint.Parent = ConsoleText
+
+		local BarTrack = Instance.new("Frame")
+		BarTrack.Name = "BarTrack"
+		BarTrack.AnchorPoint = Vector2.new(0.5, 0)
+		BarTrack.Position = UDim2.new(0.5, 0, 0, 150)
+		BarTrack.Size = UDim2.new(0.88, 0, 0, 6)
+		BarTrack.BackgroundColor3 = Color3.fromRGB(14, 14, 14)
+		BarTrack.BackgroundTransparency = 1
+		BarTrack.BorderSizePixel = 0
+		BarTrack.ZIndex = 104
+		BarTrack.Parent = Container
+
+		local TrackCorner = Instance.new("UICorner")
+		TrackCorner.CornerRadius = UDim.new(1, 0)
+		TrackCorner.Parent = BarTrack
+
+		local BarFill = Instance.new("Frame")
+		BarFill.Name = "BarFill"
+		BarFill.Size = UDim2.new(0, 0, 1, 0)
+		BarFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		BarFill.BorderSizePixel = 0
+		BarFill.ZIndex = 104
+		BarFill.Parent = BarTrack
+
+		local FillCorner = Instance.new("UICorner")
+		FillCorner.CornerRadius = UDim.new(1, 0)
+		FillCorner.Parent = BarFill
+
+		local BarHeadGlow = Instance.new("Frame")
+		BarHeadGlow.Name = "BarHeadGlow"
+		BarHeadGlow.AnchorPoint = Vector2.new(1, 0.5)
+		BarHeadGlow.Position = UDim2.new(1, 0, 0.5, 0)
+		BarHeadGlow.Size = UDim2.new(0, 14, 0, 14)
+		BarHeadGlow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		BarHeadGlow.BackgroundTransparency = 0.25
+		BarHeadGlow.BorderSizePixel = 0
+		BarHeadGlow.ZIndex = 104
+		BarHeadGlow.Parent = BarFill
+
+		local HeadCorner = Instance.new("UICorner")
+		HeadCorner.CornerRadius = UDim.new(1, 0)
+		HeadCorner.Parent = BarHeadGlow
+
+		local PercentLabel = Instance.new("TextLabel")
+		PercentLabel.Name = "PercentLabel"
+		PercentLabel.Size = UDim2.new(0.5, 0, 0, 18)
+		PercentLabel.Position = UDim2.new(0.06, 0, 0, 168)
+		PercentLabel.BackgroundTransparency = 1
+		PercentLabel.ZIndex = 104
+		PercentLabel.Font = Enum.Font.Code
+		PercentLabel.Text = "0%"
+		PercentLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		PercentLabel.TextSize = 12
+		PercentLabel.TextXAlignment = Enum.TextXAlignment.Left
+		PercentLabel.TextTransparency = 1
+		PercentLabel.Parent = Container
+
+		local StateLabel = Instance.new("TextLabel")
+		StateLabel.Name = "StateLabel"
+		StateLabel.Size = UDim2.new(0.5, 0, 0, 18)
+		StateLabel.Position = UDim2.new(0.44, 0, 0, 168)
+		StateLabel.BackgroundTransparency = 1
+		StateLabel.ZIndex = 104
+		StateLabel.Font = Enum.Font.Code
+		StateLabel.Text = "STANDBY"
+		StateLabel.TextColor3 = Color3.fromRGB(140, 140, 140)
+		StateLabel.TextSize = 11
+		StateLabel.TextXAlignment = Enum.TextXAlignment.Right
+		StateLabel.TextTransparency = 1
+		StateLabel.Parent = Container
 
 		task.spawn(function()
-			while LCardStrokeGrad and LCardStrokeGrad.Parent do
-				TweenService:Create(LCardStrokeGrad, TweenInfo.new(2, Enum.EasingStyle.Linear), {Rotation = LCardStrokeGrad.Rotation + 360}):Play()
-				task.wait(2)
-			end
-		end)
+			local running = true
+			task.spawn(function()
+				local t = 0
+				while running do
+					t = t + RunService.RenderStepped:Wait()
+					local yPos = math.sin(t * 3.2) * 90 + 115
+					SmoothScanner.Position = UDim2.new(0, 0, 0, yPos)
+				end
+			end)
 
-		local LIcon = Instance.new("ImageLabel")
-		LIcon.Size = UDim2.new(0, 32, 0, 32)
-		LIcon.Position = UDim2.new(0.5, -16, 0, 24)
-		LIcon.BackgroundTransparency = 1
-		LIcon.Image = iconId
-		LIcon.ZIndex = 102
-		LIcon.Parent = LoaderCard
+			local introInfo = TweenInfo.new(0.75, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+			TweenService:Create(Container, introInfo, {Position = UDim2.new(0.5, 0, 0.5, 0), BackgroundTransparency = 0.02}):Play()
+			TweenService:Create(OuterStroke, introInfo, {Transparency = 0.12}):Play()
+			TweenService:Create(TopAccent, introInfo, {BackgroundTransparency = 0.5}):Play()
+			TweenService:Create(SmoothScanner, introInfo, {BackgroundTransparency = 0.35}):Play()
+			TweenService:Create(HubTitle, introInfo, {TextTransparency = 0}):Play()
+			TweenService:Create(Subtitle, introInfo, {TextTransparency = 0}):Play()
+			TweenService:Create(ConsoleBox, introInfo, {BackgroundTransparency = 0}):Play()
+			TweenService:Create(ConsoleStroke, introInfo, {Transparency = 0}):Play()
+			TweenService:Create(ConsoleText, introInfo, {TextTransparency = 0}):Play()
+			TweenService:Create(BarTrack, introInfo, {BackgroundTransparency = 0}):Play()
+			TweenService:Create(PercentLabel, introInfo, {TextTransparency = 0}):Play()
+			TweenService:Create(StateLabel, introInfo, {TextTransparency = 0}):Play()
 
-		local LTitle = Instance.new("TextLabel")
-		LTitle.Size = UDim2.new(1, 0, 0, 22)
-		LTitle.Position = UDim2.new(0, 0, 0, 64)
-		LTitle.BackgroundTransparency = 1
-		LTitle.Text = titleText
-		LTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-		LTitle.TextSize = 16
-		LTitle.Font = Enum.Font.GothamBold
-		LTitle.ZIndex = 102
-		LTitle.Parent = LoaderCard
+			task.wait(0.8)
 
-		local LStatus = Instance.new("TextLabel")
-		LStatus.Size = UDim2.new(1, 0, 0, 16)
-		LStatus.Position = UDim2.new(0, 0, 0, 90)
-		LStatus.BackgroundTransparency = 1
-		LStatus.Text = "Initializing Core Environment..."
-		LStatus.TextColor3 = Color3.fromRGB(150, 150, 165)
-		LStatus.TextSize = 10.5
-		LStatus.Font = Enum.Font.GothamMedium
-		LStatus.ZIndex = 102
-		LStatus.Parent = LoaderCard
-
-		local LBarBG = Instance.new("Frame")
-		LBarBG.Size = UDim2.new(0, 310, 0, 8)
-		LBarBG.Position = UDim2.new(0.5, -155, 0, 126)
-		LBarBG.BackgroundColor3 = Color3.fromRGB(25, 25, 32)
-		LBarBG.BorderSizePixel = 0
-		LBarBG.ZIndex = 102
-		LBarBG.Parent = LoaderCard
-
-		local LBarBGCorner = Instance.new("UICorner")
-		LBarBGCorner.CornerRadius = UDim.new(1, 0)
-		LBarBGCorner.Parent = LBarBG
-
-		local LBarFill = Instance.new("Frame")
-		LBarFill.Size = UDim2.new(0, 0, 1, 0)
-		LBarFill.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-		LBarFill.BorderSizePixel = 0
-		LBarFill.ZIndex = 103
-		LBarFill.Parent = LBarBG
-
-		local LBarFillCorner = Instance.new("UICorner")
-		LBarFillCorner.CornerRadius = UDim.new(1, 0)
-		LBarFillCorner.Parent = LBarFill
-
-		local LPercent = Instance.new("TextLabel")
-		LPercent.Size = UDim2.new(1, 0, 0, 16)
-		LPercent.Position = UDim2.new(0, 0, 0, 144)
-		LPercent.BackgroundTransparency = 1
-		LPercent.Text = "0%"
-		LPercent.TextColor3 = Color3.fromRGB(200, 200, 210)
-		LPercent.TextSize = 10
-		LPercent.Font = Enum.Font.GothamBold
-		LPercent.ZIndex = 102
-		LPercent.Parent = LoaderCard
-
-		-- Real Dynamic Loading Execution Sequence
-		task.spawn(function()
-			local steps = {
-				{progress = 0.20, text = "Verifying Workspace & Core Services..."},
-				{progress = 0.45, text = "Pre-caching Asset Buffers & Icons..."},
-				{progress = 0.70, text = "Building Window Frames & UI Layout..."},
-				{progress = 0.90, text = "Syncing Script Hooks & Event Listeners..."},
-				{progress = 1.00, text = "Initialization Complete!"}
+			local BootSequence = {
+				{Progress = 0.20, Text = "> Synchronizing workspace memory registers..."},
+				{Progress = 0.45, Text = "> Mounting SpawnRealm X dependency modules..."},
+				{Progress = 0.75, Text = "> Injecting tactile UI drawing primitives..."},
+				{Progress = 1.00, Text = "> Core fully synchronized. Launching hub."}
 			}
 
-			for _, step in ipairs(steps) do
-				local tween = TweenService:Create(LBarFill, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					Size = UDim2.new(step.progress, 0, 1, 0)
-				})
-				tween:Play()
-				LStatus.Text = step.text
-				LPercent.Text = math.floor(step.progress * 100) .. "%"
-				task.wait(0.35)
+			local currentPercent = 0
+			for _, phase in ipairs(BootSequence) do
+				local targetPercent = math.floor(phase.Progress * 100)
+				ConsoleText.Text = phase.Text
+
+				TweenService:Create(BarFill, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(phase.Progress, 0, 1, 0)}):Play()
+
+				while currentPercent < targetPercent do
+					currentPercent = currentPercent + 1
+					PercentLabel.Text = currentPercent .. "%"
+					task.wait(0.008)
+				end
+				task.wait(0.18)
 			end
 
-			task.wait(0.2)
-			playSound("rbxassetid://122966251252708", soundEnabled, 1.5)
+			StateLabel.Text = "ONLINE"
+			StateLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			task.wait(0.4)
 
-			-- Fade out loading overlay
-			TweenService:Create(LoaderOverlay, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				BackgroundTransparency = 1
-			}):Play()
-			for _, child in pairs(LoaderCard:GetDescendants()) do
-				if child:IsA("GuiObject") then
-					pcall(function()
-						TweenService:Create(child, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-							BackgroundTransparency = 1,
-							TextTransparency = 1,
-							ImageTransparency = 1
-						}):Play()
-					end)
+			running = false
+			local outroInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+
+			for _, obj in ipairs(Container:GetDescendants()) do
+				if obj:IsA("GuiObject") and obj.BackgroundTransparency < 1 then
+					TweenService:Create(obj, outroInfo, {BackgroundTransparency = 1}):Play()
+				end
+				if obj:IsA("TextLabel") then
+					TweenService:Create(obj, outroInfo, {TextTransparency = 1}):Play()
+				end
+				if obj:IsA("UIStroke") then
+					TweenService:Create(obj, outroInfo, {Transparency = 1}):Play()
 				end
 			end
-			TweenService:Create(LCardStroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
-			task.wait(0.4)
-			LoaderOverlay:Destroy()
+
+			TweenService:Create(Container, outroInfo, {BackgroundTransparency = 1}):Play()
+			TweenService:Create(MainFrame, outroInfo, {BackgroundTransparency = 1}):Play()
+			TweenService:Create(AmbientGlow, outroInfo, {ImageTransparency = 1}):Play()
+			TweenService:Create(CRTScanlines, outroInfo, {ImageTransparency = 1}):Play()
+
+			task.wait(0.55)
+			MainFrame:Destroy()
 
 			-- Show and pop main window and top pills
 			Main.Visible = true
